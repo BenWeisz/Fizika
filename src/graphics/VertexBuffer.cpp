@@ -1,4 +1,4 @@
-#include "VertexBuffer.hpp"
+#include "graphics/VertexBuffer.hpp"
 
 VertexBuffer::VertexBuffer(const std::vector<GLfloat>& data) {
     // Acquire resource handle for vertex buffer object

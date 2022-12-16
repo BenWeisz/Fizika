@@ -1,4 +1,4 @@
-#include "Shader.hpp"
+#include "graphics/Shader.hpp"
 
 Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath) {
     std::string vertexSource = Shader::ReadSource(vertexPath);

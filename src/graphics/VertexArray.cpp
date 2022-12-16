@@ -1,4 +1,4 @@
-#include "VertexArray.hpp"
+#include "graphics/VertexArray.hpp"
 
 VertexArray::VertexArray(const VertexBuffer& buffer, const VertexBufferLayout& layout) {
     // Acquire resource handle for this vertex array object

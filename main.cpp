@@ -3,10 +3,10 @@
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
-#include "Shader.hpp"
-#include "VertexBuffer.hpp"
-#include "VertexBufferLayout.hpp"
-#include "VertexArray.hpp"
+#include "graphics/Shader.hpp"
+#include "graphics/VertexBuffer.hpp"
+#include "graphics/VertexBufferLayout.hpp"
+#include "graphics/VertexArray.hpp"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -54,11 +54,7 @@ int main() {
             0.0f, 0.5f, 0.5f, -0.5f, -0.5f, -0.5f
         };
         VertexBuffer buffer(data);
-
         VertexArray vao(buffer, layout);
-
-        // std::vector<GLfloat> data = {1.0f, 2.0f, 3.0f};
-        // VertexBuffer* a = new VertexBuffer(data);
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window)) {

@@ -21,10 +21,10 @@ target_link_libraries(Fizika glfw ${OPENGL_opengl_LIBRARY})
 target_link_libraries(Fizika glfw ${OPENGL_glx_LIBRARY})
 
 target_sources(Fizika PUBLIC
-    src/Shader.cpp
-    src/VertexBuffer.cpp
-    src/VertexArray.cpp
-    src/VertexBufferLayout.cpp
+    src/graphics/Shader.cpp
+    src/graphics/VertexBuffer.cpp
+    src/graphics/VertexArray.cpp
+    src/graphics/VertexBufferLayout.cpp
     ${VENDOR_DIR}/glad-core-4.5/src/glad.c
 )
 
