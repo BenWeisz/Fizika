@@ -34,6 +34,26 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath) {
         glGetProgramInfoLog(mID, 1024, NULL, message);
         std::cout << "Error: Failed to link shader" << std::endl;
     }
+
+    glDeleteShader((GLuint)vertexShaderID);    
+    glDeleteShader((GLuint)fragmentShaderID);
+}
+
+Shader::~Shader() {
+    glDeleteProgram(mID);
+}
+
+void Shader::Bind() const {
+    glUseProgram(mID);
+}
+
+void Shader::Unbind() const {
+    glUseProgram(0);
+}
+
+GLint Shader::GetAttribLocation(const std::string& name) const {
+    const char* cName = name.c_str();
+    return glGetAttribLocation(mID, cName);
 }
 
 GLint Shader::CompileShader(const std::string& source, GLuint type) {
@@ -56,7 +76,7 @@ GLint Shader::CompileShader(const std::string& source, GLuint type) {
     if (!compilationStatus) {
         GLchar message[1024];
         glGetShaderInfoLog(shaderID, 1024, NULL, message);
-        std::cout << "ERROR: Failed to compile glsl source for " << typeStr;
+        std::cout << "ERROR: Failed to compile glsl source for " << typeStr << ":\n" << message << std::endl;
         return -1;
     }
 

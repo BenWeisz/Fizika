@@ -2,6 +2,6 @@
 
 out vec4 oFragColor;
 
-int main() {
+void main() {
     oFragColor = vec4(1.0, 0.0, 0.0, 0.0);
 }

@@ -9,6 +9,10 @@
 class Shader {
     public:
         Shader(const std::string& vertexPath, const std::string& fragmentPath);
+        ~Shader();
+        void Bind() const;
+        void Unbind() const;
+        GLint GetAttribLocation(const std::string& name) const;
     private:
         GLuint mID;
         static std::string ReadSource(const std::string& path) {
