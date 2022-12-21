@@ -16,6 +16,7 @@ find_package(glfw3 3.3 REQUIRED)
 target_include_directories(Fizika PUBLIC include)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/glad-core-4.5/include)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/tinyxml/include)
+target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/glm)
 
 target_link_libraries(Fizika glfw ${OPENGL_opengl_LIBRARY})
 target_link_libraries(Fizika glfw ${OPENGL_glx_LIBRARY})

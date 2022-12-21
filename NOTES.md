@@ -11,6 +11,9 @@
 -   Want mesh factory for simple shapes
 -   Want simple environment lighting
 -   Want built in suite of basic shaders
+-   Want window class to encapsulate glad / glfw
+    -   Need to have control to add key events
+    -   Want this to control imgui set up
 
 ### Implementation
 -   Model: class holding array of:
@@ -21,13 +24,13 @@
     -   Also holds info on primitive type
     -   has function to regenerate vao, vbo. only to be called if material changes
 -   Material
-    -   Holds shader reference
-    -   names and values of uniforms
-    -   functions to set uniforms
-    -   the vertex layout
-    -   Functions to get layout
-    -   Functions to bind, unbind
-    -   Function to get shader
+    -   [x] Holds shader reference 
+    -   [x] names and values of uniforms
+    -   [ ] functions to set uniforms
+    -   [x] the vertex layout
+    -   [x] Functions to get layout
+    -   [x] Functions to bind, unbind
+    -   [x] Function to get shader
 -   Renderer
     -   Since model is just data, render is responsible for complete render
 

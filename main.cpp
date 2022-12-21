@@ -50,6 +50,10 @@ int main() {
     {
         Material mat("../res/base.mat");
         std::shared_ptr<Shader> shader = mat.GetShader();
+        shader->Bind();
+        shader->SetUniformVec3("uColour", glm::vec3(.3f, .1f, 1.0f));
+        shader->Unbind();
+
         std::shared_ptr<VertexBufferLayout> layout = mat.GetVertexBufferLayout();
 
         std::vector<GLfloat> data = {

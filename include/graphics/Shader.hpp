@@ -5,7 +5,9 @@
 #include <string>
 #include <unordered_map>
 
-#include "glad/glad.h"
+#include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 class Shader {
     public:
@@ -15,6 +17,7 @@ class Shader {
         void Bind() const;
         void Unbind() const;
         GLint GetAttribLocation(const std::string& name) const;
+        void SetUniformVec3(const std::string& name, const glm::vec3& value);
     private:
         GLuint mID;
         std::unordered_map<std::string, GLint> mUniformCache;

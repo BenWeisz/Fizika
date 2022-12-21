@@ -95,3 +95,8 @@ GLint Shader::CompileShader(const std::string& source, GLuint type) {
 
     return (GLint)shaderID;
 }
+
+void Shader::SetUniformVec3(const std::string& name, const glm::vec3& value) {
+    GLint location = GetUniformLocation(name);
+    glUniform3fv(location, 1, glm::value_ptr(value));
+}
