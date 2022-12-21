@@ -3,11 +3,13 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <unordered_map>
 
 #include "glad/glad.h"
 
 class Shader {
     public:
+        Shader() = default;
         Shader(const std::string& vertexPath, const std::string& fragmentPath);
         ~Shader();
         void Bind() const;
@@ -15,6 +17,7 @@ class Shader {
         GLint GetAttribLocation(const std::string& name) const;
     private:
         GLuint mID;
+        std::unordered_map<std::string, GLint> mUniformCache;
         static std::string ReadSource(const std::string& path) {
             std::ifstream file(path.c_str(), std::ifstream::in);
             
@@ -37,4 +40,5 @@ class Shader {
             return file_str;
         }
         GLint CompileShader(const std::string& source, GLuint type);
+        GLint GetUniformLocation(const std::string& name);
 };

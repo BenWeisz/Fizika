@@ -25,6 +25,9 @@
     -   names and values of uniforms
     -   functions to set uniforms
     -   the vertex layout
+    -   Functions to get layout
+    -   Functions to bind, unbind
+    -   Function to get shader
 -   Renderer
     -   Since model is just data, render is responsible for complete render
 

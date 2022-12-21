@@ -56,6 +56,19 @@ GLint Shader::GetAttribLocation(const std::string& name) const {
     return glGetAttribLocation(mID, cName);
 }
 
+GLint Shader::GetUniformLocation(const std::string& name) {
+    auto locationPair = mUniformCache.find(name);
+    if (locationPair == mUniformCache.end()) {
+        const char* cName = name.c_str();
+        GLint location = glGetUniformLocation(mID, cName);
+        mUniformCache.emplace(name, location);
+
+        return location;
+    }
+    
+    return locationPair->second;
+}
+
 GLint Shader::CompileShader(const std::string& source, GLuint type) {
     // Create a resource handle
     GLuint shaderID = glCreateShader(type);

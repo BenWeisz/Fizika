@@ -1,4 +1,5 @@
 #include <vector>
+#include <memory>
 
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
@@ -7,6 +8,7 @@
 #include "graphics/VertexBuffer.hpp"
 #include "graphics/VertexBufferLayout.hpp"
 #include "graphics/VertexArray.hpp"
+#include "graphics/Material.hpp"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -46,7 +48,8 @@ int main() {
     }    
 
     {
-        Shader shader("../res/base.vert", "../res/base.frag");
+        Material mat("../res/base.mat");
+        std::shared_ptr<Shader> shader = mat.GetShader();
         VertexBufferLayout layout(shader);
         layout.AddLayoutElement("iPosition", 2);
 
@@ -56,19 +59,20 @@ int main() {
         VertexBuffer buffer(data);
         VertexArray vao(buffer, layout);
 
+
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window)) {
             /* Render here */
             glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            shader.Bind();
+            shader->Bind();
             vao.Bind();
 
             glDrawArrays(GL_TRIANGLES, 0, 3);
 
             vao.Unbind();
-            shader.Unbind();
+            shader->Unbind();
 
             /* Swap front and back buffers */
             glfwSwapBuffers(window);

@@ -1,9 +1,9 @@
 #include "graphics/VertexBufferLayout.hpp"
 
-VertexBufferLayout::VertexBufferLayout(const Shader &shader) : mShader(shader) {}
+VertexBufferLayout::VertexBufferLayout(std::shared_ptr<Shader> shader) : mShader(shader) {}
 
 void VertexBufferLayout::AddLayoutElement(const std::string &attribName, GLint attribSize) {
-    GLint attribLocation = mShader.GetAttribLocation(attribName);
+    GLint attribLocation = mShader->GetAttribLocation(attribName);
 
     LayoutElement element;
     element.attribLocation = attribLocation;
