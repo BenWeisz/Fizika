@@ -50,8 +50,7 @@ int main() {
     {
         Material mat("../res/base.mat");
         std::shared_ptr<Shader> shader = mat.GetShader();
-        VertexBufferLayout layout(shader);
-        layout.AddLayoutElement("iPosition", 2);
+        std::shared_ptr<VertexBufferLayout> layout = mat.GetVertexBufferLayout();
 
         std::vector<GLfloat> data = {
             0.0f, 0.5f, 0.5f, -0.5f, -0.5f, -0.5f

@@ -14,9 +14,10 @@ class Material {
     public:
         Material(const std::string& path);
         std::shared_ptr<Shader> GetShader() const;
+        std::shared_ptr<VertexBufferLayout> GetVertexBufferLayout() const;
     private:
         std::shared_ptr<Shader> mShader;
-        // VertexBufferLayout mLayout;
+        std::shared_ptr<VertexBufferLayout> mLayout;
         static std::string SafeXMLAttribute(const std::string& name, tinyxml2::XMLElement* element) {
             const char* attribStr = element->Attribute(name.c_str());
             if (attribStr == 0) {

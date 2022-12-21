@@ -40,23 +40,37 @@ Material::Material(const std::string& path) {
     mShader = std::make_shared<Shader>(vertexShaderPath, fragmentShaderPath);
 
     // // Load the layout
-    
+    mLayout = std::make_shared<VertexBufferLayout>(mShader);
 
-    // tinyxml2::XMLElement* bufferLayoutNode = rootNode->FirstChildElement("BufferLayout");
-    // tinyxml2::XMLElement* layoutElementNode = bufferLayoutNode->FirstChildElement("LayoutElement");
-    // while (layoutElementNode != 0) {
-    //     const char* nameStr = SafeXMLAttribute("name", layoutElementNode);
-    //     const char* attribSizeStr = SafeXMLAttribute("attribSize", layoutElementNode);
+    tinyxml2::XMLElement* vertexBufferLayoutNode = rootNode->FirstChildElement("VertexBufferLayout");
+    tinyxml2::XMLElement* layoutElementNode = vertexBufferLayoutNode->FirstChildElement("LayoutElement");
+    while (layoutElementNode != 0) {
+        std::string nameStr = SafeXMLAttribute("name", layoutElementNode);
+        std::string attribSizeStr = SafeXMLAttribute("attribSize", layoutElementNode);
 
+        int attribSize;
+        try {
+            attribSize = std::stoi(attribSizeStr);
+        } catch(std::invalid_argument const& ex) {
+            std::cout << "ERROR: Material File: attribSize is not a number" << ex.what() << '\n';
+            std::exit(1);
+        }
 
+        if (attribSize < 1 || attribSize > 4) {
+            std::cout << "ERROR: attribSize must be between 1 and 4" << std::endl;
+            std::exit(1);
+        }
 
-    //     layoutElementNode = layoutElementNode->NextSiblingElement();
-    // }
+        mLayout->AddLayoutElement(nameStr, attribSize);
 
-    // std::cout << bufferLayoutNode->Name() << std::endl;
-
+        layoutElementNode = layoutElementNode->NextSiblingElement();
+    }
 }
 
 std::shared_ptr<Shader> Material::GetShader() const {
     return mShader;
+}
+
+std::shared_ptr<VertexBufferLayout> Material::GetVertexBufferLayout() const {
+    return mLayout;
 }
