@@ -23,6 +23,7 @@
     -   initially only holds the only the data you need for the geometry
     -   Also holds info on primitive type
     -   has function to regenerate vao, vbo. only to be called if material changes
+    -   [ ] Function to read obj files for mesh, lines, points
 -   Material
     -   [x] Holds shader reference 
     -   [x] names and values of uniforms
@@ -31,6 +32,8 @@
     -   [x] Functions to get layout
     -   [x] Functions to bind, unbind
     -   [x] Function to get shader
+-   VertexBufferLayout
+    -   [ ] Get vertex size function so that we can check the data size of the vertex and compare it to the layout before even attempting to draw a model
 -   Renderer
     -   Since model is just data, render is responsible for complete render
 
@@ -45,3 +48,7 @@
     -   This is useful if the simulation is really slow
 -   Should be able to draw from an input handler for object controls
 
+/// New Plan
+- Have a mesh class that only holds and loads the raw data for a mesh
+- Have a model class hold a reference to the shader, it gets from the outside
+    -   Should create and hold the vao, vbo and the vertex layout

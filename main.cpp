@@ -9,6 +9,7 @@
 #include "graphics/VertexBufferLayout.hpp"
 #include "graphics/VertexArray.hpp"
 #include "graphics/Material.hpp"
+#include "graphics/Mesh.hpp"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -51,7 +52,7 @@ int main() {
         Material mat("../res/base.mat");
         std::shared_ptr<Shader> shader = mat.GetShader();
         shader->Bind();
-        shader->SetUniformVec3("uColour", glm::vec3(.3f, .1f, 1.0f));
+        shader->SetUniformVec3("uColour", glm::vec3(0, .5f, 0));
         shader->Unbind();
 
         std::shared_ptr<VertexBufferLayout> layout = mat.GetVertexBufferLayout();
@@ -61,7 +62,6 @@ int main() {
         };
         VertexBuffer buffer(data);
         VertexArray vao(buffer, layout);
-
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window)) {
