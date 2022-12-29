@@ -8,7 +8,7 @@ void VertexBufferLayout::AddLayoutElement(const std::string &attribName, GLint a
     LayoutElement element;
     element.attribLocation = attribLocation;
     element.attribSize = attribSize;
-    
+
     mLayoutElements.push_back(element);
 }
 

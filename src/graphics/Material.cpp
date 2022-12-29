@@ -14,7 +14,7 @@ Material::Material(const std::string& path) {
 
     // Set up the root node
     tinyxml2::XMLElement* rootNode = doc.RootElement();
-    
+
     // Load the shader
     tinyxml2::XMLElement* shaderNode = rootNode->FirstChildElement("Shader");
     tinyxml2::XMLElement* sourcesNode = shaderNode->FirstChildElement("Sources");
@@ -23,7 +23,8 @@ Material::Material(const std::string& path) {
     std::string fragmentShaderPath = "";
 
     // Read the paths to the shader sources
-    tinyxml2::XMLElement* sourceNode = sourcesNode->FirstChildElement("ShaderSource"); ;
+    tinyxml2::XMLElement* sourceNode = sourcesNode->FirstChildElement("ShaderSource");
+    ;
     while (sourceNode != 0 && (vertexShaderPath == "" || fragmentShaderPath == "")) {
         std::string type = Material::SafeXMLAttribute("type", sourceNode);
 
@@ -51,7 +52,7 @@ Material::Material(const std::string& path) {
         int attribSize;
         try {
             attribSize = std::stoi(attribSizeStr);
-        } catch(std::invalid_argument const& ex) {
+        } catch (std::invalid_argument const& ex) {
             std::cout << "ERROR: Material File: attribSize is not a number" << ex.what() << '\n';
             std::exit(1);
         }

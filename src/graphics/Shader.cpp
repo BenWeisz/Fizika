@@ -5,9 +5,9 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath) {
     std::string fragmentSource = Shader::ReadSource(fragmentPath);
 
     if (vertexSource == "" || fragmentSource == "") {
-        std::cout << "ERROR: Failed to acquire both sources for shader" << std::endl;
+        std::cout << "ERROR: Failed to read both sources for shader" << std::endl;
         return;
-    }    
+    }
 
     // Compile the separate shader sources
     GLint vertexShaderID = CompileShader(vertexSource, GL_VERTEX_SHADER);
@@ -35,7 +35,7 @@ Shader::Shader(const std::string& vertexPath, const std::string& fragmentPath) {
         std::cout << "Error: Failed to link shader" << std::endl;
     }
 
-    glDeleteShader((GLuint)vertexShaderID);    
+    glDeleteShader((GLuint)vertexShaderID);
     glDeleteShader((GLuint)fragmentShaderID);
 }
 
@@ -52,21 +52,15 @@ void Shader::Unbind() const {
 }
 
 GLint Shader::GetAttribLocation(const std::string& name) const {
-    const char* cName = name.c_str();
-    return glGetAttribLocation(mID, cName);
+    return glGetAttribLocation(mID, name.c_str());
 }
 
-GLint Shader::GetUniformLocation(const std::string& name) {
-    auto locationPair = mUniformCache.find(name);
-    if (locationPair == mUniformCache.end()) {
-        const char* cName = name.c_str();
-        GLint location = glGetUniformLocation(mID, cName);
-        mUniformCache.emplace(name, location);
+void Shader::SetUniformVec3(const std::string& name, const glm::vec3& value) {
+    GLint location = GetUniformLocation(name);
+    glUniform3fv(location, 1, glm::value_ptr(value));
+}
 
-        return location;
-    }
-    
-    return locationPair->second;
+void Shader::SetUniformMat4(const std::string& name, const glm::mat4& value) {
 }
 
 GLint Shader::CompileShader(const std::string& source, GLuint type) {
@@ -89,14 +83,22 @@ GLint Shader::CompileShader(const std::string& source, GLuint type) {
     if (!compilationStatus) {
         GLchar message[1024];
         glGetShaderInfoLog(shaderID, 1024, NULL, message);
-        std::cout << "ERROR: Failed to compile glsl source for " << typeStr << ":\n" << message << std::endl;
+        std::cout << "ERROR: Failed to compile glsl source for " << typeStr << ":\n"
+                  << message << std::endl;
         return -1;
     }
 
     return (GLint)shaderID;
 }
 
-void Shader::SetUniformVec3(const std::string& name, const glm::vec3& value) {
-    GLint location = GetUniformLocation(name);
-    glUniform3fv(location, 1, glm::value_ptr(value));
+GLint Shader::GetUniformLocation(const std::string& name) {
+    auto locationPair = mUniformCache.find(name);
+    if (locationPair == mUniformCache.end()) {
+        GLint location = glGetUniformLocation(mID, name.c_str());
+        mUniformCache.emplace(name, location);
+
+        return location;
+    }
+
+    return locationPair->second;
 }

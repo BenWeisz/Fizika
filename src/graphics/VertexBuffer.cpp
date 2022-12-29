@@ -7,7 +7,7 @@ VertexBuffer::VertexBuffer(const std::vector<GLfloat>& data) {
     // Bind this array buffer to the array buffer state
     Bind();
 
-    // Allocate space for the buffer   
+    // Allocate space for the buffer
     mSize = sizeof(GLfloat) * data.size();
     glBufferData(GL_ARRAY_BUFFER, mSize, 0, GL_DYNAMIC_DRAW);
 

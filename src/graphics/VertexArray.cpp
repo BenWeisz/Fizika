@@ -22,7 +22,7 @@ VertexArray::VertexArray(const VertexBuffer& buffer, std::shared_ptr<VertexBuffe
 
         // Enable the attribute
         glEnableVertexAttribArray(element.attribLocation);
-        
+
         // Specify offsets
         glVertexAttribPointer(element.attribLocation, element.attribSize, GL_FLOAT, GL_FALSE, stride, (GLvoid*)0);
     }

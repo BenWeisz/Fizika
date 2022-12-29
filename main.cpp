@@ -1,15 +1,15 @@
-#include <vector>
-#include <memory>
-
-#include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
-#include "graphics/Shader.hpp"
-#include "graphics/VertexBuffer.hpp"
-#include "graphics/VertexBufferLayout.hpp"
-#include "graphics/VertexArray.hpp"
+#include <memory>
+#include <vector>
+
+#include "glad/glad.h"
 #include "graphics/Material.hpp"
 #include "graphics/Mesh.hpp"
+#include "graphics/Shader.hpp"
+#include "graphics/VertexArray.hpp"
+#include "graphics/VertexBuffer.hpp"
+#include "graphics/VertexBufferLayout.hpp"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
@@ -42,11 +42,10 @@ int main() {
 
     /* glad: load all OpenGL function pointers */
     // ---------------------------------------
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cout << "Failed to initialize GLAD" << std::endl;
         return -1;
-    }    
+    }
 
     {
         Material mat("../res/base.mat");
@@ -58,8 +57,7 @@ int main() {
         std::shared_ptr<VertexBufferLayout> layout = mat.GetVertexBufferLayout();
 
         std::vector<GLfloat> data = {
-            0.0f, 0.5f, 0.5f, -0.5f, -0.5f, -0.5f
-        };
+            0.0f, 0.5f, 0.5f, -0.5f, -0.5f, -0.5f};
         VertexBuffer buffer(data);
         VertexArray vao(buffer, layout);
 
