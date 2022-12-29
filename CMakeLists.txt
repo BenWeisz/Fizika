@@ -12,6 +12,7 @@ set(IS_DEBUG_BUILD CMAKE_BUILD_TYPE STREQUAL "Debug")
 add_executable(Fizika main.cpp)
 
 find_package(glfw3 3.3 REQUIRED)
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
 target_include_directories(Fizika PUBLIC include)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/glad-core-4.5/include)
@@ -20,6 +21,7 @@ target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/glm)
 
 target_link_libraries(Fizika glfw ${OPENGL_opengl_LIBRARY})
 target_link_libraries(Fizika glfw ${OPENGL_glx_LIBRARY})
+target_link_libraries(Fizika Eigen3::Eigen)
 
 target_sources(Fizika PUBLIC
     src/graphics/Shader.cpp
@@ -27,6 +29,7 @@ target_sources(Fizika PUBLIC
     src/graphics/VertexArray.cpp
     src/graphics/VertexBufferLayout.cpp
     src/graphics/Material.cpp
+    src/graphics/Mesh.cpp
     ${VENDOR_DIR}/glad-core-4.5/src/glad.c
     ${VENDOR_DIR}/tinyxml/src/tinyxml2.cpp
 )

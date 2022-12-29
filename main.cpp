@@ -1,9 +1,10 @@
-#include <GLFW/glfw3.h>
 
 #include <memory>
 #include <vector>
 
 #include "glad/glad.h"
+#include <GLFW/glfw3.h>
+
 #include "graphics/Material.hpp"
 #include "graphics/Mesh.hpp"
 #include "graphics/Shader.hpp"
@@ -60,6 +61,9 @@ int main() {
             0.0f, 0.5f, 0.5f, -0.5f, -0.5f, -0.5f};
         VertexBuffer buffer(data);
         VertexArray vao(buffer, layout);
+
+        Mesh m(Mesh::Geometry::LINE);
+        m.LoadFromFile("../res/models/triangle.obj");
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window)) {
