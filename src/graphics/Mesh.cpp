@@ -1,33 +1,84 @@
 #include "../include/graphics/Mesh.hpp"
 
 Mesh::Mesh(const std::string& path, const LoadOptions loadOptions) : mLoadOptions((LoadOptions)(LoadOptions::POSITIONS | loadOptions)) {
+    // TODO !
 }
 
 Mesh::Mesh(const Geometry geometry) : mLoadOptions(LoadOptions::POSITIONS) {
+    // TODO !
 }
 
 Mesh::Mesh(const Geometry geometry, const LoadOptions loadOptions) : mLoadOptions((LoadOptions)(LoadOptions::POSITIONS | loadOptions)) {
+    // TODO !
 }
 
 Mesh::~Mesh() {
+    delete mVertexArray;
+    delete mVertexBuffer;
 }
 
 void Mesh::Bind() const {
+    mVertexArray->Bind();
 }
 
 void Mesh::Unbind() const {
+    mVertexArray->Unbind();
+}
+
+// Update the buffer based on the changes to the the
+// positions, normals and uvs
+void Mesh::Update() {
+    if (mLoadOptions & LoadOptions::POSITIONS) {
+    }
 }
 
 VertexBuffer* Mesh::GetVertexBuffer() {
+    return mVertexBuffer;
 }
 
 VertexArray* Mesh::GetVertexArray() {
+    return mVertexArray;
 }
 
 void Mesh::ChangePresentation(const Presentation presentation) {
+    // Change how we render this mesh's data
+    mPresentation = presentation;
 }
 
 void Mesh::InitMesh(const std::string& path) {
+    // Load the mesh from file
+    LoadFromFile(path);
+
+    // Load the vertex data into the vertex buffer
+    std::vector<GLfloat> bufferData;
+    for (int i = 0; i < mPositions.rows(); i++) {
+        if (mLoadOptions & LoadOptions::POSITIONS) {
+            bufferData.push_back((GLfloat)mPositions(i, 0));
+            bufferData.push_back((GLfloat)mPositions(i, 1));
+            bufferData.push_back((GLfloat)mPositions(i, 2));
+        } else if (mLoadOptions & LoadOptions::NORMALS) {
+            bufferData.push_back((GLfloat)mNormals(i, 0));
+            bufferData.push_back((GLfloat)mNormals(i, 1));
+            bufferData.push_back((GLfloat)mNormals(i, 2));
+        } else if (mLoadOptions & LoadOptions::TEXTURES) {
+            bufferData.push_back((GLfloat)mTextureUVs(i, 0));
+            bufferData.push_back((GLfloat)mTextureUVs(i, 1));
+        }
+    }
+
+    mVertexBuffer = new VertexBuffer(bufferData);
+
+    // Load the mesh topology into the index buffer
+    std::vector<GLuint>
+        indices;
+    for (int iPrimitive = 0; iPrimitive < mPrimitives.rows(); iPrimitive++)
+        for (int dim = 0; dim < mPrimitives.cols(); dim++)
+            indices.push_back((GLuint)mPrimitives(iPrimitive, dim));
+
+    mIndexBuffer = new IndexBuffer(indices);
+
+    // Create the texture
+    mVertexArray = new VertexArray();
 }
 
 // Operates on a dumbed down version of .obj where the
@@ -98,7 +149,7 @@ void Mesh::LoadFromFile(const std::string& path) {
 
     // Set up the matrices for data loading
     mPositions = Eigen::MatrixXd::Zero(numPositions, 3);
-    mTexturesUVs = Eigen::MatrixXd::Zero(numTextureUVs, 2);
+    mTextureUVs = Eigen::MatrixXd::Zero(numTextureUVs, 2);
     mNormals = Eigen::MatrixXd::Zero(numNormals, 3);
 
     mPrimitives = Eigen::MatrixXi::Zero(numPrimitives, primitiveDegree);
@@ -129,8 +180,8 @@ void Mesh::LoadFromFile(const std::string& path) {
         else if (token == "vt" && (mLoadOptions & Mesh::LoadOptions::TEXTURES)) {
             double vt1, vt2;
             buffer >> vt1 >> vt2;
-            mTexturesUVs(iTextureUV, 0) = vt1;
-            mTexturesUVs(iTextureUV, 1) = vt2;
+            mTextureUVs(iTextureUV, 0) = vt1;
+            mTextureUVs(iTextureUV, 1) = vt2;
 
             iTextureUV++;
             buffer >> token;

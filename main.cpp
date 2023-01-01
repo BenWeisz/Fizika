@@ -1,5 +1,3 @@
-
-#include <memory>
 #include <vector>
 
 #include "glad/glad.h"
@@ -10,6 +8,7 @@
 #include "graphics/Shader.hpp"
 #include "graphics/VertexArray.hpp"
 #include "graphics/VertexBuffer.hpp"
+#include "graphics/IndexBuffer.hpp"
 #include "graphics/VertexBufferLayout.hpp"
 
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -50,20 +49,26 @@ int main() {
 
     {
         Material mat("../res/base.mat");
-        std::shared_ptr<Shader> shader = mat.GetShader();
+        Shader* shader = mat.GetShader();
         shader->Bind();
         shader->SetUniformVec3("uColour", glm::vec3(0, .5f, 0));
         shader->Unbind();
 
-        std::shared_ptr<VertexBufferLayout> layout = mat.GetVertexBufferLayout();
+        VertexBufferLayout* layout = mat.GetVertexBufferLayout();
 
         std::vector<GLfloat> data = {
             0.0f, 0.5f, 0.5f, -0.5f, -0.5f, -0.5f};
         VertexBuffer buffer(data);
-        VertexArray vao(buffer, layout);
 
-        Mesh m(Mesh::Geometry::LINE);
-        m.LoadFromFile("../res/models/triangle.obj");
+        std::vector<GLuint> indexData = {
+            0, 1, 2};
+        IndexBuffer indexBuffer(indexData);
+
+        VertexArray vao;
+        vao.Bundle(&buffer, &indexBuffer, layout, shader);
+
+        // Mesh m(Mesh::Geometry::LINE);
+        // m.LoadFromFile("../res/models/triangle.obj");
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window)) {
@@ -74,7 +79,8 @@ int main() {
             shader->Bind();
             vao.Bind();
 
-            glDrawArrays(GL_TRIANGLES, 0, 3);
+            // glDrawArrays(GL_TRIANGLES, 0, 3);
+            glDrawElements(GL_TRIANGLES, indexData.size(), GL_UNSIGNED_INT, (void*)0);
 
             vao.Unbind();
             shader->Unbind();

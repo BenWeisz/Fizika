@@ -12,12 +12,17 @@
 class Material {
    public:
     Material(const std::string& path);
-    std::shared_ptr<Shader> GetShader() const;
-    std::shared_ptr<VertexBufferLayout> GetVertexBufferLayout() const;
+    ~Material();
+    void Bind() const;
+    void Unbind() const;
+    Shader* GetShader() const;
+    VertexBufferLayout* GetVertexBufferLayout() const;
+    void SetUniformVec3(const std::string& name, const glm::vec3& value);
+    void SetUniformMat4(const std::string& name, const glm::mat4& value);
 
    private:
-    std::shared_ptr<Shader> mShader;
-    std::shared_ptr<VertexBufferLayout> mLayout;
+    Shader* mShader;
+    VertexBufferLayout* mLayout;
     static std::string SafeXMLAttribute(const std::string& name, tinyxml2::XMLElement* element) {
         const char* attribStr = element->Attribute(name.c_str());
         if (attribStr == 0) {

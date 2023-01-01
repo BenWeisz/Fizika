@@ -1,11 +1,18 @@
 #include "graphics/VertexArray.hpp"
 
-VertexArray::VertexArray(const VertexBuffer& buffer, std::shared_ptr<VertexBufferLayout> layout) {
-    // Acquire resource handle for this vertex array object
+VertexArray::VertexArray() {
     glGenVertexArrays(1, &mID);
+}
 
+VertexArray::~VertexArray() {
+    // Restore the resource handle to the state machine
+    glDeleteVertexArrays(1, &mID);
+}
+
+void VertexArray::Bundle(VertexBuffer* buffer, IndexBuffer* indexBuffer, VertexBufferLayout* layout, Shader* shader) {
     Bind();
-    buffer.Bind();
+    buffer->Bind();
+    indexBuffer->Bind();
 
     int numLayoutElements = layout->GetNumLayoutElements();
 
@@ -19,21 +26,22 @@ VertexArray::VertexArray(const VertexBuffer& buffer, std::shared_ptr<VertexBuffe
     // Enable the attributes in the layout
     for (int i = 0; i < layout->GetNumLayoutElements(); i++) {
         LayoutElement element = layout->GetLayoutElement(i);
+        GLint attribLocation = shader->GetAttribLocation(element.attribName);
+        if (attribLocation == -1) {
+            std::cout << "ERROR: Could not locate " << element.attribName << " in shader" << std::endl;
+            return;
+        }
 
         // Enable the attribute
-        glEnableVertexAttribArray(element.attribLocation);
+        glEnableVertexAttribArray((GLuint)attribLocation);
 
         // Specify offsets
-        glVertexAttribPointer(element.attribLocation, element.attribSize, GL_FLOAT, GL_FALSE, stride, (GLvoid*)0);
+        glVertexAttribPointer((GLuint)attribLocation, element.attribSize, GL_FLOAT, GL_FALSE, stride, (GLvoid*)0);
     }
 
-    buffer.Unbind();
     Unbind();
-}
-
-VertexArray::~VertexArray() {
-    // Restore the resource handle to the state machine
-    glDeleteVertexArrays(1, &mID);
+    buffer->Unbind();
+    indexBuffer->Unbind();
 }
 
 void VertexArray::Bind() const {

@@ -1,15 +1,15 @@
 #pragma once
 
-#include <memory>
-
-#include "VertexBuffer.hpp"
-#include "VertexBufferLayout.hpp"
 #include "glad/glad.h"
+#include "VertexBuffer.hpp"
+#include "IndexBuffer.hpp"
+#include "VertexBufferLayout.hpp"
 
 class VertexArray {
    public:
-    VertexArray(const VertexBuffer& buffer, std::shared_ptr<VertexBufferLayout> layout);
+    VertexArray();
     ~VertexArray();
+    void Bundle(VertexBuffer* vertexBuffer, IndexBuffer* indexBuffer, VertexBufferLayout* layout, Shader* shader);
     void Bind() const;
     void Unbind() const;
 

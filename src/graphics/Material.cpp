@@ -38,10 +38,10 @@ Material::Material(const std::string& path) {
     }
 
     // Set up the shader for the material
-    mShader = std::make_shared<Shader>(vertexShaderPath, fragmentShaderPath);
+    mShader = new Shader(vertexShaderPath, fragmentShaderPath);
 
     // // Load the layout
-    mLayout = std::make_shared<VertexBufferLayout>(mShader);
+    mLayout = new VertexBufferLayout();
 
     tinyxml2::XMLElement* vertexBufferLayoutNode = rootNode->FirstChildElement("VertexBufferLayout");
     tinyxml2::XMLElement* layoutElementNode = vertexBufferLayoutNode->FirstChildElement("LayoutElement");
@@ -68,10 +68,31 @@ Material::Material(const std::string& path) {
     }
 }
 
-std::shared_ptr<Shader> Material::GetShader() const {
+Material::~Material() {
+    delete mShader;
+    delete mLayout;
+}
+
+void Material::Bind() const {
+    mShader->Bind();
+}
+
+void Material::Unbind() const {
+    mShader->Unbind();
+}
+
+Shader* Material::GetShader() const {
     return mShader;
 }
 
-std::shared_ptr<VertexBufferLayout> Material::GetVertexBufferLayout() const {
+VertexBufferLayout* Material::GetVertexBufferLayout() const {
     return mLayout;
+}
+
+void Material::SetUniformVec3(const std::string& name, const glm::vec3& value) {
+    mShader->SetUniformVec3(name, value);
+}
+
+void Material::SetUniformMat4(const std::string& name, const glm::mat4& value) {
+    mShader->SetUniformMat4(name, value);
 }

@@ -61,6 +61,8 @@ void Shader::SetUniformVec3(const std::string& name, const glm::vec3& value) {
 }
 
 void Shader::SetUniformMat4(const std::string& name, const glm::mat4& value) {
+    GLint location = GetUniformLocation(name);
+    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 }
 
 GLint Shader::CompileShader(const std::string& source, GLuint type) {

@@ -4,11 +4,14 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 #include <Eigen/Core>
+#include "glad/glad.h"
 
 #include "VertexArray.hpp"
 #include "VertexBuffer.hpp"
+#include "IndexBuffer.hpp"
 
 class Mesh {
    public:
@@ -32,15 +35,8 @@ class Mesh {
         NORMALS = 0x04,
     };
 
-    Presentation mPresentation;
-    const LoadOptions mLoadOptions;
-    VertexBuffer* mVertexBuffer;
-    VertexArray* mVertexArray;
-
     Eigen::MatrixXd mPositions;
-    Eigen::MatrixXd mTexturesUVs;
     Eigen::MatrixXd mNormals;
-    Eigen::MatrixXi mPrimitives;
 
     Mesh(const std::string& path, const LoadOptions loadOptions);
     Mesh(const Geometry geometry);
@@ -48,11 +44,24 @@ class Mesh {
     ~Mesh();
     void Bind() const;
     void Unbind() const;
+    void Update();
     VertexBuffer* GetVertexBuffer();
     VertexArray* GetVertexArray();
     void ChangePresentation(const Presentation presentation);
 
-   public:
+   private:
+    Presentation mPresentation;
+    const LoadOptions mLoadOptions;
+
+    // We won't do tearing simulations for know so the topology doesn't need to be changeable
+    Eigen::MatrixXi mPrimitives;
+    // We don't need to changethe UV coordinates
+    Eigen::MatrixXd mTextureUVs;
+
+    VertexBuffer* mVertexBuffer;
+    VertexArray* mVertexArray;
+    IndexBuffer* mIndexBuffer;
+
     void InitMesh(const std::string& path);
     void LoadFromFile(const std::string& path);
     static bool IsOBJControlToken(const std::string& token) {

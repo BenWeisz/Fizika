@@ -28,6 +28,7 @@ target_sources(Fizika PUBLIC
     src/graphics/VertexBuffer.cpp
     src/graphics/VertexArray.cpp
     src/graphics/VertexBufferLayout.cpp
+    src/graphics/IndexBuffer.cpp
     src/graphics/Material.cpp
     src/graphics/Mesh.cpp
     ${VENDOR_DIR}/glad-core-4.5/src/glad.c
