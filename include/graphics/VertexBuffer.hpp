@@ -12,7 +12,7 @@ class VertexBuffer {
     ~VertexBuffer();
     void Bind() const;
     void Unbind() const;
-    void UpdateBuffer(const std::vector<GLfloat>& data);
+    void Update(const std::vector<GLfloat>& data);
 
    private:
     GLuint mID;

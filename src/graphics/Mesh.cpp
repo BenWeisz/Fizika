@@ -28,8 +28,24 @@ void Mesh::Unbind() const {
 // Update the buffer based on the changes to the the
 // positions, normals and uvs
 void Mesh::Update() {
-    if (mLoadOptions & LoadOptions::POSITIONS) {
+    // Compute the buffer data vector
+    std::vector<GLfloat> bufferData;
+    for (int i = 0; i < mPositions.rows(); i++) {
+        if (mLoadOptions & LoadOptions::POSITIONS) {
+            bufferData.push_back((GLfloat)mPositions(i, 0));
+            bufferData.push_back((GLfloat)mPositions(i, 1));
+            bufferData.push_back((GLfloat)mPositions(i, 2));
+        } else if (mLoadOptions & LoadOptions::NORMALS) {
+            bufferData.push_back((GLfloat)mNormals(i, 0));
+            bufferData.push_back((GLfloat)mNormals(i, 1));
+            bufferData.push_back((GLfloat)mNormals(i, 2));
+        } else if (mLoadOptions & LoadOptions::TEXTURES) {
+            bufferData.push_back((GLfloat)mTextureUVs(i, 0));
+            bufferData.push_back((GLfloat)mTextureUVs(i, 1));
+        }
     }
+
+    mVertexBuffer->Update(bufferData);
 }
 
 VertexBuffer* Mesh::GetVertexBuffer() {

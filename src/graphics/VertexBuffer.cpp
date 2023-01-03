@@ -12,7 +12,7 @@ VertexBuffer::VertexBuffer(const std::vector<GLfloat>& data) {
     glBufferData(GL_ARRAY_BUFFER, mSize, 0, GL_DYNAMIC_DRAW);
 
     // Update the buffer with the data
-    UpdateBuffer(data);
+    Update(data);
 
     GLint size = 0;
     glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
@@ -36,7 +36,7 @@ void VertexBuffer::Unbind() const {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-void VertexBuffer::UpdateBuffer(const std::vector<GLfloat>& data) {
+void VertexBuffer::Update(const std::vector<GLfloat>& data) {
     assert(data.size() * sizeof(GLfloat) == mSize);
     glBufferSubData(GL_ARRAY_BUFFER, 0, mSize, &data[0]);
 }
