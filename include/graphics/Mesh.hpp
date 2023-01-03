@@ -13,20 +13,20 @@
 #include "VertexBuffer.hpp"
 #include "IndexBuffer.hpp"
 
+enum Geometry {
+    POINT,
+    LINE,
+    TRIANGLE,
+    PLANE,
+    CUBE
+};
+
 class Mesh {
    public:
     enum Presentation {
         POINTS,
         LINES,
         TRIANGLES
-    };
-
-    enum Geometry {
-        POINT,
-        LINE,
-        TRIANGLE,
-        PLANE,
-        CUBE
     };
 
     enum LoadOptions {
@@ -37,6 +37,7 @@ class Mesh {
 
     Eigen::MatrixXd mPositions;
     Eigen::MatrixXd mNormals;
+    Eigen::MatrixXd mTextureUVs;
 
     Mesh(const std::string& path, const LoadOptions loadOptions);
     Mesh(const Geometry geometry);
@@ -45,8 +46,9 @@ class Mesh {
     void Bind() const;
     void Unbind() const;
     void Update();
-    VertexBuffer* GetVertexBuffer();
-    VertexArray* GetVertexArray();
+    VertexBuffer* GetVertexBuffer() const;
+    VertexArray* GetVertexArray() const;
+    IndexBuffer* GetIndexBuffer() const;
     void ChangePresentation(const Presentation presentation);
 
    private:
@@ -54,9 +56,7 @@ class Mesh {
     const LoadOptions mLoadOptions;
 
     // We won't do tearing simulations for know so the topology doesn't need to be changeable
-    Eigen::MatrixXi mPrimitives;
-    // We don't need to changethe UV coordinates
-    Eigen::MatrixXd mTextureUVs;
+    Eigen::MatrixXi mTopology;
 
     VertexBuffer* mVertexBuffer;
     VertexArray* mVertexArray;
@@ -66,5 +66,26 @@ class Mesh {
     void LoadFromFile(const std::string& path);
     static bool IsOBJControlToken(const std::string& token) {
         return token == "v" || token == "vt" || token == "vn" || token == "#" || token == "p" || token == "l" || token == "f";
+    }
+    static std::string GetMeshPrimitivePath(const Geometry geometry) {
+        std::string path = "../res/models/";
+        switch (geometry) {
+            case Geometry::POINT:
+                path += "point.obj";
+                break;
+            case Geometry::LINE:
+                path += "line.obj";
+                break;
+            case Geometry::TRIANGLE:
+                path += "triangle.obj";
+                break;
+            case Geometry::PLANE:
+                path += "plane.obj";
+                break;
+            case Geometry::CUBE:
+                path += "cube.obj";
+                break;
+        }
+        return path;
     }
 };

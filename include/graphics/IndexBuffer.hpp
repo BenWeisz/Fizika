@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <iostream>
 
 #include "glad/glad.h"
 
@@ -10,7 +11,9 @@ class IndexBuffer {
     ~IndexBuffer();
     void Bind();
     void Unbind();
+    GLsizei GetCount() const;
 
    private:
     GLuint mID;
+    GLsizei mCount;
 };

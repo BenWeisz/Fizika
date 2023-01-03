@@ -12,6 +12,6 @@
         </Uniforms>
     </Shader>
     <VertexBufferLayout>
-        <LayoutElement name="iPosition" attribSize="2"/>
+        <LayoutElement name="iPosition" attribSize="3"/>
     </VertexBufferLayout>
 </Material>

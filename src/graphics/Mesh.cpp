@@ -1,15 +1,20 @@
 #include "../include/graphics/Mesh.hpp"
 
 Mesh::Mesh(const std::string& path, const LoadOptions loadOptions) : mLoadOptions((LoadOptions)(LoadOptions::POSITIONS | loadOptions)) {
-    // TODO !
+    // Initialize the mesh
+    InitMesh(path);
 }
 
 Mesh::Mesh(const Geometry geometry) : mLoadOptions(LoadOptions::POSITIONS) {
-    // TODO !
+    // Initialize the mesh using a default mesh
+    std::string path = GetMeshPrimitivePath(geometry);
+    InitMesh(path);
 }
 
 Mesh::Mesh(const Geometry geometry, const LoadOptions loadOptions) : mLoadOptions((LoadOptions)(LoadOptions::POSITIONS | loadOptions)) {
-    // TODO !
+    // Initialize the mesh using a default mesh
+    std::string path = GetMeshPrimitivePath(geometry);
+    InitMesh(path);
 }
 
 Mesh::~Mesh() {
@@ -48,12 +53,16 @@ void Mesh::Update() {
     mVertexBuffer->Update(bufferData);
 }
 
-VertexBuffer* Mesh::GetVertexBuffer() {
+VertexBuffer* Mesh::GetVertexBuffer() const {
     return mVertexBuffer;
 }
 
-VertexArray* Mesh::GetVertexArray() {
+VertexArray* Mesh::GetVertexArray() const {
     return mVertexArray;
+}
+
+IndexBuffer* Mesh::GetIndexBuffer() const {
+    return mIndexBuffer;
 }
 
 void Mesh::ChangePresentation(const Presentation presentation) {
@@ -87,9 +96,9 @@ void Mesh::InitMesh(const std::string& path) {
     // Load the mesh topology into the index buffer
     std::vector<GLuint>
         indices;
-    for (int iPrimitive = 0; iPrimitive < mPrimitives.rows(); iPrimitive++)
-        for (int dim = 0; dim < mPrimitives.cols(); dim++)
-            indices.push_back((GLuint)mPrimitives(iPrimitive, dim));
+    for (int iPrimitive = 0; iPrimitive < mTopology.rows(); iPrimitive++)
+        for (int dim = 0; dim < mTopology.cols(); dim++)
+            indices.push_back((GLuint)mTopology(iPrimitive, dim));
 
     mIndexBuffer = new IndexBuffer(indices);
 
@@ -153,14 +162,14 @@ void Mesh::LoadFromFile(const std::string& path) {
     }
 
     // Check to see that at least some connective data exists
-    int numPrimitives = numPoints + numLines + numFaces;
+    const int numPrimitives = numPoints + numLines + numFaces;
     if (numPrimitives == 0) {
         std::cout << "ERROR: " << path << " contains no connective data" << std::endl;
         return;
     }
 
     // Compute the number of vertices required to show the primitive in the file
-    int primitiveDegree = (numPoints > 0 ? 1 : (numLines > 0 ? 2 : 3));
+    const int primitiveDegree = (numPoints > 0 ? 1 : (numLines > 0 ? 2 : 3));
     mPresentation = (primitiveDegree == 1 ? Presentation::POINTS : (primitiveDegree == 2 ? Presentation::LINES : Presentation::TRIANGLES));
 
     // Set up the matrices for data loading
@@ -168,7 +177,7 @@ void Mesh::LoadFromFile(const std::string& path) {
     mTextureUVs = Eigen::MatrixXd::Zero(numTextureUVs, 2);
     mNormals = Eigen::MatrixXd::Zero(numNormals, 3);
 
-    mPrimitives = Eigen::MatrixXi::Zero(numPrimitives, primitiveDegree);
+    mTopology = Eigen::MatrixXi::Zero(numPrimitives, primitiveDegree);
 
     // Rewind to the beginning of the file
     buffer.clear();
@@ -219,12 +228,12 @@ void Mesh::LoadFromFile(const std::string& path) {
             while (!buffer.eof() && !Mesh::IsOBJControlToken(token))
                 buffer >> token;
         }
-        // Load the connectivity data for the primitives
+        // Load the primitive connections
         else if (token == "p" || token == "l" || token == "f") {
             buffer >> token;
             int i = 0;
             while (!buffer.eof() && !Mesh::IsOBJControlToken(token)) {
-                mPrimitives(iPrimitive, i) = std::stoi(token);
+                mTopology(iPrimitive, i) = std::stoi(token) - 1;
 
                 i++;
                 buffer >> token;
@@ -232,6 +241,7 @@ void Mesh::LoadFromFile(const std::string& path) {
 
             iPrimitive++;
         }
+
         // Skip blank lines
         else {
             buffer >> token;

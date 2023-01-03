@@ -56,19 +56,11 @@ int main() {
 
         VertexBufferLayout* layout = mat.GetVertexBufferLayout();
 
-        std::vector<GLfloat> data = {
-            0.0f, 0.5f, 0.5f, -0.5f, -0.5f, -0.5f};
-        VertexBuffer buffer(data);
-
-        std::vector<GLuint> indexData = {
-            0, 1, 2};
-        IndexBuffer indexBuffer(indexData);
-
-        VertexArray vao;
-        vao.Bundle(&buffer, &indexBuffer, layout, shader);
-
-        // Mesh m(Mesh::Geometry::LINE);
-        // m.LoadFromFile("../res/models/triangle.obj");
+        Mesh m(Geometry::PLANE);
+        VertexBuffer* vbo = m.GetVertexBuffer();
+        IndexBuffer* ibo = m.GetIndexBuffer();
+        VertexArray* vao = m.GetVertexArray();
+        vao->Bundle(vbo, ibo, layout, shader);
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window)) {
@@ -77,12 +69,13 @@ int main() {
             glClear(GL_COLOR_BUFFER_BIT);
 
             shader->Bind();
-            vao.Bind();
+            vao->Bind();
 
             // glDrawArrays(GL_TRIANGLES, 0, 3);
-            glDrawElements(GL_TRIANGLES, indexData.size(), GL_UNSIGNED_INT, (void*)0);
+            // std::cout << ibo->GetCount() << std::endl;
+            glDrawElements(GL_TRIANGLES, ibo->GetCount(), GL_UNSIGNED_INT, (void*)0);
 
-            vao.Unbind();
+            vao->Unbind();
             shader->Unbind();
 
             /* Swap front and back buffers */
