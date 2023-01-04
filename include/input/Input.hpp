@@ -24,6 +24,17 @@ class Input {
 
         return bindingNames;
     }
+    static bool GetState(std::unordered_map<std::string, bool> map, const std::string& bindingName) {
+        std::unordered_map<std::string, bool>::const_iterator element =
+            map.find(bindingName);
+
+        if (element == map.end()) {
+            std::cout << "ERROR: Key " << bindingName << " not registered with input handler\n\tCall RegisterBinding on the global Input instance.";
+            return false;
+        }
+
+        return element->second;
+    }
 
    public:
     Input() = delete;
@@ -68,36 +79,12 @@ class Input {
         KeyStatesHeld[bindingName] = false;
     }
     static bool IsPressed(const std::string& bindingName) {
-        std::unordered_map<std::string, bool>::const_iterator element =
-            KeyStatesPress.find(bindingName);
-
-        if (element == KeyStatesPress.end()) {
-            std::cout << "ERROR: Key " << bindingName << " not registered with input handler\n\tCall RegisterBinding on the global Input instance.";
-            return false;
-        }
-
-        return element->second;
+        return GetState(KeyStatesPress, bindingName);
     }
     static bool IsReleased(const std::string& bindingName) {
-        std::unordered_map<std::string, bool>::const_iterator element =
-            KeyStatesReleased.find(bindingName);
-
-        if (element == KeyStatesReleased.end()) {
-            std::cout << "ERROR: Key " << bindingName << " not registered with input handler\n\tCall RegisterBinding on the global Input instance.";
-            return false;
-        }
-
-        return element->second;
+        return GetState(KeyStatesReleased, bindingName);
     }
     static bool IsHeld(const std::string& bindingName) {
-        std::unordered_map<std::string, bool>::const_iterator element =
-            KeyStatesHeld.find(bindingName);
-
-        if (element == KeyStatesHeld.end()) {
-            std::cout << "ERROR: Key " << bindingName << " not registered with input handler\n\tCall RegisterBinding on the global Input instance.";
-            return false;
-        }
-
-        return element->second;
+        return GetState(KeyStatesHeld, bindingName);
     }
 };
