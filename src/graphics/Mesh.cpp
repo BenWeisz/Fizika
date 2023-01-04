@@ -70,6 +70,10 @@ IndexBuffer* Mesh::GetIndexBuffer() const {
     return mIndexBuffer;
 }
 
+Geometry Mesh::GetGeometry() const {
+    return mGeometry;
+}
+
 void Mesh::InitMesh(const std::string& path) {
     // Load the mesh from file
     LoadFromFile(path);
@@ -170,6 +174,22 @@ void Mesh::LoadFromFile(const std::string& path) {
 
     // Compute the number of vertices required to show the primitive in the file
     const int primitiveDegree = (numPoints > 0 ? 1 : (numLines > 0 ? 2 : 3));
+
+    // Set up the geometry based on the primitive degree
+    switch (primitiveDegree) {
+        case 1:
+            mGeometry = Geometry::POINT;
+            break;
+        case 2:
+            mGeometry = Geometry::LINE;
+            break;
+        case 3:
+            mGeometry = Geometry::MESH;
+            break;
+        default:
+            mGeometry = Geometry::MESH;
+            break;
+    }
 
     // Set up the matrices for data loading
     mPositions = Eigen::MatrixXd::Zero(numPositions, 3);

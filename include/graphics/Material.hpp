@@ -31,6 +31,18 @@ class Material {
     void SetRepresentation(const Representation rep);
     Representation GetRepresentation() const;
     bool HasAttribute(const std::string& attribName) const;
+    static GLenum GetRepresentationPolygonEnum(const Representation rep) {
+        switch (rep) {
+            case Representation::POINTS:
+                return GL_POINT;
+            case Representation::LINES:
+                return GL_LINE;
+            case Representation::TRIANGLES:
+                return GL_FILL;
+            default:
+                return GL_FILL;
+        }
+    }
 
    private:
     Shader* mShader;

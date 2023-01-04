@@ -3,6 +3,7 @@
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 
+#include "graphics/Model.hpp"
 #include "graphics/Material.hpp"
 #include "graphics/Mesh.hpp"
 #include "graphics/Shader.hpp"
@@ -48,21 +49,9 @@ int main() {
     }
 
     {
-        Material mat("../res/base.mat");
-        Shader* shader = mat.GetShader();
-        shader->Bind();
-        shader->SetUniformVec3("uColour", glm::vec3(0, .5f, 0));
-        shader->Unbind();
-
-        VertexBufferLayout* layout = mat.GetVertexBufferLayout();
-
-        Mesh m(Geometry::PLANE);
-        VertexBuffer* vbo = m.GetVertexBuffer();
-        IndexBuffer* ibo = m.GetIndexBuffer();
-        VertexArray* vao = m.GetVertexArray();
-        vao->Bundle(vbo, ibo, layout, shader);
-
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        Model model(Geometry::PLANE, "../res/base.mat");
+        // Material* mat = model.GetMaterial();
+        // mat->SetRepresentation(Material::Representation::POINTS);
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window)) {
@@ -70,15 +59,7 @@ int main() {
             glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT);
 
-            shader->Bind();
-            vao->Bind();
-
-            // glDrawArrays(GL_TRIANGLES, 0, 3);
-            // std::cout << ibo->GetCount() << std::endl;
-            glDrawElements(GL_TRIANGLES, ibo->GetCount(), GL_UNSIGNED_INT, (void*)0);
-
-            vao->Unbind();
-            shader->Unbind();
+            model.Draw();
 
             /* Swap front and back buffers */
             glfwSwapBuffers(window);

@@ -18,7 +18,8 @@ enum Geometry {
     LINE,
     TRIANGLE,
     PLANE,
-    CUBE
+    CUBE,
+    MESH
 };
 
 class Mesh {
@@ -44,6 +45,8 @@ class Mesh {
     VertexBuffer* GetVertexBuffer() const;
     VertexArray* GetVertexArray() const;
     IndexBuffer* GetIndexBuffer() const;
+    Geometry GetGeometry() const;
+
     static std::string GetMeshPrimitivePath(const Geometry geometry) {
         std::string path = "../res/models/";
         switch (geometry) {
@@ -62,9 +65,27 @@ class Mesh {
             case Geometry::CUBE:
                 path += "cube.obj";
                 break;
+            default:
+                path += "triangle.obj";
         }
 
         return path;
+    }
+    static GLenum GetDrawModeEnum(const Geometry geometry) {
+        switch (geometry) {
+            case Geometry::POINT:
+                return GL_POINTS;
+            case Geometry::LINE:
+                return GL_LINES;
+            case Geometry::TRIANGLE:
+                return GL_TRIANGLES;
+            case Geometry::PLANE:
+                return GL_TRIANGLES;
+            case Geometry::CUBE:
+                return GL_TRIANGLES;
+            default:
+                return GL_TRIANGLES;
+        }
     }
 
    private:
@@ -76,6 +97,8 @@ class Mesh {
     VertexBuffer* mVertexBuffer;
     VertexArray* mVertexArray;
     IndexBuffer* mIndexBuffer;
+
+    Geometry mGeometry;
 
     void InitMesh(const std::string& path);
     void LoadFromFile(const std::string& path);

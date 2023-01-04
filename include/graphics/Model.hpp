@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include <glad/glad.h>
+
 #include "Mesh.hpp"
 #include "Material.hpp"
 
@@ -12,6 +14,7 @@ class Model {
     Model(const Geometry geometry, const std::string& materialPath);
     Model(const std::string& meshPath, const Mesh::LoadOptions loadOptions);
     Model(const Geometry geometry);
+    Model(const std::string& meshPath);
     ~Model();
     void Draw() const;
     Mesh* GetMesh() const;
@@ -20,6 +23,6 @@ class Model {
    private:
     Mesh* mMesh;
     Material* mMaterial;
-    void InitModel(const std::string& meshPath, const Mesh::LoadOptions meshOptions, const std::string& materialPath);
     void Bundle();
+    const Mesh::LoadOptions GetLoadOptionsFromMaterial(const Material* material) const;
 };
