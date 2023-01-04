@@ -64,7 +64,6 @@ void Model::Draw() const {
 
     // Bind the shader and vertex array object
     shader->Bind();
-    shader->SetUniformVec3("uColour", glm::vec3(0, .5f, 0));
 
     VertexArray* vao = mMesh->GetVertexArray();
     vao->Bind();

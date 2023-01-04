@@ -102,11 +102,15 @@ VertexBufferLayout* Material::GetVertexBufferLayout() const {
 }
 
 void Material::SetUniformVec3(const std::string& name, const glm::vec3& value) {
+    mShader->Bind();
     mShader->SetUniformVec3(name, value);
+    mShader->Unbind();
 }
 
 void Material::SetUniformMat4(const std::string& name, const glm::mat4& value) {
+    mShader->Bind();
     mShader->SetUniformMat4(name, value);
+    mShader->Unbind();
 }
 
 void Material::SetRepresentation(const Representation rep) {

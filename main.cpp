@@ -50,8 +50,8 @@ int main() {
 
     {
         Model model(Geometry::PLANE, "../res/base.mat");
-        // Material* mat = model.GetMaterial();
-        // mat->SetRepresentation(Material::Representation::POINTS);
+        Material* mat = model.GetMaterial();
+        mat->SetUniformVec3("uColour", glm::vec3(0, .5f, 0));
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window)) {
