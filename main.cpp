@@ -62,6 +62,8 @@ int main() {
         VertexArray* vao = m.GetVertexArray();
         vao->Bundle(vbo, ibo, layout, shader);
 
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window)) {
             /* Render here */

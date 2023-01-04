@@ -1,6 +1,21 @@
 #include "../include/graphics/Material.hpp"
 
-Material::Material(const std::string& path) {
+Material::Material(const std::string& path) : mRepresentation(Representation::TRIANGLES) {
+    // Initialize the material
+    InitMaterial(path);
+}
+
+Material::Material(const std::string& path, const Representation rep) : mRepresentation(rep) {
+    // Initialize the material
+    InitMaterial(path);
+}
+
+Material::~Material() {
+    delete mShader;
+    delete mLayout;
+}
+
+void Material::InitMaterial(const std::string& path) {
     // Load the material file
     tinyxml2::XMLDocument doc;
     doc.LoadFile(path.c_str());
@@ -30,9 +45,9 @@ Material::Material(const std::string& path) {
 
         // If the path isn't set yet then set it
         if (type == "vertex" && vertexShaderPath == "")
-            vertexShaderPath = "../res/" + Material::SafeXMLAttribute("path", sourceNode);
+            vertexShaderPath = "../res/shaders/" + Material::SafeXMLAttribute("path", sourceNode);
         else if (type == "fragment" && fragmentShaderPath == "")
-            fragmentShaderPath = "../res/" + Material::SafeXMLAttribute("path", sourceNode);
+            fragmentShaderPath = "../res/shaders/" + Material::SafeXMLAttribute("path", sourceNode);
 
         sourceNode = sourceNode->NextSiblingElement();
     }
@@ -68,11 +83,6 @@ Material::Material(const std::string& path) {
     }
 }
 
-Material::~Material() {
-    delete mShader;
-    delete mLayout;
-}
-
 void Material::Bind() const {
     mShader->Bind();
 }
@@ -95,4 +105,12 @@ void Material::SetUniformVec3(const std::string& name, const glm::vec3& value) {
 
 void Material::SetUniformMat4(const std::string& name, const glm::mat4& value) {
     mShader->SetUniformMat4(name, value);
+}
+
+void Material::SetRepresentation(const Representation rep) {
+    mRepresentation = rep;
+}
+
+Material::Representation Material::GetRepresentation() const {
+    return mRepresentation;
 }

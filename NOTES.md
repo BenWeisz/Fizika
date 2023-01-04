@@ -52,3 +52,10 @@
 - Have a mesh class that only holds and loads the raw data for a mesh
 - Have a model class hold a reference to the shader, it gets from the outside
     -   Should create and hold the vao, vbo and the vertex layout
+
+
+NEXT TODO:
+    -   Implement update function on vertex buffer and implement update on mesh
+    -   Implement constructors for mesh
+    -   Implement Bundle on Mesh
+    -   Implement Model Class

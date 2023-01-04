@@ -23,12 +23,6 @@ enum Geometry {
 
 class Mesh {
    public:
-    enum Presentation {
-        POINTS,
-        LINES,
-        TRIANGLES
-    };
-
     enum LoadOptions {
         POSITIONS = 0x01,
         TEXTURES = 0x02,
@@ -39,6 +33,7 @@ class Mesh {
     Eigen::MatrixXd mNormals;
     Eigen::MatrixXd mTextureUVs;
 
+    Mesh(const std::string& path);
     Mesh(const std::string& path, const LoadOptions loadOptions);
     Mesh(const Geometry geometry);
     Mesh(const Geometry geometry, const LoadOptions loadOptions);
@@ -49,24 +44,6 @@ class Mesh {
     VertexBuffer* GetVertexBuffer() const;
     VertexArray* GetVertexArray() const;
     IndexBuffer* GetIndexBuffer() const;
-    void ChangePresentation(const Presentation presentation);
-
-   private:
-    Presentation mPresentation;
-    const LoadOptions mLoadOptions;
-
-    // We won't do tearing simulations for know so the topology doesn't need to be changeable
-    Eigen::MatrixXi mTopology;
-
-    VertexBuffer* mVertexBuffer;
-    VertexArray* mVertexArray;
-    IndexBuffer* mIndexBuffer;
-
-    void InitMesh(const std::string& path);
-    void LoadFromFile(const std::string& path);
-    static bool IsOBJControlToken(const std::string& token) {
-        return token == "v" || token == "vt" || token == "vn" || token == "#" || token == "p" || token == "l" || token == "f";
-    }
     static std::string GetMeshPrimitivePath(const Geometry geometry) {
         std::string path = "../res/models/";
         switch (geometry) {
@@ -86,6 +63,23 @@ class Mesh {
                 path += "cube.obj";
                 break;
         }
+
         return path;
+    }
+
+   private:
+    const LoadOptions mLoadOptions;
+
+    // We won't do tearing simulations for know so the topology doesn't need to be changeable
+    Eigen::MatrixXi mTopology;
+
+    VertexBuffer* mVertexBuffer;
+    VertexArray* mVertexArray;
+    IndexBuffer* mIndexBuffer;
+
+    void InitMesh(const std::string& path);
+    void LoadFromFile(const std::string& path);
+    static bool IsOBJControlToken(const std::string& token) {
+        return token == "v" || token == "vt" || token == "vn" || token == "#" || token == "p" || token == "l" || token == "f";
     }
 };

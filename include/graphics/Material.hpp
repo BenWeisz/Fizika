@@ -11,7 +11,14 @@
 
 class Material {
    public:
+    enum Representation {
+        POINTS,
+        LINES,
+        TRIANGLES
+    };
+
     Material(const std::string& path);
+    Material(const std::string& path, const Representation rep);
     ~Material();
     void Bind() const;
     void Unbind() const;
@@ -19,10 +26,14 @@ class Material {
     VertexBufferLayout* GetVertexBufferLayout() const;
     void SetUniformVec3(const std::string& name, const glm::vec3& value);
     void SetUniformMat4(const std::string& name, const glm::mat4& value);
+    void SetRepresentation(const Representation rep);
+    Representation GetRepresentation() const;
 
    private:
     Shader* mShader;
     VertexBufferLayout* mLayout;
+    Representation mRepresentation;
+    void InitMaterial(const std::string& path);
     static std::string SafeXMLAttribute(const std::string& name, tinyxml2::XMLElement* element) {
         const char* attribStr = element->Attribute(name.c_str());
         if (attribStr == 0) {

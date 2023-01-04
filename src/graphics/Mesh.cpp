@@ -1,5 +1,10 @@
 #include "../include/graphics/Mesh.hpp"
 
+Mesh::Mesh(const std::string& path) : mLoadOptions(LoadOptions::POSITIONS) {
+    // Initialize the mesh
+    InitMesh(path);
+}
+
 Mesh::Mesh(const std::string& path, const LoadOptions loadOptions) : mLoadOptions((LoadOptions)(LoadOptions::POSITIONS | loadOptions)) {
     // Initialize the mesh
     InitMesh(path);
@@ -63,11 +68,6 @@ VertexArray* Mesh::GetVertexArray() const {
 
 IndexBuffer* Mesh::GetIndexBuffer() const {
     return mIndexBuffer;
-}
-
-void Mesh::ChangePresentation(const Presentation presentation) {
-    // Change how we render this mesh's data
-    mPresentation = presentation;
 }
 
 void Mesh::InitMesh(const std::string& path) {
@@ -170,7 +170,6 @@ void Mesh::LoadFromFile(const std::string& path) {
 
     // Compute the number of vertices required to show the primitive in the file
     const int primitiveDegree = (numPoints > 0 ? 1 : (numLines > 0 ? 2 : 3));
-    mPresentation = (primitiveDegree == 1 ? Presentation::POINTS : (primitiveDegree == 2 ? Presentation::LINES : Presentation::TRIANGLES));
 
     // Set up the matrices for data loading
     mPositions = Eigen::MatrixXd::Zero(numPositions, 3);
