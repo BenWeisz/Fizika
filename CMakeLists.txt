@@ -32,6 +32,7 @@ target_sources(Fizika PUBLIC
     src/graphics/Material.cpp
     src/graphics/Mesh.cpp
     src/graphics/Model.cpp
+    src/input/Input.cpp
     ${VENDOR_DIR}/glad-core-4.5/src/glad.c
     ${VENDOR_DIR}/tinyxml/src/tinyxml2.cpp
 )

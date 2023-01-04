@@ -11,11 +11,22 @@
 #include "graphics/VertexBuffer.hpp"
 #include "graphics/IndexBuffer.hpp"
 #include "graphics/VertexBufferLayout.hpp"
+#include "input/Input.hpp"
 
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GL_TRUE);
-}
+// void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods) {
+//     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+//         glfwSetWindowShouldClose(window, GL_TRUE);
+
+//     if (key == GLFW_KEY_A && action == GLFW_PRESS)
+//         std::cout << "Press A"
+//                   << std::endl;
+//     if (key == GLFW_KEY_A && action == GLFW_RELEASE)
+//         std::cout << "Release A"
+//                   << std::endl;
+//     if (key == GLFW_KEY_A && action == GLFW_REPEAT)
+//         std::cout << "Press A"
+//                   << std::endl;
+// }
 
 int main() {
     GLFWwindow* window;
@@ -39,7 +50,8 @@ int main() {
     glfwMakeContextCurrent(window);
 
     /* Add a simple key listener */
-    glfwSetKeyCallback(window, key_callback);
+    Input::RegisterBinding(GLFW_KEY_ESCAPE, "esc");
+    glfwSetKeyCallback(window, Input::KeyCallback);
 
     /* glad: load all OpenGL function pointers */
     // ---------------------------------------
@@ -55,6 +67,10 @@ int main() {
 
         /* Loop until the user closes the window */
         while (!glfwWindowShouldClose(window)) {
+            /* Execute event results */
+            if (Input::IsPressed("esc"))
+                glfwSetWindowShouldClose(window, GL_TRUE);
+
             /* Render here */
             glClearColor(0.0f, 1.0f, 0.0f, 0.0f);
             glClear(GL_COLOR_BUFFER_BIT);
