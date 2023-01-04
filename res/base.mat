@@ -5,13 +5,8 @@
             <ShaderSource type="vertex" path="base.vert"/>
             <ShaderSource type="fragment" path="base.frag"/>
         </Sources>
-        <Uniforms>
-            <Uniform type="vec2" value="2.0 2.0"/>
-            <Uniform type="vec3" value="2.0 2.0 2.0 "/>
-            <Uniform type="mat4" value="1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 1.0"/>
-        </Uniforms>
     </Shader>
-    <VertexBufferLayout>
+    <Layout>
         <LayoutElement name="iPosition" attribSize="3"/>
-    </VertexBufferLayout>
+    </Layout>
 </Material>

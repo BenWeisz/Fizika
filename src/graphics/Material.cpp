@@ -58,10 +58,12 @@ void Material::InitMaterial(const std::string& path) {
     // // Load the layout
     mLayout = new VertexBufferLayout();
 
-    tinyxml2::XMLElement* vertexBufferLayoutNode = rootNode->FirstChildElement("VertexBufferLayout");
+    tinyxml2::XMLElement* vertexBufferLayoutNode = rootNode->FirstChildElement("Layout");
     tinyxml2::XMLElement* layoutElementNode = vertexBufferLayoutNode->FirstChildElement("LayoutElement");
     while (layoutElementNode != 0) {
         std::string nameStr = SafeXMLAttribute("name", layoutElementNode);
+        mAttributes.push_back(nameStr);
+
         std::string attribSizeStr = SafeXMLAttribute("attribSize", layoutElementNode);
 
         int attribSize;
@@ -113,4 +115,8 @@ void Material::SetRepresentation(const Representation rep) {
 
 Material::Representation Material::GetRepresentation() const {
     return mRepresentation;
+}
+
+bool Material::HasAttribute(const std::string& attribName) const {
+    return std::find(mAttributes.begin(), mAttributes.end(), attribName) != mAttributes.end();
 }
