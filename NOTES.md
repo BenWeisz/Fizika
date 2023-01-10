@@ -15,3 +15,10 @@
 -   Should be able to draw from an input handler for object controls
 
 ### Camera / Windowing System
+
+
+# TODO:
+- [ ] Implement Camera System
+- [ ] Ensure that you can perform updates on mesh data
+- [ ] Integrate ImGUI
+- [ ] Integrate stb image

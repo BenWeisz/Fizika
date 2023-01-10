@@ -27,7 +27,7 @@ class Material {
     Shader* GetShader() const;
     VertexBufferLayout* GetVertexBufferLayout() const;
     void SetUniformVec3(const std::string& name, const glm::vec3& value);
-    void SetUniformMat4(const std::string& name, const glm::mat4& value);
+    void SetUniformMat4(const std::string& name, const glm::mat4& value, bool shouldTranspose);
     void SetRepresentation(const Representation rep);
     Representation GetRepresentation() const;
     bool HasAttribute(const std::string& attribName) const;

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <GLFW/glfw3.h>
 #include <unordered_map>
 #include <string>
 #include <algorithm>
@@ -7,14 +8,15 @@
 #include <utility>
 #include <iostream>
 
-#include <GLFW/glfw3.h>
-
 class Input {
    private:
     static std::unordered_map<std::string, bool> KeyStatesPress;
     static std::unordered_map<std::string, bool> KeyStatesReleased;
     static std::unordered_map<std::string, bool> KeyStatesHeld;
     static std::vector<std::pair<int, std::string>> mRegisteredBindings;
+    static double MouseX;
+    static double MouseY;
+    static double Scroll;
     static std::vector<std::string> GetBindingNames(int key) {
         std::vector<std::string> bindingNames;
         for (auto& e : mRegisteredBindings) {
@@ -40,6 +42,10 @@ class Input {
     Input() = delete;
     Input(Input& other) = delete;
     void operator=(const Input& other) = delete;
+    static void InitInput(const double width, const double height) {
+        MouseX = width / 2.0;
+        MouseY = height / 2.0;
+    }
     static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
         // Get list of binding names that correspond to key code
         std::vector<std::string> bindingNames = GetBindingNames(key);
@@ -71,6 +77,13 @@ class Input {
             }
         }
     }
+    static void MouseCallback(GLFWwindow* window, double xpos, double ypos) {
+        MouseX = xpos;
+        MouseY = ypos;
+    }
+    static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
+        Scroll = yoffset;
+    }
     static void RegisterBinding(int key, const std::string& bindingName) {
         // Register a key so that you can query for it's state later
         mRegisteredBindings.push_back({key, bindingName});
@@ -86,5 +99,11 @@ class Input {
     }
     static bool IsHeld(const std::string& bindingName) {
         return GetState(KeyStatesHeld, bindingName);
+    }
+    static std::pair<double, double> GetMouse() {
+        return {MouseX, MouseY};
+    }
+    static double GetScroll() {
+        return Scroll;
     }
 };

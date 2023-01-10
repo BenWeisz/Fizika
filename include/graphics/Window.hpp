@@ -25,6 +25,7 @@ class Window {
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         /* Create a windowed mode window and its OpenGL context */
+        Input::InitInput(width, height);
         Frame = glfwCreateWindow(width, height, title.c_str(), NULL, NULL);
         if (!Frame) {
             glfwTerminate();
@@ -38,12 +39,18 @@ class Window {
         Input::RegisterBinding(GLFW_KEY_ESCAPE, "esc");
         glfwSetKeyCallback(Frame, Input::KeyCallback);
 
+        /* Add Mouse Listeners */
+        glfwSetCursorPosCallback(Frame, Input::MouseCallback);
+        glfwSetScrollCallback(Frame, Input::ScrollCallback);
+
         /* glad: load all OpenGL function pointers */
         // ---------------------------------------
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
             std::cout << "Failed to initialize GLAD" << std::endl;
             return -1;
         }
+
+        glEnable(GL_DEPTH_TEST);
 
         return 0;
     }
@@ -60,6 +67,6 @@ class Window {
         /* Poll for and process events */
         glfwPollEvents();
         glClearColor(ClearColour.x, ClearColour.y, ClearColour.z, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
 };

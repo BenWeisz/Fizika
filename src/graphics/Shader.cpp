@@ -60,9 +60,14 @@ void Shader::SetUniformVec3(const std::string& name, const glm::vec3& value) {
     glUniform3fv(location, 1, glm::value_ptr(value));
 }
 
-void Shader::SetUniformMat4(const std::string& name, const glm::mat4& value) {
+void Shader::SetUniformMat4(const std::string& name, const glm::mat4& value, bool shouldTranspose) {
     GLint location = GetUniformLocation(name);
-    glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+
+    GLenum transpose = GL_FALSE;
+    if (shouldTranspose)
+        transpose = GL_TRUE;
+
+    glUniformMatrix4fv(location, 1, transpose, glm::value_ptr(value));
 }
 
 GLint Shader::CompileShader(const std::string& source, GLuint type) {
