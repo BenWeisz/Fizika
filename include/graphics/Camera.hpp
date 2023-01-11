@@ -53,25 +53,18 @@ class Camera {
         if (Pitch < -44.0f)
             Pitch = -44.0f;
 
+        // Calculate new camera pos based on the yaw and the pitch
         float x = Distance * sin(glm::radians(Yaw));
         float y = Distance * sin(glm::radians(Pitch));
         float z = Distance * cos(glm::radians(Yaw));
+
+        // Normalize the position to the unit sphere and then set it at Distance units away
         CameraPos = glm::normalize(glm::vec3(x, y, z)) * Distance;
 
         const glm::vec3 cameraTarget = glm::vec3(0.f, 0.f, 0.f);
-        const glm::vec3 cameraDirection = glm::normalize(CameraPos - cameraTarget);
-
         const glm::vec3 up = glm::vec3(0.0, 1.0, 0.0);
-        const glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
-        const glm::vec3 cameraUp = glm::normalize(glm::cross(cameraDirection, cameraRight));
 
         CameraTransform = glm::lookAt(CameraPos, cameraTarget, up);
-
-        // for (int y = 0; y < 4; y++) {
-        //     for (int x = 0; x < 4; x++)
-        //         std::cout << CameraTransform[y][x] << " ";
-        // }
-        // std::exit(0);
     }
     static glm::mat4 GetCorrectionTransform() {
         return CorrectionTransform;
