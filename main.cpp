@@ -19,7 +19,7 @@ int main() {
         // Set up the camera for the window
         Camera::InitCamera(3.0f, 640, 480);
 
-        Model model(Geometry::PLANE, "../res/base.mat");
+        Model model(Geometry::CUBE, "../res/base.mat");
         Material* mat = model.GetMaterial();
         mat->SetUniformVec3("uColour", glm::vec3(0, .5f, .2f));
 
@@ -32,7 +32,7 @@ int main() {
 
             mat->SetUniformMat4("uProj", Camera::GetProjectionTransform(), false);
             mat->SetUniformMat4("uCam", Camera::GetCameraTransform(), false);
-            // mat->SetUniformMat4("uCor", Camera::GetCorrectionTransform());
+            mat->SetUniformMat4("uCor", Camera::GetCorrectionTransform(), false);
 
             model.Draw();
 

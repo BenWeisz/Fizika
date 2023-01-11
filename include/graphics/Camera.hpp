@@ -33,6 +33,9 @@ class Camera {
     }
     static void UpdateCamera() {
         auto mouse = Input::GetMouse();
+        double scroll = Input::GetScroll();
+        Distance = 3.0 + scroll;
+
         double xOffset = mouse.first - LastMouseX;
         double yOffset = LastMouseY - mouse.second;
 

@@ -82,7 +82,8 @@ class Input {
         MouseY = ypos;
     }
     static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-        Scroll = yoffset;
+        Scroll -= yoffset;
+        Scroll = std::max(0.0, Scroll);
     }
     static void RegisterBinding(int key, const std::string& bindingName) {
         // Register a key so that you can query for it's state later
