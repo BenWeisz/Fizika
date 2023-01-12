@@ -6,13 +6,19 @@ AxisGizmo::AxisGizmo(const double screenX, const double screenY) : mScreenX(scre
         0.f, 0.f, 0.f, 0.f, 0.f, 0.f,
         1.f, 0.f, 0.f, 1.f, 0.f, 0.f,
         0.f, 1.f, 0.f, 0.f, 1.f, 0.f,
-        0.f, 0.f, 1.f, 0.f, 0.f, 1.f};
+        0.f, 0.f, 1.f, 0.f, 0.f, 1.f,
+        .9f, .1f, -.1f, 0.f, 0.f, 0.f,
+        .9f, -.1f, .1f, 0.f, 0.f, 0.f,
+        .1f, .9f, -.1f, 0.f, 0.f, 0.f,
+        -.1f, .9f, .1f, 0.f, 0.f, 0.f,
+        .1f, -.1f, .9f, 0.f, 0.f, 0.f,
+        -.1f, .1f, .9f, 0.f, 0.f, 0.f};
 
     mVBO = new VertexBuffer(data);
 
     // Define the index buffer data for the axis
     std::vector<GLuint> indexData = {
-        0, 1, 0, 2, 0, 3};
+        0, 1, 0, 2, 0, 3, 4, 1, 5, 1, 6, 2, 7, 2, 8, 3, 9, 3};
 
     mIBO = new IndexBuffer(indexData);
 

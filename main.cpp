@@ -14,7 +14,7 @@ const int HEIGHT = 480;
 int main() {
     {
         // Set up the window
-        int r = Window::InitWindow(WIDTH, HEIGHT, "Hello World");
+        int r = Window::InitWindow(WIDTH, HEIGHT, "Fizika");
         if (r == -1)
             return r;
 
