@@ -42,11 +42,29 @@ void AxisGizmo::Draw() const {
     mVAO->Bind();
     mShader->Bind();
 
-    glm::mat4 model = glm::scale(glm::mat4(1.0), glm::vec3(0.25));
+    float yaw = Camera::GetYaw();
+    float pitch = Camera::GetPitch();
+
+    glm::mat4 model = glm::mat4(1.0);
+
+    auto screenDimensions = Window::GetDimensions();
+    double screenWidth = (double)screenDimensions.first;
+    double screenHeight = (double)screenDimensions.second;
+
+    double aspectRatio = screenWidth / screenHeight;
+    double yOffset = (mScreenX / screenWidth) * (2.0 * aspectRatio) - aspectRatio;
+    double zOffset = (mScreenY / screenHeight) * 2.0 - 1.0;
+
+    // Transformations are applied in reverse order of execution
+    model = glm::translate(model, glm::vec3(0.0, yOffset, zOffset));
+    model = glm::rotate(model, glm::radians(-yaw), glm::vec3(0.0, 0.0, 1.0));
+    model = glm::rotate(model, glm::radians(pitch), glm::vec3(0.0, 1.0, 0.0));
+    model = glm::scale(model, glm::vec3(0.1));
+
+    glm::mat4 ortho = glm::ortho(-aspectRatio, aspectRatio, -1.0, 1.0, -1.0, 1.0);
 
     // Set the basic transforms for the gizmo
-    mShader->SetUniformMat4("uProjection", Camera::GetProjectionTransform(), false);
-    mShader->SetUniformMat4("uCamera", Camera::GetCameraTransform(), false);  // This is the one to modify to be in the top right
+    mShader->SetUniformMat4("uProjection", ortho, false);
     mShader->SetUniformMat4("uCorrection", Camera::GetCorrectionTransform(), false);
     mShader->SetUniformMat4("uModel", model, false);
 

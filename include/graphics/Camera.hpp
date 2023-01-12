@@ -10,6 +10,17 @@
 #include <GLFW/glfw3.h>
 
 class Camera {
+   private:
+    static glm::vec3 CameraPos;
+    static float Distance;
+    static float Pitch;
+    static float Yaw;
+    static float LastMouseX;
+    static float LastMouseY;
+    static glm::mat4 CorrectionTransform;
+    static glm::mat4 CameraTransform;
+    static glm::mat4 ProjectionTransform;
+
    public:
     Camera() = delete;
     Camera(Camera& other) = delete;
@@ -21,7 +32,6 @@ class Camera {
         LastMouseX = width / 2.0;
         LastMouseY = height / 2.0;
 
-        // CameraPos = glm::vec3(cos(M_PI / 4.0) * distance, sin(M_PI / 4.0) * distance, 0);
         CorrectionTransform = glm::mat4(0.f, 0.f, 1.f, 0.f,
                                         1.f, 0.f, 0.f, 0.f,
                                         0.f, 1.f, 0.f, 0.f,
@@ -57,9 +67,9 @@ class Camera {
             Pitch = -44.0f;
 
         // Calculate new camera pos based on the yaw and the pitch
-        float x = Distance * sin(glm::radians(Yaw));
-        float y = Distance * sin(glm::radians(Pitch));
-        float z = Distance * cos(glm::radians(Yaw));
+        float x = sin(glm::radians(Yaw));
+        float y = sin(glm::radians(Pitch));
+        float z = cos(glm::radians(Yaw));
 
         // Normalize the position to the unit sphere and then set it at Distance units away
         CameraPos = glm::normalize(glm::vec3(x, y, z)) * Distance;
@@ -78,15 +88,13 @@ class Camera {
     static glm::mat4 GetProjectionTransform() {
         return ProjectionTransform;
     }
-
-   private:
-    static glm::vec3 CameraPos;
-    static float Distance;
-    static float Pitch;
-    static float Yaw;
-    static float LastMouseX;
-    static float LastMouseY;
-    static glm::mat4 CorrectionTransform;
-    static glm::mat4 CameraTransform;
-    static glm::mat4 ProjectionTransform;
+    static glm::vec3 GetCameraPos() {
+        return CameraPos;
+    }
+    static float GetYaw() {
+        return Yaw;
+    }
+    static float GetPitch() {
+        return Pitch;
+    }
 };

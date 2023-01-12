@@ -2,6 +2,7 @@
 
 #include <string>
 #include <iostream>
+#include <utility>
 
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
@@ -10,6 +11,9 @@
 #include "input/Input.hpp"
 
 class Window {
+   private:
+    static std::pair<int, int> Dimensions;
+
    public:
     static GLFWwindow* Frame;
     static glm::vec3 ClearColour;
@@ -52,6 +56,8 @@ class Window {
 
         glEnable(GL_DEPTH_TEST);
 
+        Dimensions = std::pair<int, int>(width, height);
+
         return 0;
     }
     static void DestoryWindow() {
@@ -68,5 +74,8 @@ class Window {
         glfwPollEvents();
         glClearColor(ClearColour.x, ClearColour.y, ClearColour.z, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    }
+    static std::pair<int, int> GetDimensions() {
+        return Dimensions;
     }
 };

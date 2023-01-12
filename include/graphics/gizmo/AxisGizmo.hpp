@@ -2,6 +2,9 @@
 
 #include <vector>
 
+#include <glm/glm.hpp>
+
+#include "graphics/Window.hpp"
 #include "graphics/Camera.hpp"
 #include "graphics/VertexArray.hpp"
 #include "graphics/VertexBuffer.hpp"
