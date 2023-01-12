@@ -18,7 +18,9 @@
 
 
 # TODO:
-- [ ] Implement Camera System
+- [ x ] Implement Camera System
+- [ ] Add Orientation unit coordinate
+- [ ] Add some basic phong shading
 - [ ] Ensure that you can perform updates on mesh data
 - [ ] Integrate ImGUI
 - [ ] Integrate stb image

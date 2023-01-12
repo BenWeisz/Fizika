@@ -6,6 +6,7 @@
 #include "graphics/Camera.hpp"
 #include "graphics/Model.hpp"
 #include "graphics/Material.hpp"
+#include "graphics/gizmo/AxisGizmo.hpp"
 
 int main() {
     {
@@ -23,6 +24,8 @@ int main() {
         Material* mat = model.GetMaterial();
         mat->SetUniformVec3("uColour", glm::vec3(0, .5f, .2f));
 
+        AxisGizmo g(100.0, 100.0);
+
         while (!Window::ShouldClose()) {
             /* Execute event results */
             if (Input::IsPressed("esc"))
@@ -30,11 +33,12 @@ int main() {
 
             Camera::UpdateCamera();
 
-            mat->SetUniformMat4("uProj", Camera::GetProjectionTransform(), false);
-            mat->SetUniformMat4("uCam", Camera::GetCameraTransform(), false);
-            mat->SetUniformMat4("uCor", Camera::GetCorrectionTransform(), false);
+            mat->SetUniformMat4("uProjection", Camera::GetProjectionTransform(), false);
+            mat->SetUniformMat4("uCamera", Camera::GetCameraTransform(), false);
+            mat->SetUniformMat4("uCorrection", Camera::GetCorrectionTransform(), false);
 
-            model.Draw();
+            // model.Draw();
+            g.Draw();
 
             // Call Draw to actually draw everything
             Window::Draw();

@@ -1,13 +1,13 @@
 #version 450 core
 
-uniform mat4 uProj;
-uniform mat4 uCam;
-uniform mat4 uCor;
+uniform mat4 uProjection;
+uniform mat4 uCamera;
+uniform mat4 uCorrection;
 
 layout(location = 0) in vec3 iPosition;
 
 void main() {
-  vec4 position = uProj * uCam * uCor * vec4(iPosition, 1.0);
+  vec4 position = uProjection * uCamera * uCorrection * vec4(iPosition, 1.0);
 
   gl_Position = position;
 }

@@ -47,8 +47,8 @@ class Camera {
         xOffset *= sensitivity;
         yOffset *= sensitivity;
 
-        Pitch += yOffset;
-        Yaw += xOffset;
+        Pitch -= yOffset;
+        Yaw -= xOffset;
 
         // Bouding so you don't get glitches
         if (Pitch > 44.0f)
