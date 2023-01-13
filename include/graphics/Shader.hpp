@@ -1,13 +1,16 @@
 #pragma once
 
-#include <glad/glad.h>
-
 #include <fstream>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 #include <iostream>
 #include <string>
+#include <vector>
 #include <unordered_map>
+
+#include <glad/glad.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include "graphics/Texture.hpp"
 
 class Shader {
    public:
@@ -19,10 +22,13 @@ class Shader {
     GLint GetAttribLocation(const std::string& name) const;
     void SetUniformVec3(const std::string& name, const glm::vec3& value);
     void SetUniformMat4(const std::string& name, const glm::mat4& value, bool shouldTranspose);
+    void SetUniformInt(const std::string& name, const int value);
+    void AddTexture(const std::string& name, Texture* texture);
 
    private:
     GLuint mID;
     std::unordered_map<std::string, GLint> mUniformCache;
+    std::vector<Texture*> mTextureIDs;
     static std::string ReadSource(const std::string& path) {
         std::ifstream file(path.c_str(), std::ifstream::in);
 

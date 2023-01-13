@@ -45,10 +45,22 @@ Shader::~Shader() {
 
 void Shader::Bind() const {
     glUseProgram(mID);
+
+    // Bind the associated textures
+    for (int i = 0; i < mTextureIDs.size(); i++) {
+        glActiveTexture(GL_TEXTURE0 + i);
+        mTextureIDs.at(i)->Bind();
+    }
 }
 
 void Shader::Unbind() const {
     glUseProgram(0);
+
+    // Bind the associated textures
+    for (int i = 0; i < mTextureIDs.size(); i++) {
+        glActiveTexture(GL_TEXTURE0 + i);
+        mTextureIDs.at(i)->Unbind();
+    }
 }
 
 GLint Shader::GetAttribLocation(const std::string& name) const {
@@ -68,6 +80,11 @@ void Shader::SetUniformMat4(const std::string& name, const glm::mat4& value, boo
         transpose = GL_TRUE;
 
     glUniformMatrix4fv(location, 1, transpose, glm::value_ptr(value));
+}
+
+void Shader::SetUniformInt(const std::string& name, const int value) {
+    GLint location = GetUniformLocation(name);
+    glUniform1i(location, value);
 }
 
 GLint Shader::CompileShader(const std::string& source, GLuint type) {
@@ -108,4 +125,13 @@ GLint Shader::GetUniformLocation(const std::string& name) {
     }
 
     return locationPair->second;
+}
+
+void Shader::AddTexture(const std::string& name, Texture* texture) {
+    // Keep track for texture binding
+    mTextureIDs.push_back(texture);
+
+    // Connect the shader variable and the texture
+    GLuint textureID = texture->GetID();
+    SetUniformInt(name, textureID);
 }

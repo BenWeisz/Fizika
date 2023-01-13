@@ -14,13 +14,17 @@
     -   This is useful if the simulation is really slow
 -   Should be able to draw from an input handler for object controls
 
-### Camera / Windowing System
-
-
 # TODO:
 - [ x ] Implement Camera System
-- [ ] Add Orientation unit coordinate
-- [ ] Add some basic phong shading
+- [ x ] Add Orientation unit coordinate
+- [ x ] Add some basic phong shading
 - [ ] Ensure that you can perform updates on mesh data
 - [ ] Integrate ImGUI
 - [ ] Integrate stb image
+
+# Texture Class
+### Requirements
+- Want to be able able to resuse the texture
+- Want bind / unbind capability
+- Want to be able to load images with stb_image
+- Needs to have interactivity with shader / material

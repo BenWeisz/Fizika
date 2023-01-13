@@ -124,3 +124,7 @@ Material::Representation Material::GetRepresentation() const {
 bool Material::HasAttribute(const std::string& attribName) const {
     return std::find(mAttributes.begin(), mAttributes.end(), attribName) != mAttributes.end();
 }
+
+void Material::AddTexture(const std::string& name, Texture* texture) {
+    mShader->AddTexture(name, texture);
+}

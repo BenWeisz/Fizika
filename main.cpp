@@ -6,6 +6,7 @@
 #include "graphics/Camera.hpp"
 #include "graphics/Model.hpp"
 #include "graphics/Material.hpp"
+#include "graphics/Texture.hpp"
 #include "graphics/gizmo/AxisGizmo.hpp"
 
 const int WIDTH = 640;
@@ -23,13 +24,15 @@ int main() {
         // Set up the camera for the window
         Camera::InitCamera(3.0f, WIDTH, HEIGHT);
 
-        Model model(Geometry::CUBE, "../res/base.mat");
+        Texture checker("../res/textures/checker.png");
+
+        Model model(Geometry::PLANE, "../res/base-texture.mat");
         Material* mat = model.GetMaterial();
-        mat->SetUniformVec3("uFlatColour", glm::vec3(0, .5f, .2f));
         mat->SetUniformVec3("uLightColour", glm::vec3(1.0));
         mat->SetUniformVec3("uLightPos", glm::vec3(1.0, 1.0, 0.0));
         mat->SetUniformMat4("uProjection", Camera::GetProjectionTransform(), false);
         mat->SetUniformMat4("uCorrection", Camera::GetCorrectionTransform(), false);
+        mat->AddTexture("uTexture0", &checker);
 
         AxisGizmo axis(WIDTH - 40.0, HEIGHT - 40.0);
 

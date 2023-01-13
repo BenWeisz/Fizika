@@ -6,10 +6,12 @@
 #include <vector>
 #include <algorithm>
 
+#include "tinyxml2.h"
+#include "glad/glad.h"
+
 #include "Shader.hpp"
 #include "VertexBufferLayout.hpp"
-#include "glad/glad.h"
-#include "tinyxml2.h"
+#include "Texture.hpp"
 
 class Material {
    public:
@@ -31,6 +33,8 @@ class Material {
     void SetRepresentation(const Representation rep);
     Representation GetRepresentation() const;
     bool HasAttribute(const std::string& attribName) const;
+    void AddTexture(const std::string& name, Texture* texture);
+
     static GLenum GetRepresentationPolygonEnum(const Representation rep) {
         switch (rep) {
             case Representation::POINTS:
