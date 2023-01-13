@@ -1,5 +1,7 @@
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include "graphics/Window.hpp"
 #include "input/Input.hpp"
@@ -9,8 +11,8 @@
 #include "graphics/Texture.hpp"
 #include "graphics/gizmo/AxisGizmo.hpp"
 
-const int WIDTH = 640;
-const int HEIGHT = 480;
+const int WIDTH = 640 * 1.5;
+const int HEIGHT = 480 * 1.5;
 
 int main() {
     {
@@ -29,12 +31,17 @@ int main() {
         Model model(Geometry::PLANE, "../res/base-texture.mat");
         Material* mat = model.GetMaterial();
         mat->SetUniformVec3("uLightColour", glm::vec3(1.0));
-        mat->SetUniformVec3("uLightPos", glm::vec3(1.0, 1.0, 0.0));
+        mat->SetUniformVec3("uLightPos", glm::vec3(10.0, 10.0, 10.0));
         mat->SetUniformMat4("uProjection", Camera::GetProjectionTransform(), false);
         mat->SetUniformMat4("uCorrection", Camera::GetCorrectionTransform(), false);
         mat->AddTexture("uTexture0", &checker);
 
-        AxisGizmo axis(WIDTH - 40.0, HEIGHT - 40.0);
+        glm::mat4 uModel = glm::mat4(1.0);
+        uModel = glm::rotate(uModel, glm::radians(-90.0f), glm::vec3(0.0, 1.0, 0.0));
+        uModel = glm::scale(uModel, glm::vec3(3.0, 3.0, 3.0));
+        mat->SetUniformMat4("uModel", uModel, false);
+
+        AxisGizmo axis(WIDTH - ((WIDTH / 640) * 40.0), HEIGHT - ((HEIGHT / 480) * 40.0));
 
         while (!Window::ShouldClose()) {
             /* Execute event results */
