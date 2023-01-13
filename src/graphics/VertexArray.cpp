@@ -23,6 +23,7 @@ void VertexArray::Bundle(VertexBuffer* buffer, IndexBuffer* indexBuffer, VertexB
         stride += element.attribSize * sizeof(GLfloat);
     }
 
+    int currentPos = 0;
     // Enable the attributes in the layout
     for (int i = 0; i < layout->GetNumLayoutElements(); i++) {
         LayoutElement element = layout->GetLayoutElement(i);
@@ -36,7 +37,10 @@ void VertexArray::Bundle(VertexBuffer* buffer, IndexBuffer* indexBuffer, VertexB
         glEnableVertexAttribArray((GLuint)attribLocation);
 
         // Specify offsets
-        glVertexAttribPointer((GLuint)attribLocation, element.attribSize, GL_FLOAT, GL_FALSE, stride, (GLvoid*)0);
+        glVertexAttribPointer((GLuint)attribLocation, element.attribSize, GL_FLOAT, GL_FALSE, stride, (GLvoid*)currentPos);
+
+        // Update the current total attrib position
+        currentPos += sizeof(GLfloat) * element.attribSize;
     }
 
     Unbind();

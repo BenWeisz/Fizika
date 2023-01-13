@@ -8,5 +8,6 @@
     </Shader>
     <Layout>
         <LayoutElement name="iPosition" attribSize="3"/>
+        <LayoutElement name="iNormal" attribSize="3"/>
     </Layout>
 </Material>

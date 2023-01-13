@@ -45,11 +45,13 @@ void Mesh::Update() {
             bufferData.push_back((GLfloat)mPositions(i, 0));
             bufferData.push_back((GLfloat)mPositions(i, 1));
             bufferData.push_back((GLfloat)mPositions(i, 2));
-        } else if (mLoadOptions & LoadOptions::NORMALS) {
+        }
+        if (mLoadOptions & LoadOptions::NORMALS) {
             bufferData.push_back((GLfloat)mNormals(i, 0));
             bufferData.push_back((GLfloat)mNormals(i, 1));
             bufferData.push_back((GLfloat)mNormals(i, 2));
-        } else if (mLoadOptions & LoadOptions::TEXTURES) {
+        }
+        if (mLoadOptions & LoadOptions::TEXTURES) {
             bufferData.push_back((GLfloat)mTextureUVs(i, 0));
             bufferData.push_back((GLfloat)mTextureUVs(i, 1));
         }
@@ -85,11 +87,13 @@ void Mesh::InitMesh(const std::string& path) {
             bufferData.push_back((GLfloat)mPositions(i, 0));
             bufferData.push_back((GLfloat)mPositions(i, 1));
             bufferData.push_back((GLfloat)mPositions(i, 2));
-        } else if (mLoadOptions & LoadOptions::NORMALS) {
+        }
+        if (mLoadOptions & LoadOptions::NORMALS) {
             bufferData.push_back((GLfloat)mNormals(i, 0));
             bufferData.push_back((GLfloat)mNormals(i, 1));
             bufferData.push_back((GLfloat)mNormals(i, 2));
-        } else if (mLoadOptions & LoadOptions::TEXTURES) {
+        }
+        if (mLoadOptions & LoadOptions::TEXTURES) {
             bufferData.push_back((GLfloat)mTextureUVs(i, 0));
             bufferData.push_back((GLfloat)mTextureUVs(i, 1));
         }
