@@ -42,6 +42,10 @@ class Camera {
         glfwSetInputMode(Window::Frame, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
     static void UpdateCamera() {
+        if (Input::IsHeld("ui-mode-toggle")) {
+            std::cout << "toggle" << std::endl;
+        }
+
         auto mouse = Input::GetMouse();
         double scroll = Input::GetScroll();
         Distance = 3.0 + scroll;

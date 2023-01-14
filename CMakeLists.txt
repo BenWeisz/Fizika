@@ -19,6 +19,7 @@ target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/glad-core-4.5/include)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/tinyxml/include)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/glm)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/stb)
+target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/imgui)
 
 target_link_libraries(Fizika glfw ${OPENGL_opengl_LIBRARY})
 target_link_libraries(Fizika glfw ${OPENGL_glx_LIBRARY})
@@ -41,6 +42,13 @@ target_sources(Fizika PUBLIC
     src/input/Input.cpp
     ${VENDOR_DIR}/glad-core-4.5/src/glad.c
     ${VENDOR_DIR}/tinyxml/src/tinyxml2.cpp
+    ${VENDOR_DIR}/imgui/imgui.cpp
+    ${VENDOR_DIR}/imgui/imgui_demo.cpp
+    ${VENDOR_DIR}/imgui/imgui_draw.cpp
+    ${VENDOR_DIR}/imgui/imgui_tables.cpp
+    ${VENDOR_DIR}/imgui/imgui_widgets.cpp
+    ${VENDOR_DIR}/imgui/backends/imgui_impl_glfw.cpp
+    ${VENDOR_DIR}/imgui/backends/imgui_impl_opengl3.cpp
 )
 
 if(${IS_DEBUG_BUILD})

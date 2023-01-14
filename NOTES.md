@@ -19,7 +19,7 @@
 - [ x ] Add Orientation unit coordinate
 - [ x ] Implement Normal Transformation
 - [ x ] Add some basic phong shading
-- [ ] Ensure that you can perform updates on mesh data
+- [ x ] Ensure that you can perform updates on mesh data
 - [ ] Integrate ImGUI + IMPlot
 - [ x ] Integrate stb image
 
@@ -29,3 +29,10 @@
 - Want bind / unbind capability
 - Want to be able to load images with stb_image
 - Needs to have interactivity with shader / material
+
+# Input Class
+### Requirements
+- If possible I don't want to have input update function
+- Want to be able to register keys to string
+- Want to have a press and held event at least
+- 

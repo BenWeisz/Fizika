@@ -1,6 +1,9 @@
 #pragma once
 
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
 #include <GLFW/glfw3.h>
+
 #include <unordered_map>
 #include <string>
 #include <algorithm>
@@ -9,30 +12,32 @@
 #include <iostream>
 
 class Input {
+   public:
+    enum State {
+        IDLE,
+        PRESSED,
+        HELD,
+        RELEASED
+    };
+
    private:
-    static std::unordered_map<std::string, bool> KeyStatesPress;
-    static std::unordered_map<std::string, bool> KeyStatesReleased;
-    static std::unordered_map<std::string, bool> KeyStatesHeld;
-    static std::vector<std::pair<int, std::string>> mRegisteredBindings;
+    static std::unordered_map<std::string, State> KeyStates;
+    // It is more likely that we want to have multiple keys bound to 1 action
+    // the reverse is not as likely because these would be seen as collisions
+    static std::vector<std::pair<std::string, int>> RegisteredBindings;
     static double MouseX;
     static double MouseY;
     static double Scroll;
-    static std::vector<std::string> GetBindingNames(int key) {
-        std::vector<std::string> bindingNames;
-        for (auto& e : mRegisteredBindings) {
-            if (e.first == key)
-                bindingNames.push_back(e.second);
-        }
+    static GLFWwindow* Frame;
+    static bool HasImGuiDisplay;
 
-        return bindingNames;
-    }
-    static bool GetState(std::unordered_map<std::string, bool> map, const std::string& bindingName) {
-        std::unordered_map<std::string, bool>::const_iterator element =
-            map.find(bindingName);
+    static State GetState(const std::string& bindingName) {
+        std::unordered_map<std::string, State>::const_iterator element =
+            KeyStates.find(bindingName);
 
-        if (element == map.end()) {
+        if (element == KeyStates.end()) {
             std::cout << "ERROR: Key " << bindingName << " not registered with input handler\n\tCall RegisterBinding on the global Input instance.";
-            return false;
+            return State::IDLE;
         }
 
         return element->second;
@@ -42,44 +47,11 @@ class Input {
     Input() = delete;
     Input(Input& other) = delete;
     void operator=(const Input& other) = delete;
-    static void InitInput(const double width, const double height) {
+    static void InitInput(const double width, const double height, GLFWwindow* frame, const bool hasImGuiDisplay) {
         MouseX = width / 2.0;
         MouseY = height / 2.0;
-    }
-    static void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mods) {
-        // Get list of binding names that correspond to key code
-        std::vector<std::string> bindingNames = GetBindingNames(key);
-
-        // If the key isn't registered ignore it
-        if (!bindingNames.size())
-            return;
-
-        // Update the key states
-        // Updates from press action
-        if (action == GLFW_PRESS) {
-            for (auto& name : bindingNames) {
-                KeyStatesPress[name] = true;
-                KeyStatesReleased[name] = false;
-            }
-        }
-        // Updates from release action
-        else if (action == GLFW_RELEASE) {
-            for (auto& name : bindingNames) {
-                KeyStatesReleased[name] = true;
-                KeyStatesHeld[name] = false;
-            }
-        }
-        // Updates from repeat action
-        else if (action == GLFW_REPEAT) {
-            for (auto& name : bindingNames) {
-                KeyStatesHeld[name] = true;
-                KeyStatesPress[name] = false;
-            }
-        }
-    }
-    static void MouseCallback(GLFWwindow* window, double xpos, double ypos) {
-        MouseX = xpos;
-        MouseY = ypos;
+        Frame = frame;
+        HasImGuiDisplay = hasImGuiDisplay;
     }
     static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
         Scroll -= yoffset;
@@ -87,24 +59,54 @@ class Input {
     }
     static void RegisterBinding(int key, const std::string& bindingName) {
         // Register a key so that you can query for it's state later
-        mRegisteredBindings.push_back({key, bindingName});
-        KeyStatesPress[bindingName] = false;
-        KeyStatesReleased[bindingName] = true;
-        KeyStatesHeld[bindingName] = false;
+        RegisteredBindings.push_back({bindingName, key});
+        KeyStates[bindingName] = State::IDLE;
+    }
+
+    static bool IsIdle(const std::string& bindingName) {
+        return GetState(bindingName) == State::IDLE;
     }
     static bool IsPressed(const std::string& bindingName) {
-        return GetState(KeyStatesPress, bindingName);
+        return GetState(bindingName) == State::PRESSED;
     }
     static bool IsReleased(const std::string& bindingName) {
-        return GetState(KeyStatesReleased, bindingName);
+        return GetState(bindingName) == State::RELEASED;
     }
     static bool IsHeld(const std::string& bindingName) {
-        return GetState(KeyStatesHeld, bindingName);
+        return GetState(bindingName) == State::HELD;
     }
+
     static std::pair<double, double> GetMouse() {
         return {MouseX, MouseY};
     }
     static double GetScroll() {
         return Scroll;
+    }
+
+    static void Update() {
+        // The input workhorse function
+
+        // Key Bindings Updates
+        for (auto& binding : RegisteredBindings) {
+            std::string bindingName = binding.first;
+            int key = binding.second;
+
+            int state = glfwGetKey(Frame, key);
+            State prevState = KeyStates[bindingName];
+            if (state == GLFW_PRESS) {
+                if (prevState == State::IDLE)
+                    KeyStates[bindingName] = State::PRESSED;
+                else if (prevState == State::PRESSED)
+                    KeyStates[bindingName] = State::HELD;
+            } else if (state == GLFW_RELEASE) {
+                if (prevState == State::HELD)
+                    KeyStates[bindingName] = State::RELEASED;
+                else if (prevState == State::RELEASED)
+                    KeyStates[bindingName] = State::IDLE;
+            }
+        }
+
+        // Mouse Position Updates
+        glfwGetCursorPos(Frame, &MouseX, &MouseY);
     }
 };

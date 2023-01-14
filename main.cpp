@@ -18,7 +18,7 @@ const int HEIGHT = 480 * 1.5;
 int main() {
     {
         // Set up the window
-        int r = Window::InitWindow(WIDTH, HEIGHT, "Fizika");
+        int r = Window::InitWindow(WIDTH, HEIGHT, "Fizika", false);
         if (r == -1)
             return r;
 
@@ -29,7 +29,7 @@ int main() {
 
         Texture checker("../res/textures/checker.png");
 
-        Model model(Geometry::TRIANGLE, "../res/base-texture.mat");
+        Model model(Geometry::PLANE, "../res/base-texture.mat");
         Mesh* mesh = model.GetMesh();
         Material* mat = model.GetMaterial();
         // mat->SetUniformVec3("uFlatColour", glm::vec3(0.0, 1.0, 0.0));
@@ -40,11 +40,13 @@ int main() {
         mat->AddTexture("uTexture0", &checker);
 
         glm::mat4 uModel = glm::mat4(1.0);
-        // uModel = glm::rotate(uModel, glm::radians(-90.0f), glm::vec3(0.0, 1.0, 0.0));
+        uModel = glm::rotate(uModel, glm::radians(-90.0f), glm::vec3(0.0, 1.0, 0.0));
         uModel = glm::scale(uModel, glm::vec3(3.0, 3.0, 3.0));
         mat->SetUniformMat4("uModel", uModel, false);
 
         AxisGizmo axis(WIDTH - ((WIDTH / 640) * 40.0), HEIGHT - ((HEIGHT / 480) * 40.0));
+
+        // bool isOpen = true;
 
         while (!Window::ShouldClose()) {
             /* Execute event results */
@@ -54,8 +56,15 @@ int main() {
             Camera::UpdateCamera();
 
             // Preform updates before render
-            mesh->mPositions(2, 2) += 0.001;
-            mesh->Update();
+            // mesh->mPositions(2, 2) += 0.001;
+            // mesh->Update();
+
+            // Begin creating the frame
+            Window::BeginFrame();
+
+            // if (isOpen) {
+            //     ImGui::ShowDemoWindow(&isOpen);
+            // }
 
             mat->SetUniformMat4("uCamera", Camera::GetCameraTransform(), false);
             mat->SetUniformVec3("uCameraPos", Camera::GetCameraPos());
