@@ -11,6 +11,7 @@
 #include "graphics/Mesh.hpp"
 #include "graphics/Texture.hpp"
 #include "graphics/gizmo/AxisGizmo.hpp"
+#include "simulation/EnergyPanel.hpp"
 
 const int WIDTH = 640 * 1.5;
 const int HEIGHT = 480 * 1.5;
@@ -18,7 +19,7 @@ const int HEIGHT = 480 * 1.5;
 int main() {
     {
         // Set up the window
-        int r = Window::InitWindow(WIDTH, HEIGHT, "Fizika", false);
+        int r = Window::InitWindow(WIDTH, HEIGHT, "Fizika", true);
         if (r == -1)
             return r;
 
@@ -27,6 +28,7 @@ int main() {
         // Set up the camera for the window
         Camera::InitCamera(3.0f, WIDTH, HEIGHT);
 
+        /* Set up the models */
         Texture checker("../res/textures/checker.png");
 
         Model model(Geometry::PLANE, "../res/base-texture.mat");
@@ -44,7 +46,9 @@ int main() {
         uModel = glm::scale(uModel, glm::vec3(3.0, 3.0, 3.0));
         mat->SetUniformMat4("uModel", uModel, false);
 
+        /* Set up Axis Gizmo */
         AxisGizmo axis(WIDTH - ((WIDTH / 640) * 40.0), HEIGHT - ((HEIGHT / 480) * 40.0));
+        EnergyPanel energies;
 
         while (!Window::ShouldClose()) {
             /* Execute event results */
@@ -63,6 +67,8 @@ int main() {
             // bool demoIsOpen = true;
             // ImGui::ShowDemoWindow(&demoIsOpen);
             // ImPlot::ShowDemoWindow();
+            energies.AddPoint(10.0, 10.0 + glfwGetTime());
+            energies.Draw();
 
             mat->SetUniformMat4("uCamera", Camera::GetCameraTransform(), false);
             mat->SetUniformVec3("uCameraPos", Camera::GetCameraPos());

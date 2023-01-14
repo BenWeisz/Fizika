@@ -20,8 +20,9 @@
 - [ x ] Implement Normal Transformation
 - [ x ] Add some basic phong shading
 - [ x ] Ensure that you can perform updates on mesh data
-- [ ] Integrate ImGUI + IMPlot
+- [ x ] Integrate ImGUI + IMPlot
 - [ x ] Integrate stb image
+- [  ] Implement system for rendering / substeping 
 
 # Texture Class
 ### Requirements
@@ -35,4 +36,3 @@
 - If possible I don't want to have input update function
 - Want to be able to register keys to string
 - Want to have a press and held event at least
-- 
