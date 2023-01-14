@@ -18,7 +18,7 @@ const int HEIGHT = 480 * 1.5;
 int main() {
     {
         // Set up the window
-        int r = Window::InitWindow(WIDTH, HEIGHT, "Fizika", true);
+        int r = Window::InitWindow(WIDTH, HEIGHT, "Fizika", false);
         if (r == -1)
             return r;
 
@@ -46,8 +46,6 @@ int main() {
 
         AxisGizmo axis(WIDTH - ((WIDTH / 640) * 40.0), HEIGHT - ((HEIGHT / 480) * 40.0));
 
-        bool isOpen = true;
-
         while (!Window::ShouldClose()) {
             /* Execute event results */
             if (Input::IsPressed("esc"))
@@ -62,11 +60,9 @@ int main() {
             // Begin creating the frame
             Window::BeginFrame();
 
-            if (isOpen) {
-                ImGui::ShowDemoWindow(&isOpen);
-            }
-
-            ImPlot::ShowDemoWindow();
+            // bool demoIsOpen = true;
+            // ImGui::ShowDemoWindow(&demoIsOpen);
+            // ImPlot::ShowDemoWindow();
 
             mat->SetUniformMat4("uCamera", Camera::GetCameraTransform(), false);
             mat->SetUniformVec3("uCameraPos", Camera::GetCameraPos());

@@ -42,7 +42,7 @@ class Input {
             KeyStates.find(bindingName);
 
         if (element == KeyStates.end()) {
-            std::cout << "ERROR: Key " << bindingName << " not registered with input handler\n\tCall RegisterBinding on the global Input instance.";
+            std::cout << "ERROR: Key " << bindingName << " not registered with input handler\n\tCall RegisterBinding on the global Input instance." << std::endl;
             return State::IDLE;
         }
 
@@ -63,7 +63,8 @@ class Input {
         Scroll -= yoffset;
         Scroll = std::max(0.0, Scroll);
 
-        ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
+        if (HasImGuiDisplay)
+            ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
     }
     static void RegisterBinding(int key, const std::string& bindingName) {
         // Register a key so that you can query for it's state later
