@@ -7,6 +7,7 @@
 #include <vector>
 
 #include <Eigen/Core>
+#include <Eigen/Dense>
 #include "glad/glad.h"
 
 #include "VertexArray.hpp"
@@ -102,6 +103,8 @@ class Mesh {
 
     void InitMesh(const std::string& path);
     void LoadFromFile(const std::string& path);
+    void ComputeNormals();
+    std::vector<GLfloat> PackModel() const;
     static bool IsOBJControlToken(const std::string& token) {
         return token == "v" || token == "vt" || token == "vn" || token == "#" || token == "p" || token == "l" || token == "f";
     }

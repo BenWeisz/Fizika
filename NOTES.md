@@ -17,10 +17,11 @@
 # TODO:
 - [ x ] Implement Camera System
 - [ x ] Add Orientation unit coordinate
+- [ x ] Implement Normal Transformation
 - [ x ] Add some basic phong shading
 - [ ] Ensure that you can perform updates on mesh data
-- [ ] Integrate ImGUI
-- [ ] Integrate stb image
+- [ ] Integrate ImGUI + IMPlot
+- [ x ] Integrate stb image
 
 # Texture Class
 ### Requirements

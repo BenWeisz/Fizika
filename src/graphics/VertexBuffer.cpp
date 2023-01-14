@@ -37,6 +37,11 @@ void VertexBuffer::Unbind() const {
 }
 
 void VertexBuffer::Update(const std::vector<GLfloat>& data) {
+    // for (int i = 0; i < data.size(); i++) {
+    //     std::cout << data[i] << " ";
+    // }
+    // std::cout << std::endl
+    //           << "====" << std::endl;
     assert(data.size() * sizeof(GLfloat) == mSize);
     glBufferSubData(GL_ARRAY_BUFFER, 0, mSize, &data[0]);
 }

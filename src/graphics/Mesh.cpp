@@ -38,26 +38,15 @@ void Mesh::Unbind() const {
 // Update the buffer based on the changes to the the
 // positions, normals and uvs
 void Mesh::Update() {
-    // Compute the buffer data vector
-    std::vector<GLfloat> bufferData;
-    for (int i = 0; i < mPositions.rows(); i++) {
-        if (mLoadOptions & LoadOptions::POSITIONS) {
-            bufferData.push_back((GLfloat)mPositions(i, 0));
-            bufferData.push_back((GLfloat)mPositions(i, 1));
-            bufferData.push_back((GLfloat)mPositions(i, 2));
-        }
-        if (mLoadOptions & LoadOptions::NORMALS) {
-            bufferData.push_back((GLfloat)mNormals(i, 0));
-            bufferData.push_back((GLfloat)mNormals(i, 1));
-            bufferData.push_back((GLfloat)mNormals(i, 2));
-        }
-        if (mLoadOptions & LoadOptions::TEXTURES) {
-            bufferData.push_back((GLfloat)mTextureUVs(i, 0));
-            bufferData.push_back((GLfloat)mTextureUVs(i, 1));
-        }
-    }
+    // Update the object normals since the model topology has changed
+    ComputeNormals();
 
+    // Compute the buffer data vector
+    std::vector<GLfloat> bufferData = PackModel();
+
+    mVertexBuffer->Bind();
     mVertexBuffer->Update(bufferData);
+    mVertexBuffer->Unbind();
 }
 
 VertexBuffer* Mesh::GetVertexBuffer() const {
@@ -81,23 +70,7 @@ void Mesh::InitMesh(const std::string& path) {
     LoadFromFile(path);
 
     // Load the vertex data into the vertex buffer
-    std::vector<GLfloat> bufferData;
-    for (int i = 0; i < mPositions.rows(); i++) {
-        if (mLoadOptions & LoadOptions::POSITIONS) {
-            bufferData.push_back((GLfloat)mPositions(i, 0));
-            bufferData.push_back((GLfloat)mPositions(i, 1));
-            bufferData.push_back((GLfloat)mPositions(i, 2));
-        }
-        if (mLoadOptions & LoadOptions::NORMALS) {
-            bufferData.push_back((GLfloat)mNormals(i, 0));
-            bufferData.push_back((GLfloat)mNormals(i, 1));
-            bufferData.push_back((GLfloat)mNormals(i, 2));
-        }
-        if (mLoadOptions & LoadOptions::TEXTURES) {
-            bufferData.push_back((GLfloat)mTextureUVs(i, 0));
-            bufferData.push_back((GLfloat)mTextureUVs(i, 1));
-        }
-    }
+    std::vector<GLfloat> bufferData = PackModel();
 
     mVertexBuffer = new VertexBuffer(bufferData);
 
@@ -270,4 +243,46 @@ void Mesh::LoadFromFile(const std::string& path) {
             buffer >> token;
         }
     }
+}
+
+void Mesh::ComputeNormals() {
+    int numPrimitives = mTopology.rows();
+    int primitiveDegree = mTopology.cols();
+
+    // We only want to update normals triangles
+    if (primitiveDegree != 3)
+        return;
+
+    for (int i = 0; i < numPrimitives; i++) {
+        Eigen::Vector3i indices = mTopology.row(i);
+        Eigen::Vector3d ab = mPositions.row(indices(2)) - mPositions.row(indices(0));
+        Eigen::Vector3d ac = mPositions.row(indices(1)) - mPositions.row(indices(0));
+
+        Eigen::Vector3d normal = ab.cross(ac).normalized();
+
+        // The last index is the provoking index which contains the normal data
+        mNormals.row(indices(2)) = normal;
+    }
+}
+
+std::vector<GLfloat> Mesh::PackModel() const {
+    std::vector<GLfloat> bufferData;
+    for (int i = 0; i < mPositions.rows(); i++) {
+        if (mLoadOptions & LoadOptions::POSITIONS) {
+            bufferData.push_back((GLfloat)mPositions(i, 0));
+            bufferData.push_back((GLfloat)mPositions(i, 1));
+            bufferData.push_back((GLfloat)mPositions(i, 2));
+        }
+        if (mLoadOptions & LoadOptions::NORMALS) {
+            bufferData.push_back((GLfloat)mNormals(i, 0));
+            bufferData.push_back((GLfloat)mNormals(i, 1));
+            bufferData.push_back((GLfloat)mNormals(i, 2));
+        }
+        if (mLoadOptions & LoadOptions::TEXTURES) {
+            bufferData.push_back((GLfloat)mTextureUVs(i, 0));
+            bufferData.push_back((GLfloat)mTextureUVs(i, 1));
+        }
+    }
+
+    return bufferData;
 }

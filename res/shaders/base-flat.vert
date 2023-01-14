@@ -12,7 +12,7 @@ flat out vec3 vNormal;
 out vec3 vFragPos;
 
 void main() {
-  vec4 position = uProjection * uCamera * uCorrection * vec4(iPosition, 1.0);
+  vec4 position = uProjection * uCamera * uCorrection * uModel * vec4(iPosition, 1.0);
 
 
   gl_Position = position;

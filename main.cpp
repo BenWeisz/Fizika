@@ -8,6 +8,7 @@
 #include "graphics/Camera.hpp"
 #include "graphics/Model.hpp"
 #include "graphics/Material.hpp"
+#include "graphics/Mesh.hpp"
 #include "graphics/Texture.hpp"
 #include "graphics/gizmo/AxisGizmo.hpp"
 
@@ -28,8 +29,10 @@ int main() {
 
         Texture checker("../res/textures/checker.png");
 
-        Model model(Geometry::PLANE, "../res/base-texture.mat");
+        Model model(Geometry::TRIANGLE, "../res/base-texture.mat");
+        Mesh* mesh = model.GetMesh();
         Material* mat = model.GetMaterial();
+        // mat->SetUniformVec3("uFlatColour", glm::vec3(0.0, 1.0, 0.0));
         mat->SetUniformVec3("uLightColour", glm::vec3(1.0));
         mat->SetUniformVec3("uLightPos", glm::vec3(10.0, 10.0, 10.0));
         mat->SetUniformMat4("uProjection", Camera::GetProjectionTransform(), false);
@@ -37,7 +40,7 @@ int main() {
         mat->AddTexture("uTexture0", &checker);
 
         glm::mat4 uModel = glm::mat4(1.0);
-        uModel = glm::rotate(uModel, glm::radians(-90.0f), glm::vec3(0.0, 1.0, 0.0));
+        // uModel = glm::rotate(uModel, glm::radians(-90.0f), glm::vec3(0.0, 1.0, 0.0));
         uModel = glm::scale(uModel, glm::vec3(3.0, 3.0, 3.0));
         mat->SetUniformMat4("uModel", uModel, false);
 
@@ -50,9 +53,14 @@ int main() {
 
             Camera::UpdateCamera();
 
+            // Preform updates before render
+            mesh->mPositions(2, 2) += 0.001;
+            mesh->Update();
+
             mat->SetUniformMat4("uCamera", Camera::GetCameraTransform(), false);
             mat->SetUniformVec3("uCameraPos", Camera::GetCameraPos());
 
+            // Render everything
             model.Draw();
             axis.Draw();
 
