@@ -15,14 +15,13 @@ EnergyPlot::~EnergyPlot() {
 }
 
 void EnergyPlot::Draw() {
-    ImGui::Begin("Energies");
     Time += ImGui::GetIO().DeltaTime;
 
     static float history = 10.0f;
     ImGui::SliderFloat("History", &history, 1, 30, "%.1f s");
 
     static ImPlotAxisFlags flags = ImPlotAxisFlags_None;
-    if (ImPlot::BeginPlot("##Energies", ImVec2(-1, -1))) {
+    if (ImPlot::BeginPlot("Energies", ImVec2(-1, -1))) {
         ImPlot::SetupAxes("time (s)", "energy", flags, flags);
         ImPlot::SetupAxisLimits(ImAxis_X1, Time - history, Time, ImGuiCond_Always);
         ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 100);
@@ -31,8 +30,6 @@ void EnergyPlot::Draw() {
         ImPlot::PlotLine("Total", &mScrollingBufferTot->Data[0].x, &mScrollingBufferTot->Data[0].y, mScrollingBufferTot->Data.size(), 0, mScrollingBufferTot->Offset, 2 * sizeof(float));
         ImPlot::EndPlot();
     }
-
-    ImGui::End();
 }
 
 void EnergyPlot::AddPoint(const float T, const float V) {

@@ -63,12 +63,16 @@ int main() {
 
             // Begin creating the frame
             Window::BeginFrame();
+            ImGui::Begin("Info");
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::NewLine();
 
             // bool demoIsOpen = true;
             // ImGui::ShowDemoWindow(&demoIsOpen);
             // ImPlot::ShowDemoWindow();
             energies.AddPoint(10.0, 10.0 + glfwGetTime());
             energies.Draw();
+            ImGui::End();
 
             mat->SetUniformMat4("uCamera", Camera::GetCameraTransform(), false);
             mat->SetUniformVec3("uCameraPos", Camera::GetCameraPos());

@@ -51,7 +51,7 @@ class Window {
             IMGUI_CHECKVERSION();
             ImGui::CreateContext();
             ImPlot::CreateContext();
-            ImGui::StyleColorsDark();
+            ImGui::StyleColorsClassic();
 
             // Set up the implementation
             ImGui_ImplGlfw_InitForOpenGL(Frame, true);
@@ -60,7 +60,6 @@ class Window {
 
         /* Add a simple key listener */
         Input::RegisterBinding(GLFW_KEY_ESCAPE, "esc");
-
         Input::RegisterBinding(GLFW_KEY_C, "ui-mode-toggle");
 
         /* Add Scroll Listener */
