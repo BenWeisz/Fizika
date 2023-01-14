@@ -7,3 +7,4 @@ double Input::MouseY;
 double Input::Scroll = 0.0;
 GLFWwindow* Input::Frame;
 bool Input::HasImGuiDisplay;
+std::vector<Input::InputSave> Input::InputSaves;

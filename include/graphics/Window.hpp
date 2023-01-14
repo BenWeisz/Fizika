@@ -6,6 +6,7 @@
 
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
+#include <implot.h>
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
@@ -49,6 +50,7 @@ class Window {
             /* Set up IMGui */
             IMGUI_CHECKVERSION();
             ImGui::CreateContext();
+            ImPlot::CreateContext();
             ImGui::StyleColorsDark();
 
             // Set up the implementation
@@ -83,6 +85,7 @@ class Window {
             ImGui_ImplOpenGL3_Shutdown();
             ImGui_ImplGlfw_Shutdown();
             ImGui::DestroyContext();
+            ImPlot::DestroyContext();
         }
 
         glfwDestroyWindow(Frame);

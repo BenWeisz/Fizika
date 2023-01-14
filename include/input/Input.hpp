@@ -13,6 +13,11 @@
 
 class Input {
    public:
+    struct InputSave {
+        double mouseX;
+        double mouseY;
+        double scroll;
+    };
     enum State {
         IDLE,
         PRESSED,
@@ -30,6 +35,7 @@ class Input {
     static double Scroll;
     static GLFWwindow* Frame;
     static bool HasImGuiDisplay;
+    static std::vector<InputSave> InputSaves;
 
     static State GetState(const std::string& bindingName) {
         std::unordered_map<std::string, State>::const_iterator element =
@@ -56,6 +62,8 @@ class Input {
     static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
         Scroll -= yoffset;
         Scroll = std::max(0.0, Scroll);
+
+        ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
     }
     static void RegisterBinding(int key, const std::string& bindingName) {
         // Register a key so that you can query for it's state later
@@ -108,5 +116,18 @@ class Input {
 
         // Mouse Position Updates
         glfwGetCursorPos(Frame, &MouseX, &MouseY);
+    }
+
+    static void PushInputSave() {
+        InputSaves.push_back({MouseX, MouseY, Scroll});
+    }
+    static void PopInputSave() {
+        if (InputSaves.size() > 0) {
+            InputSave save = InputSaves.back();
+            MouseX = save.mouseX;
+            MouseY = save.mouseY;
+            Scroll = save.scroll;
+            InputSaves.pop_back();
+        }
     }
 };

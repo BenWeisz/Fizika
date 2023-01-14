@@ -9,3 +9,4 @@ float Camera::LastMouseY;
 glm::mat4 Camera::CorrectionTransform;
 glm::mat4 Camera::CameraTransform;
 glm::mat4 Camera::ProjectionTransform;
+bool Camera::IsEnabled = true;

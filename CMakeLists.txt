@@ -20,6 +20,7 @@ target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/tinyxml/include)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/glm)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/stb)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/imgui)
+target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/implot)
 
 target_link_libraries(Fizika glfw ${OPENGL_opengl_LIBRARY})
 target_link_libraries(Fizika glfw ${OPENGL_glx_LIBRARY})
@@ -49,6 +50,9 @@ target_sources(Fizika PUBLIC
     ${VENDOR_DIR}/imgui/imgui_widgets.cpp
     ${VENDOR_DIR}/imgui/backends/imgui_impl_glfw.cpp
     ${VENDOR_DIR}/imgui/backends/imgui_impl_opengl3.cpp
+    ${VENDOR_DIR}/implot/implot.cpp
+    ${VENDOR_DIR}/implot/implot_items.cpp
+    ${VENDOR_DIR}/implot/implot_demo.cpp
 )
 
 if(${IS_DEBUG_BUILD})
