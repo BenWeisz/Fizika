@@ -11,7 +11,7 @@
 #include "graphics/Mesh.hpp"
 #include "graphics/Texture.hpp"
 #include "graphics/gizmo/AxisGizmo.hpp"
-#include "simulation/EnergyPanel.hpp"
+#include "simulation/EnergyPlot.hpp"
 
 const int WIDTH = 640 * 1.5;
 const int HEIGHT = 480 * 1.5;
@@ -48,7 +48,7 @@ int main() {
 
         /* Set up Axis Gizmo */
         AxisGizmo axis(WIDTH - ((WIDTH / 640) * 40.0), HEIGHT - ((HEIGHT / 480) * 40.0));
-        EnergyPanel energies;
+        EnergyPlot energies;
 
         while (!Window::ShouldClose()) {
             /* Execute event results */

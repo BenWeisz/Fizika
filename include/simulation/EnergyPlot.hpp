@@ -30,7 +30,7 @@ struct ScrollingBuffer {
     }
 };
 
-class EnergyPanel {
+class EnergyPlot {
    private:
     ScrollingBuffer* mScrollingBufferT;
     ScrollingBuffer* mScrollingBufferV;
@@ -38,8 +38,8 @@ class EnergyPanel {
     static float Time;
 
    public:
-    EnergyPanel();
-    ~EnergyPanel();
+    EnergyPlot();
+    ~EnergyPlot();
     void Draw();
     void AddPoint(const float T, const float V);
 };

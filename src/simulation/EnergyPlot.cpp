@@ -1,20 +1,20 @@
-#include "simulation/EnergyPanel.hpp"
+#include "simulation/EnergyPlot.hpp"
 
-float EnergyPanel::Time = 0.0f;
+float EnergyPlot::Time = 0.0f;
 
-EnergyPanel::EnergyPanel() {
+EnergyPlot::EnergyPlot() {
     mScrollingBufferT = new ScrollingBuffer();
     mScrollingBufferV = new ScrollingBuffer();
     mScrollingBufferTot = new ScrollingBuffer();
 }
 
-EnergyPanel::~EnergyPanel() {
+EnergyPlot::~EnergyPlot() {
     delete mScrollingBufferT;
     delete mScrollingBufferV;
     delete mScrollingBufferTot;
 }
 
-void EnergyPanel::Draw() {
+void EnergyPlot::Draw() {
     ImGui::Begin("Energies");
     Time += ImGui::GetIO().DeltaTime;
 
@@ -35,7 +35,7 @@ void EnergyPanel::Draw() {
     ImGui::End();
 }
 
-void EnergyPanel::AddPoint(const float T, const float V) {
+void EnergyPlot::AddPoint(const float T, const float V) {
     // Add the kenetic energy, potential and total energy to the buffer
     mScrollingBufferT->AddPoint(Time, T);
     mScrollingBufferV->AddPoint(Time, V);

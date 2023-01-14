@@ -23,6 +23,7 @@
 - [ x ] Integrate ImGUI + IMPlot
 - [ x ] Integrate stb image
 - [  ] Implement system for rendering / substeping 
+- [ x ] Add energy plot
 
 # Texture Class
 ### Requirements
