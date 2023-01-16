@@ -44,6 +44,7 @@ target_sources(Fizika PUBLIC
     src/simulation/EnergyPlot.cpp
     src/simulation/Ball.cpp
     src/simulation/Cube.cpp
+    src/simulation/Simulation.cpp
     ${VENDOR_DIR}/glad-core-4.5/src/glad.c
     ${VENDOR_DIR}/tinyxml/src/tinyxml2.cpp
     ${VENDOR_DIR}/imgui/imgui.cpp
@@ -61,3 +62,5 @@ target_sources(Fizika PUBLIC
 if(${IS_DEBUG_BUILD})
     add_compile_definitions(__DEBUG__)
 endif()
+
+add_compile_definitions(GLFW_INCLUDE_NONE)

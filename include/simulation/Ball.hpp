@@ -12,7 +12,7 @@ class Ball {
     Eigen::Vector3d qdot;
     Eigen::Vector3d qddot;
     const double radius = 0.08;
-    const double dampening = 0.99;
+    const double dampening = 0.95;
     const double simWidth = 3;
     const double simHeight = 3;
     double mass;

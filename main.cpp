@@ -15,19 +15,22 @@
 #include "simulation/EnergyPlot.hpp"
 #include "simulation/Ball.hpp"
 #include "simulation/Cube.hpp"
+#include "simulation/Simulation.hpp"
 
 const int WIDTH = 640 * 2.0;
 const int HEIGHT = 480 * 2.0;
 
 int main() {
     {
+        // Register Extra Keys
+        Input::RegisterBinding(GLFW_KEY_B, "New Ball");
+
         // Set up the window
         int r = Window::InitWindow(WIDTH, HEIGHT, "Fizika", true);
         if (r == -1)
             return r;
 
         Window::ClearColour = glm::vec3(66.f / 255.f, 133.f / 255.f, 166.f / 255.f);
-
         // Set up the camera for the window
         Camera::InitCamera(3.0f, WIDTH, HEIGHT);
 
@@ -53,11 +56,9 @@ int main() {
         AxisGizmo axis(WIDTH - ((WIDTH / 640) * 40.0), HEIGHT - ((HEIGHT / 480) * 40.0));
         EnergyPlot energies;
 
-        Eigen::Vector3d q0(0.0, 0.0, 2.0);
-        Eigen::Vector3d qdot0(3.0, 4.0, 2.0);
-        Ball ball(q0, qdot0);
-
         Cube cube(glm::vec3(0.0, 0.0, 1.5));
+
+        Simulation sim;
 
         double time = glfwGetTime();
 
@@ -68,43 +69,39 @@ int main() {
 
             Camera::UpdateCamera();
 
-            // Preform updates before render
-            // mesh->mPositions(2, 2) += 0.001;
-            // mesh->Update();
+            // Update the ball
+            double currTime = glfwGetTime();
+            double dt = currTime - time;
+            time = currTime;
+
+            // Update the simulation
+            sim.Update(dt);
 
             // Begin creating the frame
             Window::BeginFrame();
             ImGui::Begin("Info");
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::Text("Number of Balls: %d", sim.GetNumberOfBalls());
             ImGui::NewLine();
 
-            // Update the ball
-            double currTime = glfwGetTime();
-            double dt = currTime - time;
-            time = currTime;
-            ball.Update(dt);
-
-            // Display the ball's energy
-            double potentialEnergy = ball.GetPotentialEnergy();
-            double kineticEnergy = ball.GetKineticEnergy();
-
-            energies.AddPoint(kineticEnergy, potentialEnergy);
+            energies.AddPoint(sim.GetKineticEnergy(), sim.GetPotentialEnergy());
             energies.Draw();
-            ImGui::End();
 
             // Render the plane
             planeMat->SetUniformMat4("uCamera", Camera::GetCameraTransform(), false);
             planeMat->SetUniformVec3("uCameraPos", Camera::GetCameraPos());
             plane.Draw();
 
-            // Render the ball
-            ball.Draw();
-
             // Render the cube
             cube.Draw();
 
+            // Render the simulation
+            sim.Draw();
+
             // Render the gizmo
             axis.Draw();
+
+            ImGui::End();
 
             // Call Draw to actually draw everything
             Window::Draw();

@@ -37,3 +37,12 @@
 - If possible I don't want to have input update function
 - Want to be able to register keys to string
 - Want to have a press and held event at least
+
+# Extras needed
+- [ ] Simulation / engine class
+- [ ] move materials into separate folder
+- [ ] Add line cube object
+- [ ] Add folder for models used by all sims
+- [ ] Print register keys like in libigl during input init
+- [ ] Possibly add engine that you can register entities to and have it automatically apply uniforms and call draw / update
+- [ ] Figure out a better way to do the glfw / glad imports
