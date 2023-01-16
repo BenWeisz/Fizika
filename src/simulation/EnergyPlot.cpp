@@ -24,7 +24,7 @@ void EnergyPlot::Draw() {
     if (ImPlot::BeginPlot("Energies", ImVec2(-1, -1))) {
         ImPlot::SetupAxes("time (s)", "energy", flags, flags);
         ImPlot::SetupAxisLimits(ImAxis_X1, Time - history, Time, ImGuiCond_Always);
-        ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 100);
+        ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 30);
         ImPlot::PlotLine("Kinetic", &mScrollingBufferT->Data[0].x, &mScrollingBufferT->Data[0].y, mScrollingBufferT->Data.size(), 0, mScrollingBufferT->Offset, 2 * sizeof(float));
         ImPlot::PlotLine("Potential", &mScrollingBufferV->Data[0].x, &mScrollingBufferV->Data[0].y, mScrollingBufferV->Data.size(), 0, mScrollingBufferV->Offset, 2 * sizeof(float));
         ImPlot::PlotLine("Total", &mScrollingBufferTot->Data[0].x, &mScrollingBufferTot->Data[0].y, mScrollingBufferTot->Data.size(), 0, mScrollingBufferTot->Offset, 2 * sizeof(float));
