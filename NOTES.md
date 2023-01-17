@@ -41,7 +41,7 @@
 # Extras needed
 - [ ] Simulation / engine class
 - [ x ] move materials into separate folder
-- [ ] Add line cube object
+- [ x ] Add line cube object
 - [ x ] Add folder for models used by all sims
 - [ x ] Print registered keys like in libigl during input init
 - [ ] Possibly add engine that you can register entities to and have it automatically apply uniforms and call draw / update
