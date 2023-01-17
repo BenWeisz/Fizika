@@ -26,6 +26,8 @@ The following libraries / implementations are required. Download the following a
 └── tinyxml
 ```
 
+You'll also need to install Eigen3 and GLFW system wide
+
 Download them here:
 - [Glad](https://glad.dav1d.de/)
 - [GLFW keys](https://gist.github.com/0xD34DC0DE/910855d41786b962127ae401da2a3441)
@@ -34,6 +36,8 @@ Download them here:
 - [implot](https://github.com/epezent/implot)
 - [stb](https://github.com/nothings/stb)
 - [tinyxml](https://github.com/leethomason/tinyxml2)
+- [GLFW](https://www.glfw.org/download)
+- [Eigen3](https://robots.uc3m.es/installation-guides/install-eigen.html)
 
 Make sure to modify the `VENDOR_DIR` in the `CMakeLists.txt` file
 
