@@ -50,4 +50,4 @@
 - [ ] Fix issue with having to place \n at end of obj file
 - [ ] Migrate to assimp for model loading
 - [ ] Add a define function for resource paths
-- [ ] Implement Transform class
+- [ x ] Implement Transform class

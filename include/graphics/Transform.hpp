@@ -13,6 +13,7 @@ class Transform {
 
    public:
     Transform(const glm::vec3& scale, const glm::vec3& rotationAxis, const double rotationTheta, const glm::vec3& translation);
+    Transform();
     glm::mat4 GetTransformMatrix() const;
     inline void SetScale(const glm::vec3& scale) { mScale = scale; }
     inline void SetRotation(const glm::vec3& rotationAxis, const double rotationTheta) {

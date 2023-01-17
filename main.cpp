@@ -11,6 +11,7 @@
 #include "graphics/Mesh.hpp"
 #include "graphics/Texture.hpp"
 #include "graphics/Light.hpp"
+#include "graphics/Transform.hpp"
 #include "graphics/gizmo/AxisGizmo.hpp"
 #include "simulation/EnergyPlot.hpp"
 #include "objects/Plane.hpp"
@@ -35,12 +36,14 @@ int main() {
 
         /* Set up Models */
         Plane plane;
-        plane.SetRotation(glm::vec3(0.0, 1.0, 0.0), -90.0);
-        plane.SetScale(glm::vec3(3.0, 3.0, 3.0));
+        Transform* planeTransform = plane.GetTransform();
+        planeTransform->SetRotation(glm::vec3(0.0, 1.0, 0.0), -90.0);
+        planeTransform->SetScale(glm::vec3(3.0, 3.0, 3.0));
 
         BoundaryCube cube;
-        cube.SetScale(glm::vec3(3.0, 3.0, 3.0));
-        cube.SetTranslation(glm::vec3(0.0, 0.0, 1.5));
+        Transform* cubeTransform = cube.GetTransform();
+        cubeTransform->SetScale(glm::vec3(3.0, 3.0, 3.0));
+        cubeTransform->SetTranslation(glm::vec3(0.0, 0.0, 1.5));
 
         AxisGizmo axis(WIDTH - ((WIDTH / 640) * 40.0), HEIGHT - ((HEIGHT / 480) * 40.0));
         // EnergyPlot energies;
