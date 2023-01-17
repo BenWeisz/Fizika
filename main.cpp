@@ -10,8 +10,10 @@
 #include "graphics/Material.hpp"
 #include "graphics/Mesh.hpp"
 #include "graphics/Texture.hpp"
+#include "graphics/Light.hpp"
 #include "graphics/gizmo/AxisGizmo.hpp"
 #include "simulation/EnergyPlot.hpp"
+#include "objects/Plane.hpp"
 
 const int WIDTH = 640 * 1.5;
 const int HEIGHT = 480 * 1.5;
@@ -28,27 +30,15 @@ int main() {
         // Set up the camera for the window
         Camera::InitCamera(3.0f, WIDTH, HEIGHT);
 
-        /* Set up the models */
-        Texture checker("../res/textures/checker.png");
+        Light::InitLight(glm::vec3(1.0, 1.0, 1.0), glm::vec3(0.0, 0.0, 10.0));
 
-        Model model(Geometry::PLANE, "../res/base-texture.mat");
-        Mesh* mesh = model.GetMesh();
-        Material* mat = model.GetMaterial();
-        // mat->SetUniformVec3("uFlatColour", glm::vec3(0.0, 1.0, 0.0));
-        mat->SetUniformVec3("uLightColour", glm::vec3(1.0));
-        mat->SetUniformVec3("uLightPos", glm::vec3(10.0, 10.0, 10.0));
-        mat->SetUniformMat4("uProjection", Camera::GetProjectionTransform(), false);
-        mat->SetUniformMat4("uCorrection", Camera::GetCorrectionTransform(), false);
-        mat->AddTexture("uTexture0", &checker);
+        /* Set up Models */
+        Plane plane;
+        plane.SetRotation(glm::vec3(0.0, 1.0, 0.0), -90.0);
+        plane.SetScale(glm::vec3(3.0, 3.0, 3.0));
 
-        glm::mat4 uModel = glm::mat4(1.0);
-        uModel = glm::rotate(uModel, glm::radians(-90.0f), glm::vec3(0.0, 1.0, 0.0));
-        uModel = glm::scale(uModel, glm::vec3(3.0, 3.0, 3.0));
-        mat->SetUniformMat4("uModel", uModel, false);
-
-        /* Set up Axis Gizmo */
         AxisGizmo axis(WIDTH - ((WIDTH / 640) * 40.0), HEIGHT - ((HEIGHT / 480) * 40.0));
-        EnergyPlot energies;
+        // EnergyPlot energies;
 
         while (!Window::ShouldClose()) {
             /* Execute event results */
@@ -63,22 +53,14 @@ int main() {
 
             // Begin creating the frame
             Window::BeginFrame();
+
             ImGui::Begin("Info");
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
             ImGui::NewLine();
-
-            // bool demoIsOpen = true;
-            // ImGui::ShowDemoWindow(&demoIsOpen);
-            // ImPlot::ShowDemoWindow();
-            energies.AddPoint(10.0, 10.0 + glfwGetTime());
-            energies.Draw();
             ImGui::End();
 
-            mat->SetUniformMat4("uCamera", Camera::GetCameraTransform(), false);
-            mat->SetUniformVec3("uCameraPos", Camera::GetCameraPos());
-
-            // Render everything
-            model.Draw();
+            /* Render all the objects */
+            plane.Draw();
             axis.Draw();
 
             // Call Draw to actually draw everything

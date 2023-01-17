@@ -24,7 +24,7 @@ Model::Model(const Geometry geometry, const std::string& materialPath) {
 }
 
 Model::Model(const std::string& meshPath, const Mesh::LoadOptions loadOptions) {
-    mMaterial = new Material("../res/base.mat");
+    mMaterial = new Material("../res/materials/base.mat");
     mMesh = new Mesh(meshPath, loadOptions);
 
     // Bundle the mesh and the material
@@ -32,7 +32,7 @@ Model::Model(const std::string& meshPath, const Mesh::LoadOptions loadOptions) {
 }
 
 Model::Model(const Geometry geometry) {
-    mMaterial = new Material("../res/base.mat");
+    mMaterial = new Material("../res/materials/base.mat");
 
     std::string meshPath = Mesh::GetMeshPrimitivePath(geometry);
     Mesh::LoadOptions meshLoadOptions = GetLoadOptionsFromMaterial(mMaterial);
@@ -44,7 +44,7 @@ Model::Model(const Geometry geometry) {
 }
 
 Model::Model(const std::string& meshPath) {
-    mMaterial = new Material("../res/base.mat");
+    mMaterial = new Material("../res/materials/base.mat");
 
     Mesh::LoadOptions meshLoadOptions = GetLoadOptionsFromMaterial(mMaterial);
 

@@ -39,13 +39,15 @@ target_sources(Fizika PUBLIC
     src/graphics/Camera.cpp
     src/graphics/stb_image.cpp
     src/graphics/Texture.cpp
+    src/graphics/Light.cpp
     src/graphics/gizmo/AxisGizmo.cpp
     src/input/Input.cpp
     src/simulation/EnergyPlot.cpp
+    src/objects/Plane.cpp
     ${VENDOR_DIR}/glad-core-4.5/src/glad.c
     ${VENDOR_DIR}/tinyxml/src/tinyxml2.cpp
     ${VENDOR_DIR}/imgui/imgui.cpp
-    ${VENDOR_DIR}/imgui/imgui_demo.cpp
+    # ${VENDOR_DIR}/imgui/imgui_demo.cpp
     ${VENDOR_DIR}/imgui/imgui_draw.cpp
     ${VENDOR_DIR}/imgui/imgui_tables.cpp
     ${VENDOR_DIR}/imgui/imgui_widgets.cpp
@@ -53,7 +55,7 @@ target_sources(Fizika PUBLIC
     ${VENDOR_DIR}/imgui/backends/imgui_impl_opengl3.cpp
     ${VENDOR_DIR}/implot/implot.cpp
     ${VENDOR_DIR}/implot/implot_items.cpp
-    ${VENDOR_DIR}/implot/implot_demo.cpp
+    # ${VENDOR_DIR}/implot/implot_demo.cpp
 )
 
 if(${IS_DEBUG_BUILD})
