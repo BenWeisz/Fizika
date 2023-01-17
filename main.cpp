@@ -17,8 +17,8 @@
 #include "simulation/Cube.hpp"
 #include "simulation/Simulation.hpp"
 
-const int WIDTH = 640 * 2.0;
-const int HEIGHT = 480 * 2.0;
+const int WIDTH = 640 * 1.5;
+const int HEIGHT = 480 * 1.5;
 
 int main() {
     {
