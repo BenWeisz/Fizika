@@ -40,6 +40,8 @@ class Window {
         }
 
         // Initialize the input manager
+        Input::RegisterBinding(GLFW_KEY_ESCAPE, "esc");
+        Input::RegisterBinding(GLFW_KEY_C, "ui-mode-toggle");
         Input::InitInput(width, height, Frame, hasImGuiDisplay);
 
         /* Make the window's context current */
@@ -57,10 +59,6 @@ class Window {
             ImGui_ImplGlfw_InitForOpenGL(Frame, true);
             ImGui_ImplOpenGL3_Init("#version 450");
         }
-
-        /* Add a simple key listener */
-        Input::RegisterBinding(GLFW_KEY_ESCAPE, "esc");
-        Input::RegisterBinding(GLFW_KEY_C, "ui-mode-toggle");
 
         /* Add Scroll Listener */
         glfwSetScrollCallback(Frame, Input::ScrollCallback);

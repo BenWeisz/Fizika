@@ -21,6 +21,7 @@ target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/glm)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/stb)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/imgui)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/implot)
+target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/glfwkeys)
 
 target_link_libraries(Fizika glfw ${OPENGL_opengl_LIBRARY})
 target_link_libraries(Fizika glfw ${OPENGL_glx_LIBRARY})
@@ -44,6 +45,7 @@ target_sources(Fizika PUBLIC
     src/input/Input.cpp
     src/simulation/EnergyPlot.cpp
     src/objects/Plane.cpp
+    src/objects/BoundaryCube.cpp
     ${VENDOR_DIR}/glad-core-4.5/src/glad.c
     ${VENDOR_DIR}/tinyxml/src/tinyxml2.cpp
     ${VENDOR_DIR}/imgui/imgui.cpp

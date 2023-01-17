@@ -1,15 +1,16 @@
 #pragma once
 
-#include <backends/imgui_impl_glfw.h>
-#include <backends/imgui_impl_opengl3.h>
-#include <GLFW/glfw3.h>
-
 #include <unordered_map>
 #include <string>
 #include <algorithm>
 #include <cctype>
 #include <utility>
 #include <iostream>
+
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
+#include <GLFW/glfw3.h>
+#include <glfw_keycodes_to_string.hpp>
 
 class Input {
    public:
@@ -58,6 +59,12 @@ class Input {
         MouseY = height / 2.0;
         Frame = frame;
         HasImGuiDisplay = hasImGuiDisplay;
+
+        std::cout << "Registered key bindings:" << std::endl;
+        for (auto& e : RegisteredBindings) {
+            const char* keyName = KeyCodeToStringSwitch((KeyCode)e.second);
+            std::cout << e.first << ": \"" << keyName << "\"" << std::endl;
+        }
     }
     static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
         Scroll -= yoffset;

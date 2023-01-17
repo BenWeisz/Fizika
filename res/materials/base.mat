@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Material>
+    <Shader>
+        <Sources>
+            <ShaderSource type="vertex" path="base.vert"/>
+            <ShaderSource type="fragment" path="base.frag"/>
+        </Sources>
+    </Shader>
+    <Layout>
+        <LayoutElement name="iPosition" attribSize="3"/>
+    </Layout>
+</Material>
