@@ -26,7 +26,7 @@ int main() {
         Input::RegisterBinding(GLFW_KEY_B, "New Ball");
 
         // Set up the window
-        int r = Window::InitWindow(WIDTH, HEIGHT, "Fizika", true);
+        int r = Window::InitWindow(WIDTH, HEIGHT, "Fizika - Bouncing Particles", true);
         if (r == -1)
             return r;
 
