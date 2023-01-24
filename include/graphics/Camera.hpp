@@ -7,7 +7,7 @@
 
 #include "graphics/Window.hpp"
 #include "input/Input.hpp"
-#include <GLFW/glfw3.h>
+#include "graphics/GL.hpp"
 
 class Camera {
    private:

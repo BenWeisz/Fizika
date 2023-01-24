@@ -9,7 +9,7 @@
 
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
-#include <GLFW/glfw3.h>
+#include "graphics/GL.hpp"
 #include <glfw_keycodes_to_string.hpp>
 
 class Input {

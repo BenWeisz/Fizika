@@ -45,6 +45,8 @@ target_sources(Fizika PUBLIC
     src/graphics/gizmo/AxisGizmo.cpp
     src/input/Input.cpp
     src/simulation/EnergyPlot.cpp
+    src/simulation/Ball.cpp
+    src/simulation/Simulation.cpp
     src/objects/Plane.cpp
     src/objects/BoundaryCube.cpp
     ${VENDOR_DIR}/glad-core-4.5/src/glad.c
