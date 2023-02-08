@@ -49,7 +49,8 @@ void Model::Draw() const {
     glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
 
     // Draw the model
-    glDrawElements(GL_TRIANGLES, ibo->GetCount(), GL_UNSIGNED_INT, (void*)0);
+    Mesh::PrimitiveType primitiveType = mMesh->GetPrimitiveType();
+    glDrawElements(primitiveType, ibo->GetCount(), GL_UNSIGNED_INT, (void*)0);
 
     vao->Unbind();
     shader->Unbind();
@@ -79,12 +80,20 @@ const Mesh::AttributeSettings Model::GetAttributeSettingsFromMaterial(const Mate
     Mesh::AttributeSettings meshAttributeSettings = (Mesh::AttributeSettings)(0);
 
     // Get the load options based on the attributes present in the material
-    if (mMaterial->HasAttribute("iPosition"))
+    if (mMaterial->HasAttribute("iPosition")) {
         meshAttributeSettings = (Mesh::AttributeSettings)(meshAttributeSettings | Mesh::AttributeSettings::LOAD_POSITIONS);
-    if (mMaterial->HasAttribute("iNormal"))
+        std::cout << "iPosition ";
+    }
+    if (mMaterial->HasAttribute("iNormal")) {
         meshAttributeSettings = (Mesh::AttributeSettings)(meshAttributeSettings | Mesh::AttributeSettings::LOAD_NORMALS);
-    if (mMaterial->HasAttribute("iTextureUV"))
+        std::cout << "iNormal ";
+    }
+    if (mMaterial->HasAttribute("iTextureUV")) {
         meshAttributeSettings = (Mesh::AttributeSettings)(meshAttributeSettings | Mesh::AttributeSettings::LOAD_TEXTURES);
+        std::cout << "iTexture ";
+    }
+
+    std::cout << std::endl;
 
     return meshAttributeSettings;
 }

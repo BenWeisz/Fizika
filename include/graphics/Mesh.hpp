@@ -23,6 +23,11 @@ class Mesh {
         LOAD_TEXTURES = 0x04,
     };
 
+    enum PrimitiveType {
+        TRIANGLES = GL_TRIANGLES,
+        LINES = GL_LINES
+    };
+
     Mesh(const std::string& path);
     Mesh(const std::string& path, const AttributeSettings attribSettings);
     ~Mesh();
@@ -35,18 +40,21 @@ class Mesh {
     VertexArray* GetVertexArray() const;
     IndexBuffer* GetIndexBuffer() const;
 
+    PrimitiveType GetPrimitiveType() const;
+
     Eigen::MatrixXd mPositions;
-    Eigen::MatrixXi mFaces;
+    Eigen::MatrixXi mPrimitives;
 
    private:
     const AttributeSettings mAttributeSettings;
+    PrimitiveType mPrimitiveType;
 
     // We won't do tearing simulations for know so the topology doesn't need to be changeable
     Eigen::MatrixXd mNormals;
     Eigen::MatrixXd mTextureUVs;
 
-    Eigen::MatrixXi mNormalFaces;
-    Eigen::MatrixXi mTextureFaces;
+    Eigen::MatrixXi mNormalPrimitives;
+    Eigen::MatrixXi mTexturePrimitives;
 
     VertexBuffer* mVertexBuffer;
     VertexArray* mVertexArray;

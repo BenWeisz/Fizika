@@ -113,11 +113,39 @@ void Mesh::LoadFromFile(const std::string& path) {
     std::string line;
     std::string trashStr;
 
+    int foundTriangle = 0;
+    int foundLine = 0;
+    while (!file.eof()) {
+        std::getline(file, line);
+        if (line.compare(0, 2, "f ") == 0 && foundTriangle != 1)
+            foundTriangle = 1;
+        else if (line.compare(0, 2, "l ") == 0 && foundLine != 1)
+            foundLine = 1;
+    }
+
+    if (foundTriangle + foundLine != 1) {
+        std::cout << "ERROR: The file: " << path << " must contain only one primitive type" << std::endl;
+        return;
+    }
+
+    int primitiveDegree;
+    if (foundTriangle) {
+        primitiveDegree = 3;
+        mPrimitiveType = PrimitiveType::TRIANGLES;
+    } else if (foundLine) {
+        primitiveDegree = 2;
+        mPrimitiveType = PrimitiveType::LINES;
+    }
+
+    // Rewind file pointer
+    file.clear();
+    file.seekg(0, std::ios::beg);
+
     // Count the number of occurances of each token
     int numPositions = 0;
     int numNormals = 0;
     int numTextureUVs = 0;
-    int numFaces = 0;
+    int numPrimitives = 0;
     while (!file.eof()) {
         std::getline(file, line);
         if (line.compare(0, 2, "v ") == 0)
@@ -127,7 +155,9 @@ void Mesh::LoadFromFile(const std::string& path) {
         else if (line.compare(0, 3, "vt ") == 0)
             numTextureUVs++;
         else if (line.compare(0, 2, "f ") == 0)
-            numFaces++;
+            numPrimitives++;
+        else if (line.compare(0, 2, "l ") == 0)
+            numPrimitives++;
     }
 
     // Rewind file pointer
@@ -139,15 +169,15 @@ void Mesh::LoadFromFile(const std::string& path) {
     mNormals = Eigen::MatrixXd::Zero(numNormals, 3);
     mTextureUVs = Eigen::MatrixXd::Zero(numTextureUVs, 2);
 
-    mFaces = Eigen::MatrixXi::Zero(numFaces, 3);
-    mNormalFaces = Eigen::MatrixXi::Zero(numFaces, 3);
-    mTextureFaces = Eigen::MatrixXi::Zero(numFaces, 3);
+    mPrimitives = Eigen::MatrixXi::Zero(numPrimitives, primitiveDegree);
+    mNormalPrimitives = Eigen::MatrixXi::Zero(numPrimitives, primitiveDegree);
+    mTexturePrimitives = Eigen::MatrixXi::Zero(numPrimitives, primitiveDegree);
 
     // Populate the matrices
     int iPosition = 0;
     int iNormal = 0;
     int iTextureUV = 0;
-    int iFace = 0;
+    int iPrimitive = 0;
     while (!file.eof()) {
         std::getline(file, line);
         std::istringstream iss(line.c_str());
@@ -177,18 +207,45 @@ void Mesh::LoadFromFile(const std::string& path) {
 
                 int startPos = 0;
                 int endPos = findEndOfNumber(token, startPos);
-                mFaces(iFace, i) = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
+                mPrimitives(iPrimitive, i) = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
+
+                if (mAttributeSettings & AttributeSettings::LOAD_TEXTURES) {
+                    startPos = findStartOfNumber(token, endPos);
+                    endPos = findEndOfNumber(token, startPos);
+                    mTexturePrimitives(iPrimitive, i) = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
+                }
 
                 startPos = findStartOfNumber(token, endPos);
                 endPos = findEndOfNumber(token, startPos);
-                mTextureFaces(iFace, i) = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
+                if (!(mAttributeSettings & AttributeSettings::LOAD_TEXTURES) && endPos != token.length()) {
+                    startPos = findStartOfNumber(token, endPos);
+                    endPos = findEndOfNumber(token, startPos);
+                }
 
-                startPos = findStartOfNumber(token, endPos);
-                endPos = findEndOfNumber(token, startPos);
-                mNormalFaces(iFace, i) = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
+                if (mAttributeSettings & AttributeSettings::LOAD_NORMALS)
+                    mNormalPrimitives(iPrimitive, i) = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
             }
 
-            iFace++;
+            iPrimitive++;
+        } else if (line.compare(0, 2, "l ") == 0) {
+            iss >> trashStr;
+
+            std::string token;
+            for (int i = 0; i < 2; i++) {
+                iss >> token;
+
+                int startPos = 0;
+                int endPos = findEndOfNumber(token, startPos);
+                mPrimitives(iPrimitive, i) = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
+
+                if (mAttributeSettings & AttributeSettings::LOAD_TEXTURES) {
+                    startPos = findStartOfNumber(token, endPos);
+                    endPos = findEndOfNumber(token, startPos);
+                    mTexturePrimitives(iPrimitive, i) = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
+                }
+            }
+
+            iPrimitive++;
         }
     }
 
@@ -204,28 +261,28 @@ std::pair<std::vector<GLfloat>, std::vector<GLuint>> Mesh::PackMesh() const {
     unsigned int currIndex = 0;
 
     // Pass to compute keys and store vertex buffer data
-    for (int i = 0; i < mFaces.rows(); i++) {
-        for (int j = 0; j < mFaces.cols(); j++) {
-            int faceInd = mFaces(i, j);
-            int normalFaceInd = mNormalFaces(i, j);
-            int textureFaceInd = mTextureFaces(i, j);
-            std::string key = std::to_string(faceInd) + "/" + std::to_string(normalFaceInd) + "/" + std::to_string(textureFaceInd);
+    for (int i = 0; i < mPrimitives.rows(); i++) {
+        for (int j = 0; j < mPrimitives.cols(); j++) {
+            int primitiveInd = mPrimitives(i, j);
+            int normalPrimitiveInd = mNormalPrimitives(i, j);
+            int texturePrimitiveInd = mTexturePrimitives(i, j);
+            std::string key = std::to_string(primitiveInd) + "/" + std::to_string(normalPrimitiveInd) + "/" + std::to_string(texturePrimitiveInd);
             if (!indexMap.contains(key)) {
                 indexMap[key] = currIndex++;
 
                 if (mAttributeSettings & AttributeSettings::LOAD_POSITIONS) {
-                    vertexBufferData.push_back((GLfloat)mPositions(faceInd, 0));
-                    vertexBufferData.push_back((GLfloat)mPositions(faceInd, 1));
-                    vertexBufferData.push_back((GLfloat)mPositions(faceInd, 2));
+                    vertexBufferData.push_back((GLfloat)mPositions(primitiveInd, 0));
+                    vertexBufferData.push_back((GLfloat)mPositions(primitiveInd, 1));
+                    vertexBufferData.push_back((GLfloat)mPositions(primitiveInd, 2));
                 }
                 if (mAttributeSettings & AttributeSettings::LOAD_NORMALS) {
-                    vertexBufferData.push_back((GLfloat)mNormals(normalFaceInd, 0));
-                    vertexBufferData.push_back((GLfloat)mNormals(normalFaceInd, 1));
-                    vertexBufferData.push_back((GLfloat)mNormals(normalFaceInd, 2));
+                    vertexBufferData.push_back((GLfloat)mNormals(normalPrimitiveInd, 0));
+                    vertexBufferData.push_back((GLfloat)mNormals(normalPrimitiveInd, 1));
+                    vertexBufferData.push_back((GLfloat)mNormals(normalPrimitiveInd, 2));
                 }
                 if (mAttributeSettings & AttributeSettings::LOAD_TEXTURES) {
-                    vertexBufferData.push_back((GLfloat)mTextureUVs(textureFaceInd, 0));
-                    vertexBufferData.push_back((GLfloat)mTextureUVs(textureFaceInd, 1));
+                    vertexBufferData.push_back((GLfloat)mTextureUVs(texturePrimitiveInd, 0));
+                    vertexBufferData.push_back((GLfloat)mTextureUVs(texturePrimitiveInd, 1));
                 }
             }
 
@@ -235,4 +292,8 @@ std::pair<std::vector<GLfloat>, std::vector<GLuint>> Mesh::PackMesh() const {
     }
 
     return {vertexBufferData, indexBufferData};
+}
+
+Mesh::PrimitiveType Mesh::GetPrimitiveType() const {
+    return mPrimitiveType;
 }
