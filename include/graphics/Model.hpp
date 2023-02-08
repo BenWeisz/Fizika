@@ -11,9 +11,7 @@ class Model {
    public:
     Model() = delete;
     Model(const std::string& meshPath, const std::string& materialPath);
-    Model(const Geometry geometry, const std::string& materialPath);
-    Model(const std::string& meshPath, const Mesh::LoadOptions loadOptions);
-    Model(const Geometry geometry);
+    Model(const std::string& meshPath, const Mesh::AttributeSettings attributeSettings);
     Model(const std::string& meshPath);
     ~Model();
     void Draw() const;
@@ -24,5 +22,5 @@ class Model {
     Mesh* mMesh;
     Material* mMaterial;
     void Bundle();
-    const Mesh::LoadOptions GetLoadOptionsFromMaterial(const Material* material) const;
+    const Mesh::AttributeSettings GetAttributeSettingsFromMaterial(const Material* material) const;
 };

@@ -1,24 +1,50 @@
 #include "../include/graphics/Mesh.hpp"
 
-Mesh::Mesh(const std::string& path) : mLoadOptions(LoadOptions::POSITIONS) {
+// Helper string functions
+// Find the position of the first character from start that is not a number character
+int findEndOfNumber(const std::string& str, const int start) {
+    std::istringstream iss(str.c_str());
+    char token;
+
+    int i = 0;
+    while (!iss.eof()) {
+        iss >> token;
+        if (i > start) {
+            int value = token - '0';
+            if (value < 0 || value > 9)
+                return i;
+        }
+        i++;
+    }
+
+    return str.length();
+}
+
+// Find the first character from start that is a number character
+int findStartOfNumber(const std::string& str, const int start) {
+    std::istringstream iss(str.c_str());
+    char token;
+
+    int i = 0;
+    while (!iss.eof()) {
+        iss >> token;
+        if (i > start) {
+            if (token != '/')
+                return i;
+        }
+        i++;
+    }
+
+    return str.length();
+}
+
+Mesh::Mesh(const std::string& path) : mAttributeSettings(AttributeSettings::LOAD_POSITIONS) {
     // Initialize the mesh
     InitMesh(path);
 }
 
-Mesh::Mesh(const std::string& path, const LoadOptions loadOptions) : mLoadOptions((LoadOptions)(LoadOptions::POSITIONS | loadOptions)) {
+Mesh::Mesh(const std::string& path, const AttributeSettings attribSettings) : mAttributeSettings((AttributeSettings)(AttributeSettings::LOAD_POSITIONS | attribSettings)) {
     // Initialize the mesh
-    InitMesh(path);
-}
-
-Mesh::Mesh(const Geometry geometry) : mLoadOptions(LoadOptions::POSITIONS) {
-    // Initialize the mesh using a default mesh
-    std::string path = GetMeshPrimitivePath(geometry);
-    InitMesh(path);
-}
-
-Mesh::Mesh(const Geometry geometry, const LoadOptions loadOptions) : mLoadOptions((LoadOptions)(LoadOptions::POSITIONS | loadOptions)) {
-    // Initialize the mesh using a default mesh
-    std::string path = GetMeshPrimitivePath(geometry);
     InitMesh(path);
 }
 
@@ -38,14 +64,11 @@ void Mesh::Unbind() const {
 // Update the buffer based on the changes to the the
 // positions, normals and uvs
 void Mesh::Update() {
-    // Update the object normals since the model topology has changed
-    ComputeNormals();
-
     // Compute the buffer data vector
-    std::vector<GLfloat> bufferData = PackModel();
+    auto packedMesh = PackMesh();
 
     mVertexBuffer->Bind();
-    mVertexBuffer->Update(bufferData);
+    mVertexBuffer->Update(packedMesh.first);
     mVertexBuffer->Unbind();
 }
 
@@ -61,27 +84,15 @@ IndexBuffer* Mesh::GetIndexBuffer() const {
     return mIndexBuffer;
 }
 
-Geometry Mesh::GetGeometry() const {
-    return mGeometry;
-}
-
 void Mesh::InitMesh(const std::string& path) {
     // Load the mesh from file
     LoadFromFile(path);
 
     // Load the vertex data into the vertex buffer
-    std::vector<GLfloat> bufferData = PackModel();
+    auto packedMesh = PackMesh();
 
-    mVertexBuffer = new VertexBuffer(bufferData);
-
-    // Load the mesh topology into the index buffer
-    std::vector<GLuint>
-        indices;
-    for (int iPrimitive = 0; iPrimitive < mTopology.rows(); iPrimitive++)
-        for (int dim = 0; dim < mTopology.cols(); dim++)
-            indices.push_back((GLuint)mTopology(iPrimitive, dim));
-
-    mIndexBuffer = new IndexBuffer(indices);
+    mVertexBuffer = new VertexBuffer(packedMesh.first);
+    mIndexBuffer = new IndexBuffer(packedMesh.second);
 
     // Create the texture
     mVertexArray = new VertexArray();
@@ -93,196 +104,135 @@ void Mesh::LoadFromFile(const std::string& path) {
     std::ifstream file(path.c_str());
 
     // Simple error checking
-    if (file.bad()) {
+    if (file.fail()) {
         std::cout << "ERROR: Could not load .obj file: " << path << std::endl;
         return;
     }
 
-    // Convert the file buffer into a string stream
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    file.close();
+    // Helper variables
+    std::string line;
+    std::string trashStr;
 
-    std::stringstream::pos_type startPos = buffer.tellg();
-
-    // Initial Pass
-    // Compute the number of vertices, textureUVs and normals
+    // Count the number of occurances of each token
     int numPositions = 0;
-    int numTextureUVs = 0;
     int numNormals = 0;
-    int numPoints = 0;
-    int numLines = 0;
+    int numTextureUVs = 0;
     int numFaces = 0;
-
-    std::string token;
-    buffer >> token;
-    while (!buffer.eof()) {
-        if (token == "v" && (mLoadOptions & Mesh::LoadOptions::POSITIONS))
+    while (!file.eof()) {
+        std::getline(file, line);
+        if (line.compare(0, 2, "v ") == 0)
             numPositions++;
-        else if (token == "vt" && (mLoadOptions & Mesh::LoadOptions::TEXTURES))
-            numTextureUVs++;
-        else if (token == "vn" && (mLoadOptions & Mesh::LoadOptions::NORMALS))
+        else if (line.compare(0, 3, "vn ") == 0)
             numNormals++;
-        else if (token == "p")
-            numPoints++;
-        else if (token == "l")
-            numLines++;
-        else if (token == "f")
+        else if (line.compare(0, 3, "vt ") == 0)
+            numTextureUVs++;
+        else if (line.compare(0, 2, "f ") == 0)
             numFaces++;
-
-        buffer >> token;
-        while (!buffer.eof() && !Mesh::IsOBJControlToken(token))
-            buffer >> token;
     }
 
-    // Make sure that we are only modeling one type of primitive at a time
-    int hasMultipleTypes = (numPoints > 0 ? 1 : 0) + (numLines > 0 ? 1 : 0) + (numFaces > 0 ? 1 : 0);
-    if (hasMultipleTypes > 1) {
-        std::cout << "ERROR: " << path << " contains multiple types of primitives, please use only one" << std::endl;
-        return;
-    }
+    // Rewind file pointer
+    file.clear();
+    file.seekg(0, std::ios::beg);
 
-    // Check to see that at least some connective data exists
-    const int numPrimitives = numPoints + numLines + numFaces;
-    if (numPrimitives == 0) {
-        std::cout << "ERROR: " << path << " contains no connective data" << std::endl;
-        return;
-    }
-
-    // Compute the number of vertices required to show the primitive in the file
-    const int primitiveDegree = (numPoints > 0 ? 1 : (numLines > 0 ? 2 : 3));
-
-    // Set up the geometry based on the primitive degree
-    switch (primitiveDegree) {
-        case 1:
-            mGeometry = Geometry::POINT;
-            break;
-        case 2:
-            mGeometry = Geometry::LINE;
-            break;
-        case 3:
-            mGeometry = Geometry::MESH;
-            break;
-        default:
-            mGeometry = Geometry::MESH;
-            break;
-    }
-
-    // Set up the matrices for data loading
+    // Initialize the mesh data structure
     mPositions = Eigen::MatrixXd::Zero(numPositions, 3);
-    mTextureUVs = Eigen::MatrixXd::Zero(numTextureUVs, 2);
     mNormals = Eigen::MatrixXd::Zero(numNormals, 3);
+    mTextureUVs = Eigen::MatrixXd::Zero(numTextureUVs, 2);
 
-    mTopology = Eigen::MatrixXi::Zero(numPrimitives, primitiveDegree);
+    mFaces = Eigen::MatrixXi::Zero(numFaces, 3);
+    mNormalFaces = Eigen::MatrixXi::Zero(numFaces, 3);
+    mTextureFaces = Eigen::MatrixXi::Zero(numFaces, 3);
 
-    // Rewind to the beginning of the file
-    buffer.clear();
-    buffer.seekg(startPos, buffer.beg);
-
-    // Start loading the data into the matrices
+    // Populate the matrices
     int iPosition = 0;
-    int iTextureUV = 0;
     int iNormal = 0;
-    int iPrimitive = 0;
-    buffer >> token;
-    while (!buffer.eof()) {
-        // Load the positional data
-        if (token == "v" && (mLoadOptions & Mesh::LoadOptions::POSITIONS)) {
-            double v1, v2, v3;
-            buffer >> v1 >> v2 >> v3;
-            mPositions(iPosition, 0) = v1;
-            mPositions(iPosition, 1) = v2;
-            mPositions(iPosition, 2) = v3;
-
+    int iTextureUV = 0;
+    int iFace = 0;
+    while (!file.eof()) {
+        std::getline(file, line);
+        std::istringstream iss(line.c_str());
+        if (line.compare(0, 2, "v ") == 0) {
+            iss >> trashStr;
+            iss >> mPositions(iPosition, 0);
+            iss >> mPositions(iPosition, 1);
+            iss >> mPositions(iPosition, 2);
             iPosition++;
-            buffer >> token;
-        }
-        // Load the texture uv data
-        else if (token == "vt" && (mLoadOptions & Mesh::LoadOptions::TEXTURES)) {
-            double vt1, vt2;
-            buffer >> vt1 >> vt2;
-            mTextureUVs(iTextureUV, 0) = vt1;
-            mTextureUVs(iTextureUV, 1) = vt2;
-
-            iTextureUV++;
-            buffer >> token;
-        }
-        // Load the normal data
-        else if (token == "vn" && (mLoadOptions & Mesh::LoadOptions::NORMALS)) {
-            double vn1, vn2, vn3;
-            buffer >> vn1 >> vn2 >> vn3;
-            mNormals(iNormal, 0) = vn1;
-            mNormals(iNormal, 1) = vn2;
-            mNormals(iNormal, 2) = vn3;
-
+        } else if (line.compare(0, 3, "vn ") == 0) {
+            iss >> trashStr;
+            iss >> mNormals(iNormal, 0);
+            iss >> mNormals(iNormal, 1);
+            iss >> mNormals(iNormal, 2);
             iNormal++;
-            buffer >> token;
-        }
-        // Skip the comments
-        else if (token == "#") {
-            buffer >> token;
-            while (!buffer.eof() && !Mesh::IsOBJControlToken(token))
-                buffer >> token;
-        }
-        // Load the primitive connections
-        else if (token == "p" || token == "l" || token == "f") {
-            buffer >> token;
-            int i = 0;
-            while (!buffer.eof() && !Mesh::IsOBJControlToken(token)) {
-                mTopology(iPrimitive, i) = std::stoi(token) - 1;
+        } else if (line.compare(0, 3, "vt ") == 0) {
+            iss >> trashStr;
+            iss >> mTextureUVs(iTextureUV, 0);
+            iss >> mTextureUVs(iTextureUV, 1);
+            iTextureUV++;
+        } else if (line.compare(0, 2, "f ") == 0) {
+            iss >> trashStr;
 
-                i++;
-                buffer >> token;
+            std::string token;
+            for (int i = 0; i < 3; i++) {
+                iss >> token;
+
+                int startPos = 0;
+                int endPos = findEndOfNumber(token, startPos);
+                mFaces(iFace, i) = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
+
+                startPos = findStartOfNumber(token, endPos);
+                endPos = findEndOfNumber(token, startPos);
+                mTextureFaces(iFace, i) = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
+
+                startPos = findStartOfNumber(token, endPos);
+                endPos = findEndOfNumber(token, startPos);
+                mNormalFaces(iFace, i) = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
             }
 
-            iPrimitive++;
-        }
-
-        // Skip blank lines
-        else {
-            buffer >> token;
+            iFace++;
         }
     }
+
+    file.close();
 }
 
-void Mesh::ComputeNormals() {
-    int numPrimitives = mTopology.rows();
-    int primitiveDegree = mTopology.cols();
+std::pair<std::vector<GLfloat>, std::vector<GLuint>> Mesh::PackMesh() const {
+    std::vector<GLfloat> vertexBufferData;
+    std::vector<GLuint> indexBufferData;
 
-    // We only want to update normals triangles
-    if (primitiveDegree != 3)
-        return;
+    // Map used to remember unique vertices
+    std::unordered_map<std::string, unsigned int> indexMap;
+    unsigned int currIndex = 0;
 
-    for (int i = 0; i < numPrimitives; i++) {
-        Eigen::Vector3i indices = mTopology.row(i);
-        Eigen::Vector3d ab = mPositions.row(indices(2)) - mPositions.row(indices(0));
-        Eigen::Vector3d ac = mPositions.row(indices(1)) - mPositions.row(indices(0));
+    // Pass to compute keys and store vertex buffer data
+    for (int i = 0; i < mFaces.rows(); i++) {
+        for (int j = 0; j < mFaces.cols(); j++) {
+            int faceInd = mFaces(i, j);
+            int normalFaceInd = mNormalFaces(i, j);
+            int textureFaceInd = mTextureFaces(i, j);
+            std::string key = std::to_string(faceInd) + "/" + std::to_string(normalFaceInd) + "/" + std::to_string(textureFaceInd);
+            if (!indexMap.contains(key)) {
+                indexMap[key] = currIndex++;
 
-        Eigen::Vector3d normal = ab.cross(ac).normalized();
+                if (mAttributeSettings & AttributeSettings::LOAD_POSITIONS) {
+                    vertexBufferData.push_back((GLfloat)mPositions(faceInd, 0));
+                    vertexBufferData.push_back((GLfloat)mPositions(faceInd, 1));
+                    vertexBufferData.push_back((GLfloat)mPositions(faceInd, 2));
+                }
+                if (mAttributeSettings & AttributeSettings::LOAD_NORMALS) {
+                    vertexBufferData.push_back((GLfloat)mNormals(normalFaceInd, 0));
+                    vertexBufferData.push_back((GLfloat)mNormals(normalFaceInd, 1));
+                    vertexBufferData.push_back((GLfloat)mNormals(normalFaceInd, 2));
+                }
+                if (mAttributeSettings & AttributeSettings::LOAD_TEXTURES) {
+                    vertexBufferData.push_back((GLfloat)mTextureUVs(textureFaceInd, 0));
+                    vertexBufferData.push_back((GLfloat)mTextureUVs(textureFaceInd, 1));
+                }
+            }
 
-        // The last index is the provoking index which contains the normal data
-        mNormals.row(indices(2)) = normal;
+            // Build Index Buffer
+            indexBufferData.push_back(indexMap[key]);
+        }
     }
-}
 
-std::vector<GLfloat> Mesh::PackModel() const {
-    std::vector<GLfloat> bufferData;
-    for (int i = 0; i < mPositions.rows(); i++) {
-        if (mLoadOptions & LoadOptions::POSITIONS) {
-            bufferData.push_back((GLfloat)mPositions(i, 0));
-            bufferData.push_back((GLfloat)mPositions(i, 1));
-            bufferData.push_back((GLfloat)mPositions(i, 2));
-        }
-        if (mLoadOptions & LoadOptions::NORMALS) {
-            bufferData.push_back((GLfloat)mNormals(i, 0));
-            bufferData.push_back((GLfloat)mNormals(i, 1));
-            bufferData.push_back((GLfloat)mNormals(i, 2));
-        }
-        if (mLoadOptions & LoadOptions::TEXTURES) {
-            bufferData.push_back((GLfloat)mTextureUVs(i, 0));
-            bufferData.push_back((GLfloat)mTextureUVs(i, 1));
-        }
-    }
-
-    return bufferData;
+    return {vertexBufferData, indexBufferData};
 }

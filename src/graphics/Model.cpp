@@ -3,41 +3,16 @@
 Model::Model(const std::string& meshPath, const std::string& materialPath) {
     mMaterial = new Material(materialPath);
 
-    Mesh::LoadOptions meshLoadOptions = GetLoadOptionsFromMaterial(mMaterial);
-    mMesh = new Mesh(meshPath, meshLoadOptions);
+    Mesh::AttributeSettings meshAttributeSettings = GetAttributeSettingsFromMaterial(mMaterial);
+    mMesh = new Mesh(meshPath, meshAttributeSettings);
 
     // Bundle the mesh and the material
     Bundle();
 }
 
-Model::Model(const Geometry geometry, const std::string& materialPath) {
-    // Set up the material from the material file
-    mMaterial = new Material(materialPath);
-
-    std::string meshPath = Mesh::GetMeshPrimitivePath(geometry);
-    Mesh::LoadOptions meshLoadOptions = GetLoadOptionsFromMaterial(mMaterial);
-
-    mMesh = new Mesh(meshPath, meshLoadOptions);
-
-    // Bundle the mesh and the material
-    Bundle();
-}
-
-Model::Model(const std::string& meshPath, const Mesh::LoadOptions loadOptions) {
+Model::Model(const std::string& meshPath, const Mesh::AttributeSettings attribSettings) {
     mMaterial = new Material("../res/materials/base.mat");
-    mMesh = new Mesh(meshPath, loadOptions);
-
-    // Bundle the mesh and the material
-    Bundle();
-}
-
-Model::Model(const Geometry geometry) {
-    mMaterial = new Material("../res/materials/base.mat");
-
-    std::string meshPath = Mesh::GetMeshPrimitivePath(geometry);
-    Mesh::LoadOptions meshLoadOptions = GetLoadOptionsFromMaterial(mMaterial);
-
-    mMesh = new Mesh(meshPath, meshLoadOptions);
+    mMesh = new Mesh(meshPath, attribSettings);
 
     // Bundle the mesh and the material
     Bundle();
@@ -46,9 +21,9 @@ Model::Model(const Geometry geometry) {
 Model::Model(const std::string& meshPath) {
     mMaterial = new Material("../res/materials/base.mat");
 
-    Mesh::LoadOptions meshLoadOptions = GetLoadOptionsFromMaterial(mMaterial);
+    Mesh::AttributeSettings meshAttributeSettings = GetAttributeSettingsFromMaterial(mMaterial);
 
-    mMesh = new Mesh(meshPath, meshLoadOptions);
+    mMesh = new Mesh(meshPath, meshAttributeSettings);
 
     // Bundle the mesh and the material
     Bundle();
@@ -74,8 +49,7 @@ void Model::Draw() const {
     glPolygonMode(GL_FRONT_AND_BACK, polygonMode);
 
     // Draw the model
-    GLenum drawMode = Mesh::GetDrawModeEnum(mMesh->GetGeometry());
-    glDrawElements(drawMode, ibo->GetCount(), GL_UNSIGNED_INT, (void*)0);
+    glDrawElements(GL_TRIANGLES, ibo->GetCount(), GL_UNSIGNED_INT, (void*)0);
 
     vao->Unbind();
     shader->Unbind();
@@ -99,18 +73,18 @@ void Model::Bundle() {
     vao->Bundle(vbo, ibo, layout, shader);
 }
 
-const Mesh::LoadOptions Model::GetLoadOptionsFromMaterial(const Material* material) const {
+const Mesh::AttributeSettings Model::GetAttributeSettingsFromMaterial(const Material* material) const {
     /* Determine the proper load options for the mesh based on
        the attributes provided in the material file. */
-    Mesh::LoadOptions loadOptions = (Mesh::LoadOptions)(0);
+    Mesh::AttributeSettings meshAttributeSettings = (Mesh::AttributeSettings)(0);
 
     // Get the load options based on the attributes present in the material
     if (mMaterial->HasAttribute("iPosition"))
-        loadOptions = (Mesh::LoadOptions)(loadOptions | Mesh::LoadOptions::POSITIONS);
+        meshAttributeSettings = (Mesh::AttributeSettings)(meshAttributeSettings | Mesh::AttributeSettings::LOAD_POSITIONS);
     if (mMaterial->HasAttribute("iNormal"))
-        loadOptions = (Mesh::LoadOptions)(loadOptions | Mesh::LoadOptions::NORMALS);
+        meshAttributeSettings = (Mesh::AttributeSettings)(meshAttributeSettings | Mesh::AttributeSettings::LOAD_NORMALS);
     if (mMaterial->HasAttribute("iTextureUV"))
-        loadOptions = (Mesh::LoadOptions)(loadOptions | Mesh::LoadOptions::TEXTURES);
+        meshAttributeSettings = (Mesh::AttributeSettings)(meshAttributeSettings | Mesh::AttributeSettings::LOAD_TEXTURES);
 
-    return loadOptions;
+    return meshAttributeSettings;
 }

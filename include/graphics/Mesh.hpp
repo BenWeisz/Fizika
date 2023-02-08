@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <vector>
+#include <unordered_map>
 
 #include <Eigen/Core>
 #include <Eigen/Dense>
@@ -14,98 +15,44 @@
 #include "VertexBuffer.hpp"
 #include "IndexBuffer.hpp"
 
-enum Geometry {
-    POINT,
-    LINE,
-    TRIANGLE,
-    PLANE,
-    CUBE,
-    MESH
-};
-
 class Mesh {
    public:
-    enum LoadOptions {
-        POSITIONS = 0x01,
-        TEXTURES = 0x02,
-        NORMALS = 0x04,
+    enum AttributeSettings {
+        LOAD_POSITIONS = 0x01,
+        LOAD_NORMALS = 0x02,
+        LOAD_TEXTURES = 0x04,
     };
 
-    Eigen::MatrixXd mPositions;
-    Eigen::MatrixXd mNormals;
-    Eigen::MatrixXd mTextureUVs;
-
     Mesh(const std::string& path);
-    Mesh(const std::string& path, const LoadOptions loadOptions);
-    Mesh(const Geometry geometry);
-    Mesh(const Geometry geometry, const LoadOptions loadOptions);
+    Mesh(const std::string& path, const AttributeSettings attribSettings);
     ~Mesh();
+
     void Bind() const;
     void Unbind() const;
     void Update();
+
     VertexBuffer* GetVertexBuffer() const;
     VertexArray* GetVertexArray() const;
     IndexBuffer* GetIndexBuffer() const;
-    Geometry GetGeometry() const;
 
-    static std::string GetMeshPrimitivePath(const Geometry geometry) {
-        std::string path = "../res/models/";
-        switch (geometry) {
-            case Geometry::POINT:
-                path += "point.obj";
-                break;
-            case Geometry::LINE:
-                path += "line.obj";
-                break;
-            case Geometry::TRIANGLE:
-                path += "triangle.obj";
-                break;
-            case Geometry::PLANE:
-                path += "plane.obj";
-                break;
-            case Geometry::CUBE:
-                path += "cube.obj";
-                break;
-            default:
-                path += "triangle.obj";
-        }
-
-        return path;
-    }
-    static GLenum GetDrawModeEnum(const Geometry geometry) {
-        switch (geometry) {
-            case Geometry::POINT:
-                return GL_POINTS;
-            case Geometry::LINE:
-                return GL_LINES;
-            case Geometry::TRIANGLE:
-                return GL_TRIANGLES;
-            case Geometry::PLANE:
-                return GL_TRIANGLES;
-            case Geometry::CUBE:
-                return GL_TRIANGLES;
-            default:
-                return GL_TRIANGLES;
-        }
-    }
+    Eigen::MatrixXd mPositions;
+    Eigen::MatrixXi mFaces;
 
    private:
-    const LoadOptions mLoadOptions;
+    const AttributeSettings mAttributeSettings;
 
     // We won't do tearing simulations for know so the topology doesn't need to be changeable
-    Eigen::MatrixXi mTopology;
+    Eigen::MatrixXd mNormals;
+    Eigen::MatrixXd mTextureUVs;
+
+    Eigen::MatrixXi mNormalFaces;
+    Eigen::MatrixXi mTextureFaces;
 
     VertexBuffer* mVertexBuffer;
     VertexArray* mVertexArray;
     IndexBuffer* mIndexBuffer;
 
-    Geometry mGeometry;
-
     void InitMesh(const std::string& path);
     void LoadFromFile(const std::string& path);
-    void ComputeNormals();
-    std::vector<GLfloat> PackModel() const;
-    static bool IsOBJControlToken(const std::string& token) {
-        return token == "v" || token == "vt" || token == "vn" || token == "#" || token == "p" || token == "l" || token == "f";
-    }
+    std::pair<std::vector<GLfloat>, std::vector<GLuint>> PackMesh() const;
 };

@@ -3,7 +3,7 @@
 Plane::Plane() {
     mTransform = new Transform();
     mTexture = new Texture("../res/textures/checker.png");
-    mModel = new Model(Geometry::PLANE, "../res/materials/base-texture.mat");
+    mModel = new Model("../res/models/plane.obj", "../res/materials/base-texture.mat");
 
     Material* mat = mModel->GetMaterial();
     mat->SetUniformVec3("uLightColour", Light::GetLightColour());

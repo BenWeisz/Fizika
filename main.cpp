@@ -40,13 +40,15 @@ int main() {
         planeTransform->SetRotation(glm::vec3(0.0, 1.0, 0.0), -90.0);
         planeTransform->SetScale(glm::vec3(3.0, 3.0, 3.0));
 
-        BoundaryCube cube;
-        Transform* cubeTransform = cube.GetTransform();
-        cubeTransform->SetScale(glm::vec3(3.0, 3.0, 3.0));
-        cubeTransform->SetTranslation(glm::vec3(0.0, 0.0, 1.5));
+        // BoundaryCube cube;
+        // Transform* cubeTransform = cube.GetTransform();
+        // cubeTransform->SetScale(glm::vec3(3.0, 3.0, 3.0));
+        // cubeTransform->SetTranslation(glm::vec3(0.0, 0.0, 1.5));
 
         AxisGizmo axis(WIDTH - ((WIDTH / 640) * 40.0), HEIGHT - ((HEIGHT / 480) * 40.0));
         // EnergyPlot energies;
+
+        Mesh mtest("../res/models/test-tri.obj", Mesh::AttributeSettings::LOAD_NORMALS);
 
         while (!Window::ShouldClose()) {
             /* Execute event results */
@@ -69,7 +71,7 @@ int main() {
 
             /* Render all the objects */
             plane.Draw();
-            cube.Draw();
+            // cube.Draw();
             axis.Draw();
 
             // Call Draw to actually draw everything
