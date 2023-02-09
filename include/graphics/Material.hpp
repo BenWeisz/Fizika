@@ -20,6 +20,10 @@ class Material {
         LINES,
         TRIANGLES
     };
+    enum NormalSource {
+        LOAD,
+        COMPUTE_VERTEX,
+    };
 
     Material(const std::string& path);
     Material(const std::string& path, const Representation rep);
@@ -34,6 +38,7 @@ class Material {
     Representation GetRepresentation() const;
     bool HasAttribute(const std::string& attribName) const;
     void AddTexture(const std::string& name, Texture* texture);
+    NormalSource GetNormalSource() const;
 
     static GLenum GetRepresentationPolygonEnum(const Representation rep) {
         switch (rep) {
@@ -53,13 +58,13 @@ class Material {
     VertexBufferLayout* mLayout;
     Representation mRepresentation;
     std::vector<std::string> mAttributes;
+    NormalSource mNormalSource;
+
     void InitMaterial(const std::string& path);
     static std::string SafeXMLAttribute(const std::string& name, tinyxml2::XMLElement* element) {
         const char* attribStr = element->Attribute(name.c_str());
-        if (attribStr == 0) {
-            std::cout << "ERROR: Layout element has no \"" << name << "\" attribute" << std::endl;
+        if (attribStr == 0)
             return std::string("");
-        }
 
         return std::string(attribStr);
     }

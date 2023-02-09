@@ -64,6 +64,10 @@ void Mesh::Unbind() const {
 // Update the buffer based on the changes to the the
 // positions, normals and uvs
 void Mesh::Update() {
+    if (mAttributeSettings & AttributeSettings::COMPUTE_NORMALS_VERTEX) {
+        ComputeVertexNormals();
+    }
+
     // Compute the buffer data vector
     auto packedMesh = PackMesh();
 
@@ -87,6 +91,12 @@ IndexBuffer* Mesh::GetIndexBuffer() const {
 void Mesh::InitMesh(const std::string& path) {
     // Load the mesh from file
     LoadFromFile(path);
+
+    // Post processing
+    if (mAttributeSettings & AttributeSettings::COMPUTE_NORMALS_VERTEX) {
+        mNormals = Eigen::MatrixXd::Zero(mPositions.rows(), mPositions.cols());
+        ComputeVertexNormals();
+    }
 
     // Load the vertex data into the vertex buffer
     auto packedMesh = PackMesh();
@@ -275,7 +285,8 @@ std::pair<std::vector<GLfloat>, std::vector<GLuint>> Mesh::PackMesh() const {
                     vertexBufferData.push_back((GLfloat)mPositions(primitiveInd, 1));
                     vertexBufferData.push_back((GLfloat)mPositions(primitiveInd, 2));
                 }
-                if (mAttributeSettings & AttributeSettings::LOAD_NORMALS) {
+                if ((mAttributeSettings & AttributeSettings::LOAD_NORMALS) ||
+                    (mAttributeSettings & AttributeSettings::COMPUTE_NORMALS_VERTEX)) {
                     vertexBufferData.push_back((GLfloat)mNormals(normalPrimitiveInd, 0));
                     vertexBufferData.push_back((GLfloat)mNormals(normalPrimitiveInd, 1));
                     vertexBufferData.push_back((GLfloat)mNormals(normalPrimitiveInd, 2));
@@ -296,4 +307,38 @@ std::pair<std::vector<GLfloat>, std::vector<GLuint>> Mesh::PackMesh() const {
 
 Mesh::PrimitiveType Mesh::GetPrimitiveType() const {
     return mPrimitiveType;
+}
+
+void Mesh::ComputeVertexNormals() {
+    // Copy the primitive indices into the normals indices
+    mNormalPrimitives = mPrimitives;
+
+    int numPrimitives = mPrimitives.rows();
+
+    // First compute the face normals
+    Eigen::MatrixXd faceNormals = Eigen::MatrixXd::Zero(numPrimitives, 3);
+    for (int i = 0; i < numPrimitives; i++) {
+        Eigen::Vector3i indices = mPrimitives.row(i);
+        Eigen::Vector3d ab = mPositions.row(indices(2)) - mPositions.row(indices(0));
+        Eigen::Vector3d ac = mPositions.row(indices(1)) - mPositions.row(indices(0));
+        faceNormals.row(i) = ac.cross(ab).normalized();
+    }
+
+    // For each vertex, average the normals of faces of which the particular
+    // vertex is a part of
+    for (int i = 0; i < mPositions.rows(); i++) {
+        Eigen::Vector3d normal = Eigen::Vector3d::Zero();
+        double numConnectedFaces = 0;
+        for (int j = 0; j < numPrimitives; j++) {
+            if (mPrimitives(j, 0) == i || mPrimitives(j, 1) == i || mPrimitives(j, 2) == i) {
+                normal += faceNormals.row(j);
+                numConnectedFaces++;
+            }
+        }
+
+        // Average and Normalize the normal
+        normal /= numConnectedFaces;
+        normal.normalize();
+        mNormals.row(i) = normal;
+    }
 }
