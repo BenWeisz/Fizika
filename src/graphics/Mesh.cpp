@@ -317,27 +317,31 @@ void Mesh::ComputeVertexNormals() {
 
     // First compute the face normals
     Eigen::MatrixXd faceNormals = Eigen::MatrixXd::Zero(numPrimitives, 3);
+    Eigen::VectorXd areas = Eigen::VectorXd::Zero(numPrimitives);
     for (int i = 0; i < numPrimitives; i++) {
         Eigen::Vector3i indices = mPrimitives.row(i);
         Eigen::Vector3d ab = mPositions.row(indices(2)) - mPositions.row(indices(0));
         Eigen::Vector3d ac = mPositions.row(indices(1)) - mPositions.row(indices(0));
-        faceNormals.row(i) = ac.cross(ab).normalized();
+        Eigen::Vector3d normal = ac.cross(ab);
+        faceNormals.row(i) = normal.normalized();
+        areas(i) = 0.5 * normal.norm();
     }
 
     // For each vertex, average the normals of faces of which the particular
     // vertex is a part of
     for (int i = 0; i < mPositions.rows(); i++) {
         Eigen::Vector3d normal = Eigen::Vector3d::Zero();
-        double numConnectedFaces = 0;
+        double totalArea = 0.0;
         for (int j = 0; j < numPrimitives; j++) {
             if (mPrimitives(j, 0) == i || mPrimitives(j, 1) == i || mPrimitives(j, 2) == i) {
-                normal += faceNormals.row(j);
-                numConnectedFaces++;
+                double area = areas(j);
+                normal += area * faceNormals.row(j);
+                totalArea += area;
             }
         }
 
         // Average and Normalize the normal
-        normal /= numConnectedFaces;
+        normal /= totalArea;
         normal.normalize();
         mNormals.row(i) = normal;
     }
