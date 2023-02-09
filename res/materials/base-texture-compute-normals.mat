@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Material>
+    <Shader>
+        <Sources>
+            <ShaderSource type="vertex" path="base-texture.vert"/>
+            <ShaderSource type="fragment" path="base-texture.frag"/>
+        </Sources>
+    </Shader>
+    <Layout>
+        <LayoutElement name="iPosition" attribSize="3"/>
+        <LayoutElement name="iNormal" source="computeVertex" attribSize="3"/>
+        <LayoutElement name="iTextureUV" attribSize="2"/>
+    </Layout>
+</Material>

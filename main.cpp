@@ -15,7 +15,9 @@
 #include "graphics/gizmo/AxisGizmo.hpp"
 #include "simulation/EnergyPlot.hpp"
 #include "objects/Plane.hpp"
-#include "objects/BoundaryCube.hpp"
+#include "objects/CardboardBox.hpp"
+#include "objects/Spring.hpp"
+#include "objects/Cow.hpp"
 
 const int WIDTH = 640 * 1.5;
 const int HEIGHT = 480 * 1.5;
@@ -32,7 +34,7 @@ int main() {
         // Set up the camera for the window
         Camera::InitCamera(3.0f, WIDTH, HEIGHT);
 
-        Light::InitLight(glm::vec3(1.0, 1.0, 1.0), glm::vec3(0.0, 0.0, 10.0));
+        Light::InitLight(glm::vec3(1.0, 1.0, 1.0), glm::vec3(7.0, 5.0, 10.0));
 
         /* Set up Models */
         Plane plane;
@@ -40,15 +42,25 @@ int main() {
         planeTransform->SetRotation(glm::vec3(0.0, 1.0, 0.0), -90.0);
         planeTransform->SetScale(glm::vec3(3.0, 3.0, 3.0));
 
-        BoundaryCube cube;
-        Transform* cubeTransform = cube.GetTransform();
-        cubeTransform->SetScale(glm::vec3(3.0, 3.0, 3.0));
-        cubeTransform->SetTranslation(glm::vec3(0.0, 0.0, 1.5));
+        CardboardBox box;
+        Transform* boxTransform = box.GetTransform();
+        boxTransform->SetTranslation(glm::vec3(0.0, 0.0, 0.175 + 0.0001));
+        boxTransform->SetScale(glm::vec3(0.35, 0.35, 0.175));
+
+        Spring spring;
+        Transform* springTransform = spring.GetTransform();
+        springTransform->SetScale(glm::vec3(0.1));
+        springTransform->SetRotation(glm::vec3(1.0, 0.0, 0.0), 90.0f);
+        springTransform->SetTranslation(glm::vec3(0.0, 0.0, 0.175));
+
+        Cow cow;
+        Transform* cowTransform = cow.GetTransform();
+        cowTransform->Translate(glm::vec3(0.0, 0.0, 2.0));
+        cowTransform->Rotate(glm::vec3(1.0, 0.0, 0.0), 90.0);
+        cowTransform->Rotate(glm::vec3(0.0, 0.0, 1.0), -90.0);
 
         AxisGizmo axis(WIDTH - ((WIDTH / 640) * 40.0), HEIGHT - ((HEIGHT / 480) * 40.0));
         // EnergyPlot energies;
-
-        Mesh mtest("../res/models/test-tri.obj", Mesh::AttributeSettings::LOAD_NORMALS);
 
         while (!Window::ShouldClose()) {
             /* Execute event results */
@@ -71,7 +83,9 @@ int main() {
 
             /* Render all the objects */
             plane.Draw();
-            cube.Draw();
+            box.Draw();
+            spring.Draw();
+            cow.Draw();
             axis.Draw();
 
             // Call Draw to actually draw everything

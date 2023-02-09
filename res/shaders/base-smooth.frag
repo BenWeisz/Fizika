@@ -1,13 +1,13 @@
 #version 450 core
 
+uniform vec3 uFlatColour;
+
 uniform vec3 uLightColour;
 uniform vec3 uLightPos;
 uniform vec3 uCameraPos;
-uniform sampler2D uTexture0;
 
 in vec3 vNormal;
 in vec3 vFragPos;
-in vec2 vTextureUV;
 
 out vec4 oFragColour;
 
@@ -27,7 +27,7 @@ void main() {
     float specular = pow(max(0.0, dot(viewDir, reflectDir)), 32.0);
   }
 
-  vec3 colour = (ambient + diffuse + specular) * vec3(texture(uTexture0, vTextureUV)) * uLightColour;
+  vec3 colour = (ambient + diffuse + specular) * uFlatColour * uLightColour;
   
   oFragColour = vec4(colour, 0.0);
 }

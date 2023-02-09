@@ -47,6 +47,9 @@ target_sources(Fizika PUBLIC
     src/simulation/EnergyPlot.cpp
     src/objects/Plane.cpp
     src/objects/BoundaryCube.cpp
+    src/objects/CardboardBox.cpp
+    src/objects/Spring.cpp
+    src/objects/Cow.cpp
     ${VENDOR_DIR}/glad-core-4.5/src/glad.c
     ${VENDOR_DIR}/tinyxml/src/tinyxml2.cpp
     ${VENDOR_DIR}/imgui/imgui.cpp
