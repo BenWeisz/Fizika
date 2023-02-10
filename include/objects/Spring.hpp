@@ -15,11 +15,12 @@ class Spring {
     Texture* mTexture;
     Transform* mTransform;
     Model* mModel;
+    double mPreviousScale;
 
    public:
     Spring();
     ~Spring();
     inline Transform* GetTransform() const { return mTransform; }
     void Draw() const;
-    void Update(const double dt);
+    void Update(const double cowPosition);
 };

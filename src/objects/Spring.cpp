@@ -10,6 +10,8 @@ Spring::Spring() {
     mat->SetUniformMat4("uProjection", Camera::GetProjectionTransform(), false);
     mat->SetUniformMat4("uCorrection", Camera::GetCorrectionTransform(), false);
     mat->SetUniformVec3("uFlatColour", glm::vec3(1.0, 0.0, 0.0));
+
+    mPreviousScale = 1.0;
 }
 
 Spring::~Spring() {
@@ -29,5 +31,15 @@ void Spring::Draw() const {
     mModel->Draw();
 }
 
-void Spring::Update(const double dt) {
+void Spring::Update(const double cowPosition) {
+    double scale = (cowPosition - 0.175) / (2.0 - 0.175);
+
+    // Unscale last scale
+    mTransform->Scale(glm::vec3(1.0, 1 / mPreviousScale, 1.0));
+
+    // Scale by new factor
+    mTransform->Scale(glm::vec3(1.0, scale, 1.0));
+
+    // Set the previous scale
+    mPreviousScale = scale;
 }

@@ -53,25 +53,31 @@ int main() {
         springTransform->SetRotation(glm::vec3(1.0, 0.0, 0.0), 90.0f);
         springTransform->SetTranslation(glm::vec3(0.0, 0.0, 0.175));
 
-        Cow cow;
-        Transform* cowTransform = cow.GetTransform();
-        cowTransform->Translate(glm::vec3(0.0, 0.0, 2.0));
-        cowTransform->Rotate(glm::vec3(1.0, 0.0, 0.0), 90.0);
-        cowTransform->Rotate(glm::vec3(0.0, 0.0, 1.0), -90.0);
+        Cow cow(2.5, 0.0, 1.0, 1.0, 2.0);
 
         AxisGizmo axis(WIDTH - ((WIDTH / 640) * 40.0), HEIGHT - ((HEIGHT / 480) * 40.0));
-        // EnergyPlot energies;
+        EnergyPlot energies;
 
+        double lastTime = glfwGetTime();
+        double currTime;
         while (!Window::ShouldClose()) {
             /* Execute event results */
             if (Input::IsPressed("esc"))
                 glfwSetWindowShouldClose(Window::Frame, GL_TRUE);
 
+            currTime = glfwGetTime();
+            double dt = currTime - lastTime;
+            lastTime = currTime;
+
             Camera::UpdateCamera();
+            cow.Update(dt);
+            spring.Update(cow.GetPosition());
 
             // Preform updates before render
             // mesh->mPositions(2, 2) += 0.001;
             // mesh->Update();
+
+            energies.AddPoint(cow.ComputeKineticEnergy(), cow.ComputePotentialEnergy());
 
             // Begin creating the frame
             Window::BeginFrame();
@@ -87,6 +93,7 @@ int main() {
             spring.Draw();
             cow.Draw();
             axis.Draw();
+            energies.Draw();
 
             // Call Draw to actually draw everything
             Window::Draw();

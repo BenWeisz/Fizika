@@ -22,8 +22,11 @@
 - [ x ] Ensure that you can perform updates on mesh data
 - [ x ] Integrate ImGUI + IMPlot
 - [ x ] Integrate stb image
-- [  ] Implement system for rendering / substeping 
+- [ ] Implement system for rendering / substeping 
 - [ x ] Add energy plot
+- [ ] Implement saving computed normals to file
+- [ ] Implement static model matrix for objects
+  - [ ] Make subsequent scales act with common sense axis on model
 
 # Texture Class
 ### Requirements
