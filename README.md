@@ -3,6 +3,7 @@
 https://user-images.githubusercontent.com/15256744/218206220-2ae254f3-ec96-4ee2-a1ec-b723f064a37d.mp4
 
 Simulate mass-spring system with stiffness = 1, mass = 1kg, rest length = 2m.
+
 Integrators can be configured in Cow.cpp, in the Update function. Choose either IntegrateBackward or IntegrateRK4 for Backwards Euler and RK4 respectively
 
 ## Description
