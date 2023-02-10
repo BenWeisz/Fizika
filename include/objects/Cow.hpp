@@ -29,6 +29,7 @@ class Cow {
     void Draw() const;
     void Update(const double dt);
     Eigen::Vector2d IntegrateBackward(const double dt) const;
+    Eigen::Vector2d IntegrateRK4(const double dt) const;
     double ComputeKineticEnergy() const;
     double ComputePotentialEnergy() const;
     inline double GetPosition() const { return mPosition; }

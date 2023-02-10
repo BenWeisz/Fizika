@@ -61,6 +61,26 @@ Eigen::Vector2d Cow::IntegrateBackward(const double dt) const {
     return Eigen::Vector2d({yp(1), yp(2)});
 }
 
+Eigen::Vector2d Cow::IntegrateRK4(const double dt) const {
+    Eigen::Matrix3d A;
+    A << 0, 0, 0, 0, 0, 1, (mSpringK * mRestLength) / mMass, -mSpringK / mMass, 0;
+
+    Eigen::Vector3d q1({1, mPosition, mVelocity});
+    Eigen::Vector3d k1 = A * q1;
+
+    Eigen::Vector3d q2 = q1 + (k1 * dt * 0.5);
+    Eigen::Vector3d k2 = A * q2;
+
+    Eigen::Vector3d q3 = q1 + (k2 * dt * 0.5);
+    Eigen::Vector3d k3 = A * q3;
+
+    Eigen::Vector3d q4 = q1 + (dt * k3);
+    Eigen::Vector3d k4 = A * q4;
+
+    Eigen::Vector3d qnext = q1 + ((dt / 6.0) * (k1 + (k2 * 0.5) + (k3 * 0.5) + k4));
+    return Eigen::Vector2d({qnext(1), qnext(2)});
+}
+
 double Cow::ComputeKineticEnergy() const {
     return 0.5 * mMass * mVelocity * mVelocity;
 }

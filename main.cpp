@@ -25,7 +25,7 @@ const int HEIGHT = 480 * 1.5;
 int main() {
     {
         // Set up the window
-        int r = Window::InitWindow(WIDTH, HEIGHT, "Fizika", true);
+        int r = Window::InitWindow(WIDTH, HEIGHT, "Fizika - Mass Spring", true);
         if (r == -1)
             return r;
 
