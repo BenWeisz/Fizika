@@ -6,6 +6,8 @@ Model::Model(const std::string& meshPath, const std::string& materialPath) {
     Mesh::AttributeSettings meshAttributeSettings = GetAttributeSettingsFromMaterial(mMaterial);
     mMesh = new Mesh(meshPath, meshAttributeSettings);
 
+    mBaseTransform = new Transform();
+
     // Bundle the mesh and the material
     Bundle();
 }
@@ -13,6 +15,7 @@ Model::Model(const std::string& meshPath, const std::string& materialPath) {
 Model::Model(const std::string& meshPath, const Mesh::AttributeSettings attribSettings) {
     mMaterial = new Material("../res/materials/base.mat");
     mMesh = new Mesh(meshPath, attribSettings);
+    mBaseTransform = new Transform();
 
     // Bundle the mesh and the material
     Bundle();
@@ -22,9 +25,9 @@ Model::Model(const std::string& meshPath) {
     mMaterial = new Material("../res/materials/base.mat");
 
     Mesh::AttributeSettings meshAttributeSettings = GetAttributeSettingsFromMaterial(mMaterial);
-
     mMesh = new Mesh(meshPath, meshAttributeSettings);
 
+    mBaseTransform = new Transform();
     // Bundle the mesh and the material
     Bundle();
 }
@@ -32,9 +35,28 @@ Model::Model(const std::string& meshPath) {
 Model::~Model() {
     delete mMesh;
     delete mMaterial;
+    delete mBaseTransform;
 }
 
 void Model::Draw() const {
+    _Draw(nullptr);
+}
+
+void Model::Draw(const Transform* transform) const {
+    _Draw(transform);
+}
+
+void Model::_Draw(const Transform* transform) const {
+    glm::mat4 model(1.0f);
+
+    if (transform == nullptr) {
+        model = model * mBaseTransform->GetTranslationMatrix() * mBaseTransform->GetRotationMatrix() * mBaseTransform->GetScaleMatrix();
+    } else {
+        model = model * transform->GetTranslationMatrix() * mBaseTransform->GetTranslationMatrix() * transform->GetRotationMatrix() * mBaseTransform->GetRotationMatrix() * transform->GetScaleMatrix() * mBaseTransform->GetScaleMatrix();
+    }
+
+    mMaterial->SetUniformMat4("uModel", model, false);
+
     Shader* shader = mMaterial->GetShader();
 
     // Bind the shader and vertex array object
@@ -88,4 +110,8 @@ const Mesh::AttributeSettings Model::GetAttributeSettingsFromMaterial(const Mate
         meshAttributeSettings = (Mesh::AttributeSettings)(meshAttributeSettings | Mesh::AttributeSettings::LOAD_TEXTURES);
 
     return meshAttributeSettings;
+}
+
+Transform* Model::GetBaseTransform() const {
+    return mBaseTransform;
 }

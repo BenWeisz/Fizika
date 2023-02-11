@@ -18,11 +18,8 @@ BoundaryCube::~BoundaryCube() {
 void BoundaryCube::Draw() const {
     Material* mat = mModel->GetMaterial();
 
-    glm::mat4 model = mTransform->GetTransformMatrix();
-
-    mat->SetUniformMat4("uModel", model, false);
     mat->SetUniformMat4("uCamera", Camera::GetCameraTransform(), false);
-    mModel->Draw();
+    mModel->Draw(mTransform);
 }
 
 void BoundaryCube::Update() {

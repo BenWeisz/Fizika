@@ -8,17 +8,24 @@ Transform::Transform() : mScale(glm::vec3(1.0, 1.0, 1.0)), mTranslation(glm::vec
     mRotations.push_back({glm::vec3(1.0, 0.0, 0.0), 0.0});
 }
 
-glm::mat4 Transform::GetTransformMatrix() const {
+glm::mat4 Transform::GetScaleMatrix() const {
     glm::mat4 transform = glm::mat4(1.0);
-    transform = glm::translate(transform, mTranslation);
+    transform = glm::scale(transform, mScale);
+    return transform;
+}
 
+glm::mat4 Transform::GetRotationMatrix() const {
+    glm::mat4 transform = glm::mat4(1.0);
     // Apply the rotations in reverse order to preserve user specified order
     for (int i = mRotations.size() - 1; i >= 0; i--) {
         auto rotation = mRotations[i];
         transform = glm::rotate(transform, glm::radians((float)rotation.second), rotation.first);
     }
+    return transform;
+}
 
-    transform = glm::scale(transform, mScale);
-
+glm::mat4 Transform::GetTranslationMatrix() const {
+    glm::mat4 transform = glm::mat4(1.0);
+    transform = glm::translate(transform, mTranslation);
     return transform;
 }

@@ -36,9 +36,6 @@ int main() {
 
         /* Set up Models */
         Plane plane;
-        Transform* planeTransform = plane.GetTransform();
-        planeTransform->SetRotation(glm::vec3(0.0, 1.0, 0.0), -90.0);
-        planeTransform->SetScale(glm::vec3(3.0, 3.0, 3.0));
 
         BoundaryCube cube;
         Transform* cubeTransform = cube.GetTransform();
