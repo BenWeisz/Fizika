@@ -8,7 +8,11 @@ This program is meant as a basis for physics based simulations / animations. The
 If you would like to take a look at some of the physics simulations, take a look at the branches.
 
 Currently the following simulations are implemented:
-- Bouncing particle simulation
+| Simulation                    | Branch                                                                                                  |
+|:-----------------------------:|:-------------------------------------------------------------------------------------------------------:|
+| Bouncing Balls                | [bouncing-particle](https://github.com/BenWeisz/Fizika/tree/bouncing-particle)                          |
+| Bouncing Balls w/ Collisions  | [bouncing-particle-collision](https://github.com/BenWeisz/Fizika/tree/bouncing-particle-collision)      |
+| Linear Spring-Mass System     | [mass-spring](https://github.com/BenWeisz/Fizika/tree/mass-spring)                                      |
 
 ## Required Setup
 
