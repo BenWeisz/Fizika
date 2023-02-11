@@ -48,8 +48,6 @@ int main() {
         AxisGizmo axis(WIDTH - ((WIDTH / 640) * 40.0), HEIGHT - ((HEIGHT / 480) * 40.0));
         // EnergyPlot energies;
 
-        Mesh mtest("../res/models/test-tri.obj", Mesh::AttributeSettings::LOAD_NORMALS);
-
         while (!Window::ShouldClose()) {
             /* Execute event results */
             if (Input::IsPressed("esc"))

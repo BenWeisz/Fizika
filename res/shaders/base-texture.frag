@@ -5,7 +5,7 @@ uniform vec3 uLightPos;
 uniform vec3 uCameraPos;
 uniform sampler2D uTexture0;
 
-flat in vec3 vNormal;
+in vec3 vNormal;
 in vec3 vFragPos;
 in vec2 vTextureUV;
 

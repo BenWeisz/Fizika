@@ -21,7 +21,6 @@ class Mesh {
         LOAD_POSITIONS = 0x01,
         LOAD_NORMALS = 0x02,
         LOAD_TEXTURES = 0x04,
-        COMPUTE_NORMALS_VERTEX = 0x08,
     };
 
     enum PrimitiveType {
@@ -62,7 +61,8 @@ class Mesh {
     IndexBuffer* mIndexBuffer;
 
     void InitMesh(const std::string& path);
-    void LoadFromFile(const std::string& path);
+    void ReadFromFile(const std::string& path, bool& containsNormals);
+    void WriteToFile(const std::string& path);
     std::pair<std::vector<GLfloat>, std::vector<GLuint>> PackMesh() const;
 
     void ComputeVertexNormals();

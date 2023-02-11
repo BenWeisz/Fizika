@@ -8,7 +8,7 @@ uniform mat4 uModel;
 layout (location = 0) in vec3 iPosition;
 layout (location = 1) in vec3 iNormal;
 
-flat out vec3 vNormal;
+out vec3 vNormal;
 out vec3 vFragPos;
 
 void main() {

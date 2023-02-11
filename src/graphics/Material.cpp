@@ -1,11 +1,11 @@
 #include "../include/graphics/Material.hpp"
 
-Material::Material(const std::string& path) : mRepresentation(Representation::TRIANGLES), mNormalSource(NormalSource::LOAD) {
+Material::Material(const std::string& path) : mRepresentation(Representation::TRIANGLES) {
     // Initialize the material
     InitMaterial(path);
 }
 
-Material::Material(const std::string& path, const Representation rep) : mRepresentation(rep), mNormalSource(NormalSource::LOAD) {
+Material::Material(const std::string& path, const Representation rep) : mRepresentation(rep) {
     // Initialize the material
     InitMaterial(path);
 }
@@ -65,15 +65,6 @@ void Material::InitMaterial(const std::string& path) {
         if (nameStr.compare("") == 0)
             std::cout << "ERROR: Element has no \"name\" attribute" << std::endl;
         mAttributes.push_back(nameStr);
-
-        // Assume that if source exists then this element is the one describing the normal
-        std::string sourceStr = SafeXMLAttribute("source", layoutElementNode);
-        if (sourceStr.compare("") != 0) {
-            if (sourceStr.compare("load") == 0)
-                mNormalSource = NormalSource::LOAD;
-            else if (sourceStr.compare("computeVertex") == 0)
-                mNormalSource = NormalSource::COMPUTE_VERTEX;
-        }
 
         std::string attribSizeStr = SafeXMLAttribute("attribSize", layoutElementNode);
         if (attribSizeStr.compare("") == 0)
@@ -140,8 +131,4 @@ bool Material::HasAttribute(const std::string& attribName) const {
 
 void Material::AddTexture(const std::string& name, Texture* texture) {
     mShader->AddTexture(name, texture);
-}
-
-Material::NormalSource Material::GetNormalSource() const {
-    return mNormalSource;
 }

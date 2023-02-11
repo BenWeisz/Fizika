@@ -82,14 +82,8 @@ const Mesh::AttributeSettings Model::GetAttributeSettingsFromMaterial(const Mate
     // Get the load options based on the attributes present in the material
     if (mMaterial->HasAttribute("iPosition"))
         meshAttributeSettings = (Mesh::AttributeSettings)(meshAttributeSettings | Mesh::AttributeSettings::LOAD_POSITIONS);
-    if (mMaterial->HasAttribute("iNormal")) {
-        Material::NormalSource normalSource = mMaterial->GetNormalSource();
-        if (normalSource == Material::NormalSource::LOAD)
-            meshAttributeSettings = (Mesh::AttributeSettings)(meshAttributeSettings | Mesh::AttributeSettings::LOAD_NORMALS);
-        else if (normalSource == Material::NormalSource::COMPUTE_VERTEX)
-            meshAttributeSettings = (Mesh::AttributeSettings)(meshAttributeSettings | Mesh::AttributeSettings::COMPUTE_NORMALS_VERTEX);
-    }
-
+    if (mMaterial->HasAttribute("iNormal"))
+        meshAttributeSettings = (Mesh::AttributeSettings)(meshAttributeSettings | Mesh::AttributeSettings::LOAD_NORMALS);
     if (mMaterial->HasAttribute("iTextureUV"))
         meshAttributeSettings = (Mesh::AttributeSettings)(meshAttributeSettings | Mesh::AttributeSettings::LOAD_TEXTURES);
 

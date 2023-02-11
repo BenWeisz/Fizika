@@ -20,10 +20,6 @@ class Material {
         LINES,
         TRIANGLES
     };
-    enum NormalSource {
-        LOAD,
-        COMPUTE_VERTEX,
-    };
 
     Material(const std::string& path);
     Material(const std::string& path, const Representation rep);
@@ -38,7 +34,6 @@ class Material {
     Representation GetRepresentation() const;
     bool HasAttribute(const std::string& attribName) const;
     void AddTexture(const std::string& name, Texture* texture);
-    NormalSource GetNormalSource() const;
 
     static GLenum GetRepresentationPolygonEnum(const Representation rep) {
         switch (rep) {
@@ -58,7 +53,6 @@ class Material {
     VertexBufferLayout* mLayout;
     Representation mRepresentation;
     std::vector<std::string> mAttributes;
-    NormalSource mNormalSource;
 
     void InitMaterial(const std::string& path);
     static std::string SafeXMLAttribute(const std::string& name, tinyxml2::XMLElement* element) {

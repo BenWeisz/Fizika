@@ -64,9 +64,7 @@ void Mesh::Unbind() const {
 // Update the buffer based on the changes to the the
 // positions, normals and uvs
 void Mesh::Update() {
-    if (mAttributeSettings & AttributeSettings::COMPUTE_NORMALS_VERTEX) {
-        ComputeVertexNormals();
-    }
+    ComputeVertexNormals();
 
     // Compute the buffer data vector
     auto packedMesh = PackMesh();
@@ -90,12 +88,16 @@ IndexBuffer* Mesh::GetIndexBuffer() const {
 
 void Mesh::InitMesh(const std::string& path) {
     // Load the mesh from file
-    LoadFromFile(path);
+    bool containsNormals;
+    ReadFromFile(path, containsNormals);
 
-    // Post processing
-    if (mAttributeSettings & AttributeSettings::COMPUTE_NORMALS_VERTEX) {
+    // If the model calls for normals and they don't exist, compute them
+    if ((mAttributeSettings & AttributeSettings::LOAD_NORMALS) && !containsNormals) {
         mNormals = Eigen::MatrixXd::Zero(mPositions.rows(), mPositions.cols());
         ComputeVertexNormals();
+
+        // Write the normals back so the next load will be faster
+        WriteToFile(path);
     }
 
     // Load the vertex data into the vertex buffer
@@ -108,9 +110,7 @@ void Mesh::InitMesh(const std::string& path) {
     mVertexArray = new VertexArray();
 }
 
-// Operates on a dumbed down version of .obj where the
-// position, texture and normal index must match for each vertex
-void Mesh::LoadFromFile(const std::string& path) {
+void Mesh::ReadFromFile(const std::string& path, bool& containsNormals) {
     std::ifstream file(path.c_str());
 
     // Simple error checking
@@ -170,6 +170,8 @@ void Mesh::LoadFromFile(const std::string& path) {
             numPrimitives++;
     }
 
+    containsNormals = numNormals != 0;
+
     // Rewind file pointer
     file.clear();
     file.seekg(0, std::ios::beg);
@@ -215,6 +217,7 @@ void Mesh::LoadFromFile(const std::string& path) {
             for (int i = 0; i < 3; i++) {
                 iss >> token;
 
+                // startPos & endPos mark the beginning of the a part of the vertex triplet v/vt/vn in the token string
                 int startPos = 0;
                 int endPos = findEndOfNumber(token, startPos);
                 mPrimitives(iPrimitive, i) = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
@@ -232,7 +235,7 @@ void Mesh::LoadFromFile(const std::string& path) {
                     endPos = findEndOfNumber(token, startPos);
                 }
 
-                if (mAttributeSettings & AttributeSettings::LOAD_NORMALS)
+                if ((mAttributeSettings & AttributeSettings::LOAD_NORMALS) && containsNormals)
                     mNormalPrimitives(iPrimitive, i) = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
             }
 
@@ -262,6 +265,50 @@ void Mesh::LoadFromFile(const std::string& path) {
     file.close();
 }
 
+// Primarily used to write computed normals back to file
+void Mesh::WriteToFile(const std::string& path) {
+    std::ofstream file(path.c_str());
+
+    // Basic error checking for opening the file
+    if (file.fail()) {
+        std::cout << "ERROR: Could open file " << path << " for writing" << std::endl;
+        return;
+    }
+
+    // Write the vertices to file
+    for (int i = 0; i < mPositions.rows(); i++)
+        file << "v " << mPositions(i, 0) << " " << mPositions(i, 1) << " " << mPositions(i, 2) << "\n";
+
+    // Write the texture UVs to file
+    for (int i = 0; i < mTextureUVs.rows(); i++)
+        file << "vt " << mTextureUVs(i, 0) << " " << mTextureUVs(i, 1) << "\n";
+
+    if (mPrimitiveType == PrimitiveType::TRIANGLES) {
+        // Write the normals to file
+        for (int i = 0; i < mNormals.rows(); i++)
+            file << "vn " << mNormals(i, 0) << " " << mNormals(i, 1) << " " << mNormals(i, 2) << "\n";
+
+        // Write the primitives to file
+        for (int i = 0; i < mPrimitives.rows(); i++) {
+            file << "f " << mPrimitives(i, 0) + 1 << "/" << mTexturePrimitives(i, 0) + 1 << "/" << mNormalPrimitives(i, 0) + 1;
+            file << " " << mPrimitives(i, 1) + 1 << "/" << mTexturePrimitives(i, 1) + 1 << "/" << mNormalPrimitives(i, 1) + 1;
+            file << " " << mPrimitives(i, 2) + 1 << "/" << mTexturePrimitives(i, 2) + 1 << "/" << mNormalPrimitives(i, 2) + 1;
+            file << "\n";
+        }
+    } else if (mPrimitiveType == PrimitiveType::LINES) {
+        // Write the primitives to file
+        for (int i = 0; i < mPrimitives.rows(); i++) {
+            file << "f " << mPrimitives(i, 0) + 1 << "/" << mTexturePrimitives(i, 0) + 1;
+            file << " " << mPrimitives(i, 1) + 1 << "/" << mTexturePrimitives(i, 1) + 1;
+            file << " " << mPrimitives(i, 2) + 1 << "/" << mTexturePrimitives(i, 2) + 1;
+            file << "\n";
+        }
+    }
+
+    file.flush();
+    file.close();
+}
+
 std::pair<std::vector<GLfloat>, std::vector<GLuint>> Mesh::PackMesh() const {
     std::vector<GLfloat> vertexBufferData;
     std::vector<GLuint> indexBufferData;
@@ -285,8 +332,7 @@ std::pair<std::vector<GLfloat>, std::vector<GLuint>> Mesh::PackMesh() const {
                     vertexBufferData.push_back((GLfloat)mPositions(primitiveInd, 1));
                     vertexBufferData.push_back((GLfloat)mPositions(primitiveInd, 2));
                 }
-                if ((mAttributeSettings & AttributeSettings::LOAD_NORMALS) ||
-                    (mAttributeSettings & AttributeSettings::COMPUTE_NORMALS_VERTEX)) {
+                if (mAttributeSettings & AttributeSettings::LOAD_NORMALS) {
                     vertexBufferData.push_back((GLfloat)mNormals(normalPrimitiveInd, 0));
                     vertexBufferData.push_back((GLfloat)mNormals(normalPrimitiveInd, 1));
                     vertexBufferData.push_back((GLfloat)mNormals(normalPrimitiveInd, 2));
