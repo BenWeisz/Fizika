@@ -16,6 +16,7 @@
 #include "simulation/EnergyPlot.hpp"
 #include "objects/Plane.hpp"
 #include "objects/BoundaryCube.hpp"
+#include "simulation/Bunny.hpp"
 
 const int WIDTH = 640 * 1.5;
 const int HEIGHT = 480 * 1.5;
@@ -23,7 +24,7 @@ const int HEIGHT = 480 * 1.5;
 int main() {
     {
         // Set up the window
-        int r = Window::InitWindow(WIDTH, HEIGHT, "Fizika", true);
+        int r = Window::InitWindow(WIDTH, HEIGHT, "Fizika - Mass Spring 3d", true);
         if (r == -1)
             return r;
 
@@ -41,6 +42,8 @@ int main() {
         Transform* cubeTransform = cube.GetTransform();
         cubeTransform->SetScale(glm::vec3(3.0, 3.0, 3.0));
         cubeTransform->SetTranslation(glm::vec3(0.0, 0.0, 1.5));
+
+        Bunny bunny;
 
         AxisGizmo axis(WIDTH - ((WIDTH / 640) * 40.0), HEIGHT - ((HEIGHT / 480) * 40.0));
         // EnergyPlot energies;
@@ -67,6 +70,7 @@ int main() {
             /* Render all the objects */
             plane.Draw();
             cube.Draw();
+            bunny.Draw();
             axis.Draw();
 
             // Call Draw to actually draw everything
