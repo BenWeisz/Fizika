@@ -39,14 +39,25 @@ class Window {
             return -1;
         }
 
+        /* Make the window's context current */
+        glfwMakeContextCurrent(Frame);
+        glfwSwapInterval(1);
+
+        /* glad: load all OpenGL function pointers */
+        // ---------------------------------------
+        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+            std::cout << "Failed to initialize GLAD" << std::endl;
+            return -1;
+        }
+
+        // Print Versions
+        const GLubyte* glVersionString = glGetString(GL_VERSION);
+        std::cout << "Rendering Via: OpenGL " << glVersionString << std::endl;
+
         // Initialize the input manager
         Input::RegisterBinding(GLFW_KEY_ESCAPE, "esc");
         Input::RegisterBinding(GLFW_KEY_C, "ui-mode-toggle");
         Input::InitInput(width, height, Frame, hasImGuiDisplay);
-
-        /* Make the window's context current */
-        glfwMakeContextCurrent(Frame);
-        glfwSwapInterval(1);
 
         if (hasImGuiDisplay) {
             /* Set up IMGui */
@@ -62,13 +73,6 @@ class Window {
 
         /* Add Scroll Listener */
         glfwSetScrollCallback(Frame, Input::ScrollCallback);
-
-        /* glad: load all OpenGL function pointers */
-        // ---------------------------------------
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-            std::cout << "Failed to initialize GLAD" << std::endl;
-            return -1;
-        }
 
         glEnable(GL_DEPTH_TEST);
 
