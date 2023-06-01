@@ -1,3 +1,11 @@
+### May 31, 2023
+-   Redesign plan databuild system
+-   Implement loading of the model file
+
+### May 28, 2023
+-   Start work on the DataBuild system, laying foundation for
+    Pipeline class and setting up data build target
+
 ### May 25, 2023
 -   Start work on data pipeline design (no implemention)
 
@@ -38,9 +46,9 @@ model.xml
 -   property: primitive type: tri / lines
 -   property: material name
 <Model>
-    <Geometry type="STATIC|DYNAMIC">
+    <Geometry mode="STATIC|DYNAMIC" type="TRIANGLES|LINES">
         <Vertices count="1000"/>
-        <Primitives count="1000" type="TRIANGLES|LINES"/>
+        <Primitives count="1000"/>
     <Geometry/>
     <Material path="./some/path.mat"/>
 </Model>
@@ -63,13 +71,43 @@ This format will specify EXACTLY what is in the shader files and the bin files. 
 </Material>
 
 ### ModelName.xml
-<Recipe>
-    <ModelData path="./some/path.obj"/>
+<Model>
+    <Geometry path="./some/path.obj" mode="STATIC|DYNAMIC"/>
     <Material path="./some/path.mat"/>
-    <Transform>
+    <Pipeline>
         <Scale x="1.0" y="1.0" z="1.0"/>
         <Rotate x1="1.0" z="1.0" x2="1.0"/>
         <Translate x="1.0" y="1.0" z="1.0"/>
-        <Unitize/> --> makes everything fit in 1x1x1 box
-    </Transform>
-</Recipe>
+        <Unitize type="VERTEX|NORMAL"/> --> makes everything fit in 1x1x1 box
+    </Pipeline>
+</Model>
+
+Steps:
+1. Load Model file for reading
+2. Load Material file for reading
+   1. Record shader sources paths
+   2. Record names of attributes and sizes
+   3. paths of the images
+3. Load model data file for reading
+   1. Record kind of geometry is to be used (static / dynamic)
+   2. load only the data required from the geometry file
+      1. For now we only handle static geos
+         1. Process data into index and vertex buff style vectors using unordered maps
+      2. record primitive type, length of each of the arrays
+4. Run the pipeline runner
+   1. Loops through tags in order and kicks off specific pipes
+5. create output model file
+6. write out index and vertex buffers
+7. package files into zip file along with materials, shaders and image files 
+
+Implementation:
+- Variables: have struct for data build state and all its variables
+- Functions: 
+  - DataBuild(const std::string& modelFilePath); 
+  - static tinyxml2::XMLDocument* LoadXMLFile(const std::string& path)
+  - void InitDataBuild();
+  - void LoadMaterialFile(const std::string& materialFilePath);
+  - void LoadGeometryFile(const std::string& geometryFilePath);
+  - Pipeline* LoadPipeline(tinyxml2::XMLElement* pipelineElements);
+  - bool WriteData();
+  - bool PackData(); 

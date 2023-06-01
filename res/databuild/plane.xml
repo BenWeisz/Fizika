@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Model>
+    <Geometry path="./some/path.obj" mode="DYNAMIC"/>
+    <Material path="./some/path.mat"/>
+    <Pipeline>
+        <Scale x="1.0" y="1.0" z="1.0"/>
+        <Rotate x1="1.0" z="1.0" x2="1.0"/>
+        <Translate x="1.0" y="1.0" z="1.0"/>
+        <Unitize type="VERTEX|NORMAL"/>
+    </Pipeline>
+</Model>

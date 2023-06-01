@@ -12,6 +12,7 @@
 #include "Shader.hpp"
 #include "VertexBufferLayout.hpp"
 #include "Texture.hpp"
+#include "util/XML.hpp"
 
 class Material {
    public:
@@ -55,11 +56,4 @@ class Material {
     std::vector<std::string> mAttributes;
 
     void InitMaterial(const std::string& path);
-    static std::string SafeXMLAttribute(const std::string& name, tinyxml2::XMLElement* element) {
-        const char* attribStr = element->Attribute(name.c_str());
-        if (attribStr == 0)
-            return std::string("");
-
-        return std::string(attribStr);
-    }
 };

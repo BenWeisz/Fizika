@@ -10,6 +10,7 @@ set(VENDOR_DIR "~/vendor")
 set(IS_DEBUG_BUILD CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 add_executable(Fizika main.cpp)
+add_executable(DataBuild src/databuild/main.cpp)
 
 find_package(glfw3 3.3 REQUIRED)
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
@@ -22,6 +23,9 @@ target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/stb)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/imgui)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/implot)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/glfwkeys)
+
+target_include_directories(DataBuild PUBLIC include)
+target_include_directories(DataBuild PUBLIC ${VENDOR_DIR}/tinyxml/include)
 
 target_link_libraries(Fizika glfw ${OPENGL_opengl_LIBRARY})
 target_link_libraries(Fizika glfw ${OPENGL_glx_LIBRARY})
@@ -59,6 +63,11 @@ target_sources(Fizika PUBLIC
     ${VENDOR_DIR}/implot/implot.cpp
     ${VENDOR_DIR}/implot/implot_items.cpp
     # ${VENDOR_DIR}/implot/implot_demo.cpp
+)
+
+target_sources(DataBuild PUBLIC
+    src/databuild/DataBuild.cpp
+    ${VENDOR_DIR}/tinyxml/src/tinyxml2.cpp
 )
 
 if(${IS_DEBUG_BUILD})

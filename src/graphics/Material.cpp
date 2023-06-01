@@ -41,13 +41,13 @@ void Material::InitMaterial(const std::string& path) {
     tinyxml2::XMLElement* sourceNode = sourcesNode->FirstChildElement("ShaderSource");
 
     while (sourceNode != 0 && (vertexShaderPath == "" || fragmentShaderPath == "")) {
-        std::string type = Material::SafeXMLAttribute("type", sourceNode);
+        std::string type = SafeXMLAttribute("type", sourceNode);
 
         // If the path isn't set yet then set it
         if (type == "vertex" && vertexShaderPath == "")
-            vertexShaderPath = "../res/shaders/" + Material::SafeXMLAttribute("path", sourceNode);
+            vertexShaderPath = "../res/shaders/" + SafeXMLAttribute("path", sourceNode);
         else if (type == "fragment" && fragmentShaderPath == "")
-            fragmentShaderPath = "../res/shaders/" + Material::SafeXMLAttribute("path", sourceNode);
+            fragmentShaderPath = "../res/shaders/" + SafeXMLAttribute("path", sourceNode);
 
         sourceNode = sourceNode->NextSiblingElement();
     }
