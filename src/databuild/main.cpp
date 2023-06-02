@@ -10,7 +10,7 @@ int main(int argc, char* argv[]) {
 
     for (int i = 1; i < argc; i++) {
         bool initSuccess;
-        DataBuild dataBuild(argv[i], initSuccess);
+        DataBuild::DataBuild dataBuild(argv[i], initSuccess);
         if (!initSuccess) continue;
 
         if (!dataBuild.Run()) {

@@ -1,10 +1,21 @@
 #pragma once
 
+#include <vector>
+#include <algorithm>
+
 #include "util/XML.hpp"
+#include "util/types.hpp"
+
+namespace DataBuild {
 
 enum GeometryMode {
     STATIC,
     DYNAMIC
+};
+
+enum ShaderType {
+    VERTEX,
+    FRAGMENT
 };
 
 struct DataBuildState {
@@ -17,4 +28,8 @@ struct DataBuildState {
 
     // Material State
     std::string materialFilePath;
+    std::vector<std::pair<std::string, ShaderType>> materialShaders;
+    std::vector<std::pair<std::string, u32>> materialAttributes;
 };
+
+};  // namespace DataBuild

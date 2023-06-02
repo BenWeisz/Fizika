@@ -14,6 +14,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
 #include <vector>
 #include <unordered_map>
 
@@ -21,6 +22,8 @@
 #include "util/strings.hpp"
 #include "util/XML.hpp"
 #include "databuild/DataBuildState.hpp"
+
+namespace DataBuild {
 
 class DataBuild {
    private:
@@ -38,3 +41,5 @@ class DataBuild {
     bool LoadGeometryFile();
     // bool LoadPipeline();
 };
+
+};  // namespace DataBuild

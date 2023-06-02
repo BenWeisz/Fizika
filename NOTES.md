@@ -1,3 +1,6 @@
+### June 1, 2023
+-   Set up loading for material file in data build
+
 ### May 31, 2023
 -   Redesign plan databuild system
 -   Implement loading of the model file
