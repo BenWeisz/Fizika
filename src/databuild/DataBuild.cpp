@@ -8,7 +8,7 @@ DataBuild::DataBuild(const std::string& modelFilePath, bool& initSuccess) : mSta
 
 DataBuild::~DataBuild() {
     // Clean up the DataBuildState
-    delete mState->modelFileDoc;
+    delete mState->mModelFileDoc;
 
     delete mState;
 }
@@ -21,18 +21,18 @@ bool DataBuild::InitDataBuild(const std::string& modelFilePath) {
     mState = new DataBuildState;
 
     // Load modelFile
-    mState->modelFilePath = modelFilePath;
-    mState->modelFileDoc = new tinyxml2::XMLDocument();
-    mState->modelFileDoc->LoadFile(modelFilePath.c_str());
+    mState->mModelFilePath = modelFilePath;
+    mState->mModelFileDoc = new tinyxml2::XMLDocument();
+    mState->mModelFileDoc->LoadFile(modelFilePath.c_str());
 
-    if (mState->modelFileDoc->Error()) {
+    if (mState->mModelFileDoc->Error()) {
         std::cout << "ERROR: Failed to load xml file for target \"" << modelFilePath << "\"" << std::endl;
-        mState->modelFileDoc->PrintError();
+        mState->mModelFileDoc->PrintError();
         return false;
     }
 
     // Load the geometry and material paths
-    tinyxml2::XMLElement* rootNode = mState->modelFileDoc->RootElement();
+    tinyxml2::XMLElement* rootNode = mState->mModelFileDoc->RootElement();
     if (rootNode == nullptr) {
         std::cout << "ERROR: Failed to find Model tag in target \"" << modelFilePath << "\"" << std::endl;
         return false;
@@ -45,22 +45,22 @@ bool DataBuild::InitDataBuild(const std::string& modelFilePath) {
         return false;
     }
 
-    mState->geometryFilePath = SafeXMLAttribute("path", geometryNode);
-    if (mState->geometryFilePath.empty()) {
+    mState->mGeometryFilePath = SafeXMLAttribute("path", geometryNode);
+    if (mState->mGeometryFilePath.empty()) {
         std::cout << "ERROR: Geometry tag does not specify valid attribute \"path\" for target \"" << modelFilePath << "\"" << std::endl;
         return false;
     }
 
-    if (!std::filesystem::exists(mState->geometryFilePath)) {
-        std::cout << "ERROR: Geometry tag's \"path\" attribute specifies a file which does not exist: \"" << mState->geometryFilePath << "\"" << std::endl;
+    if (!std::filesystem::exists(mState->mGeometryFilePath)) {
+        std::cout << "ERROR: Geometry tag's \"path\" attribute specifies a file which does not exist: \"" << mState->mGeometryFilePath << "\"" << std::endl;
         return false;
     }
 
     std::string geometryModeStr = SafeXMLAttribute("mode", geometryNode);
     if (geometryModeStr == "STATIC")
-        mState->geometryMode = GeometryMode::STATIC;
+        mState->mGeometryMode = GeometryMode::STATIC;
     else if (geometryModeStr == "DYNAMIC")
-        mState->geometryMode = GeometryMode::DYNAMIC;
+        mState->mGeometryMode = GeometryMode::DYNAMIC;
     else {
         std::cout << "ERROR: Geometry tag does not specify valid attribute \"mode\" for target \"" << modelFilePath << "\"" << std::endl;
         std::cout << "-----> \"mode\" attribute should specify \"STATIC\" or \"DYNAMIC\"" << std::endl;
@@ -74,14 +74,14 @@ bool DataBuild::InitDataBuild(const std::string& modelFilePath) {
         return false;
     }
 
-    mState->materialFilePath = SafeXMLAttribute("path", materialNode);
-    if (mState->materialFilePath.empty()) {
+    mState->mMaterialFilePath = SafeXMLAttribute("path", materialNode);
+    if (mState->mMaterialFilePath.empty()) {
         std::cout << "ERROR: Material tag does not specify valid attribute \"path\" for target \"" << modelFilePath << "\"" << std::endl;
         return false;
     }
 
-    if (!std::filesystem::exists(mState->materialFilePath)) {
-        std::cout << "ERROR: Material tag's \"path\" attribute specifies a file which does not exist: \"" << mState->materialFilePath << "\"" << std::endl;
+    if (!std::filesystem::exists(mState->mMaterialFilePath)) {
+        std::cout << "ERROR: Material tag's \"path\" attribute specifies a file which does not exist: \"" << mState->mMaterialFilePath << "\"" << std::endl;
         return false;
     }
 
@@ -105,17 +105,17 @@ bool DataBuild::SaveData() const {
 }
 
 bool DataBuild::LoadMaterialFile() {
-    if (!mState->materialFilePath.ends_with(".mat")) {
+    if (!mState->mMaterialFilePath.ends_with(".mat")) {
         std::cout << "ERROR: Material file must have extension \".mat\"" << std::endl;
         return false;
     }
 
     // Load the material file
     tinyxml2::XMLDocument materialDoc;
-    materialDoc.LoadFile(mState->materialFilePath.c_str());
+    materialDoc.LoadFile(mState->mMaterialFilePath.c_str());
 
     if (materialDoc.Error()) {
-        std::cout << "ERROR: Failed to load material file " << mState->materialFilePath << std::endl;
+        std::cout << "ERROR: Failed to load material file " << mState->mMaterialFilePath << std::endl;
         materialDoc.PrintError();
         return false;
     }
@@ -123,21 +123,21 @@ bool DataBuild::LoadMaterialFile() {
     // Set up the root node
     tinyxml2::XMLElement* rootNode = materialDoc.RootElement();
     if (rootNode == nullptr) {
-        std::cout << "ERROR: Failed to find Material tag in material file \"" << mState->materialFilePath << "\"" << std::endl;
+        std::cout << "ERROR: Failed to find Material tag in material file \"" << mState->mMaterialFilePath << "\"" << std::endl;
         return false;
     }
 
     // Load the shader tag
     tinyxml2::XMLElement* shaderNode = rootNode->FirstChildElement("Shader");
     if (shaderNode == nullptr) {
-        std::cout << "ERROR: Failed to find Shader tag in material file \"" << mState->materialFilePath << "\"" << std::endl;
+        std::cout << "ERROR: Failed to find Shader tag in material file \"" << mState->mMaterialFilePath << "\"" << std::endl;
         return false;
     }
 
     // Load shader source tags
     tinyxml2::XMLElement* element = shaderNode->FirstChildElement("ShaderSource");
     if (element == nullptr) {
-        std::cout << "ERROR: Failed to find ShaderSource's in material file \"" << mState->materialFilePath << "\"" << std::endl;
+        std::cout << "ERROR: Failed to find ShaderSource's in material file \"" << mState->mMaterialFilePath << "\"" << std::endl;
         return false;
     }
 
@@ -146,14 +146,14 @@ bool DataBuild::LoadMaterialFile() {
     for (; element != nullptr; element = element->NextSiblingElement("ShaderSource")) {
         std::string type = SafeXMLAttribute("type", element);
         if (type.empty() || (type != "VERTEX" && type != "FRAGMENT")) {
-            std::cout << "ERROR: ShaderSource tag does not specify valid attribute \"type\" in material file \"" << mState->materialFilePath << "\"" << std::endl;
+            std::cout << "ERROR: ShaderSource tag does not specify valid attribute \"type\" in material file \"" << mState->mMaterialFilePath << "\"" << std::endl;
             std::cout << "-----> \"type\" attribute should specify \"VERTEX\" or \"FRAGMENT\"" << std::endl;
             return false;
         }
 
         std::string path = SafeXMLAttribute("path", element);
         if (path.empty()) {
-            std::cout << "ERROR: ShaderSource tag does not specify valid attribute \"path\" in material file \"" << mState->materialFilePath << "\"" << std::endl;
+            std::cout << "ERROR: ShaderSource tag does not specify valid attribute \"path\" in material file \"" << mState->mMaterialFilePath << "\"" << std::endl;
             return false;
         }
 
@@ -173,37 +173,37 @@ bool DataBuild::LoadMaterialFile() {
         else if (type == "FRAGMENT")
             shaderType = ShaderType::FRAGMENT;
 
-        mState->materialShaders.emplace_back(path, shaderType);
+        mState->mMaterialShaders.emplace_back(path, shaderType);
     }
 
     // Ensure there are at least one of each of the basic shaders
     if (!foundVertexShader || !foundFragmentShader) {
-        std::cout << "ERROR: Failed to find at least one VERTEX and FRAGMENT shader in material file \"" << mState->materialFilePath << "\"" << std::endl;
+        std::cout << "ERROR: Failed to find at least one VERTEX and FRAGMENT shader in material file \"" << mState->mMaterialFilePath << "\"" << std::endl;
         return false;
     }
 
     // Load the Layout tag
     tinyxml2::XMLElement* layoutNode = rootNode->FirstChildElement("Layout");
     if (layoutNode == nullptr) {
-        std::cout << "ERROR: Failed to find Layout tag in material file \"" << mState->materialFilePath << "\"" << std::endl;
+        std::cout << "ERROR: Failed to find Layout tag in material file \"" << mState->mMaterialFilePath << "\"" << std::endl;
         return false;
     }
 
     element = layoutNode->FirstChildElement("LayoutElement");
     if (element == nullptr) {
-        std::cout << "ERROR: Failed to find LayoutElement's in material file \"" << mState->materialFilePath << "\"" << std::endl;
+        std::cout << "ERROR: Failed to find LayoutElement's in material file \"" << mState->mMaterialFilePath << "\"" << std::endl;
         return false;
     }
     for (; element != nullptr; element = element->NextSiblingElement("LayoutElement")) {
         std::string name = SafeXMLAttribute("name", element);
         if (name.empty()) {
-            std::cout << "ERROR: LayoutElement tag does not specify valid attribute \"name\" in material file \"" << mState->materialFilePath << "\"" << std::endl;
+            std::cout << "ERROR: LayoutElement tag does not specify valid attribute \"name\" in material file \"" << mState->mMaterialFilePath << "\"" << std::endl;
             return false;
         }
 
         std::string attribSizeStr = SafeXMLAttribute("attribSize", element);
         if (attribSizeStr.empty()) {
-            std::cout << "ERROR: LayoutElement tag does not specify valid attribute \"attribSize\" in material file \"" << mState->materialFilePath << "\"" << std::endl;
+            std::cout << "ERROR: LayoutElement tag does not specify valid attribute \"attribSize\" in material file \"" << mState->mMaterialFilePath << "\"" << std::endl;
             return false;
         }
 
@@ -211,17 +211,35 @@ bool DataBuild::LoadMaterialFile() {
         try {
             attribSize = std::stoi(attribSizeStr);
         } catch (std::invalid_argument const& ex) {
-            std::cout << "ERROR: LayoutElement tag does not specify valid attribute \"attribSize\" in material file \"" << mState->materialFilePath << "\"" << std::endl;
+            std::cout << "ERROR: LayoutElement tag does not specify valid attribute \"attribSize\" in material file \"" << mState->mMaterialFilePath << "\"" << std::endl;
             return false;
         }
 
         if (attribSize < 1 || attribSize > 4) {
-            std::cout << "ERROR: LayoutElement tag does not specify valid attribute \"attribSize\" in material file \"" << mState->materialFilePath << "\"" << std::endl;
+            std::cout << "ERROR: LayoutElement tag does not specify valid attribute \"attribSize\" in material file \"" << mState->mMaterialFilePath << "\"" << std::endl;
             std::cout << "-----> \"attribSize\" attribute should specify value between 1 and 4" << std::endl;
             return false;
         }
 
-        mState->materialAttributes.emplace_back(name, attribSize);
+        mState->mMaterialAttributes.emplace_back(name, attribSize);
+    }
+
+    // Load the Textures tag
+    tinyxml2::XMLElement* texturesNode = rootNode->FirstChildElement("Textures");
+    if (texturesNode == nullptr) {
+        std::cout << "ERROR: Failed to find Textures tag in material file \"" << mState->mMaterialFilePath << "\"" << std::endl;
+        return false;
+    }
+
+    element = texturesNode->FirstChildElement("Texture");
+    for (; element != nullptr; element = element->NextSiblingElement("Texture")) {
+        std::string path = SafeXMLAttribute("path", element);
+        if (path.empty()) {
+            std::cout << "ERROR: Texture tag does not specify valid attribute \"path\" in material file \"" << mState->mMaterialFilePath << "\"" << std::endl;
+            return false;
+        }
+
+        mState->mMaterialTexturePaths.push_back(path);
     }
 
     return true;

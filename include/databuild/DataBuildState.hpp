@@ -19,17 +19,18 @@ enum ShaderType {
 };
 
 struct DataBuildState {
-    std::string modelFilePath;
-    tinyxml2::XMLDocument* modelFileDoc;
+    std::string mModelFilePath;
+    tinyxml2::XMLDocument* mModelFileDoc;
 
     // Geometry State
-    std::string geometryFilePath;
-    GeometryMode geometryMode;
+    std::string mGeometryFilePath;
+    GeometryMode mGeometryMode;
 
     // Material State
-    std::string materialFilePath;
-    std::vector<std::pair<std::string, ShaderType>> materialShaders;
-    std::vector<std::pair<std::string, u32>> materialAttributes;
+    std::string mMaterialFilePath;
+    std::vector<std::pair<std::string, ShaderType>> mMaterialShaders;
+    std::vector<std::pair<std::string, u32>> mMaterialAttributes;
+    std::vector<std::string> mMaterialTexturePaths;
 };
 
 };  // namespace DataBuild
