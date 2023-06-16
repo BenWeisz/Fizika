@@ -1,3 +1,10 @@
+### June 10, 2023
+-   Rewrite DataBuild data model
+-   Get data outputing to file
+
+### June 3, 2023
+-   Add texture tag parsing for materials in databuild system
+
 ### June 1, 2023
 -   Set up loading for material file in data build
 
@@ -57,7 +64,7 @@ model.xml
 </Model>
 
 *.mat
-This format will specify EXACTLY what is in the shader files and the bin files. The pipeline will have recepe that it follows and it will pack the model with the exact data, no more.
+This format will specify EXACTLY what is in the shader files and the bin files (exception if geo is dynamic and normal attrib is called for it will be computed at run time via compute shader). The pipeline will have recepe that it follows and it will pack the model with the exact data, no more.
 <Material>
     <Shaders>
         <Source type="vertex"></Source>
@@ -81,7 +88,7 @@ This format will specify EXACTLY what is in the shader files and the bin files. 
         <Scale x="1.0" y="1.0" z="1.0"/>
         <Rotate x1="1.0" z="1.0" x2="1.0"/>
         <Translate x="1.0" y="1.0" z="1.0"/>
-        <Unitize type="VERTEX|NORMAL"/> --> makes everything fit in 1x1x1 box
+        <!-- <Unitize type="VERTEX|NORMAL"/> --> makes everything fit in 1x1x1 box -->
     </Pipeline>
 </Model>
 
@@ -114,3 +121,16 @@ Implementation:
   - Pipeline* LoadPipeline(tinyxml2::XMLElement* pipelineElements);
   - bool WriteData();
   - bool PackData(); 
+
+Pipeline implementation
+-   Normals are never loaded from the file
+    -   We will compute all the transforms on the positional data and at the end run a compute shader if the normal is required by the material
+-   If uvs are required we load them into a separate data stream and load their primitive indices into a separate stream
+-   Positions are required and are loaded into a data stream with indices going to separate data stream
+-   Transforms from pipeline area grouped and built into one transform to limit gl calls for compute
+-   no compute is done on uvs
+-   unitization is always done as a last step on positional data
+-   Finally we run the normal compute pass if needed
+-   If static geo we use hash maps to generate vertices for unique position, uv pairs generating a new index stream
+-   If not static we save data streams for positional, uv and respective indices
+

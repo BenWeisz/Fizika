@@ -6,6 +6,7 @@
     </Shader>
     <Layout>
         <LayoutElement name="iPosition" attribSize="3"/>
+        <!-- <LayoutElement name="iUV" attribSize="2"/> -->
     </Layout>
     <Textures>
         <Texture path="../res/textures/checker.png"/>

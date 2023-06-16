@@ -17,17 +17,53 @@
 #include <filesystem>
 #include <vector>
 #include <unordered_map>
+#include <algorithm>
 
 #include "util/types.hpp"
 #include "util/strings.hpp"
 #include "util/XML.hpp"
-#include "databuild/DataBuildState.hpp"
+#include "util/log.hpp"
 
 namespace DataBuild {
 
+enum GeometryMode {
+    STATIC,
+    DYNAMIC
+};
+
+enum PrimitiveType {
+    TRIANGLES,
+    LINES
+};
+
+enum ShaderType {
+    VERTEX,
+    FRAGMENT
+};
+
 class DataBuild {
    private:
-    DataBuildState* mState;
+    // Model File State
+    std::string mModelFilePath;
+    tinyxml2::XMLDocument* mModelFileDoc;
+
+    // Geometry File State
+    std::vector<f32> mPositions;
+    std::vector<f32> mUVs;
+
+    std::vector<u32> mPositionIndices;
+    std::vector<u32> mUVIndices;
+    u32 mVertexArity;
+
+    std::string mGeometryFilePath;
+    GeometryMode mGeometryMode;
+    PrimitiveType mPrimitiveType;
+
+    // Material File State
+    std::string mMaterialFilePath;
+    std::vector<std::string> mMaterialTexturePaths;
+    std::vector<std::pair<std::string, ShaderType>> mMaterialShaders;
+    std::vector<std::pair<std::string, u32>> mMaterialAttributes;
 
    public:
     DataBuild(const std::string& path, bool& initSuccess);
@@ -36,10 +72,12 @@ class DataBuild {
     bool SaveData() const;
 
    private:
-    bool InitDataBuild(const std::string& modelFilePath);
+    bool InitDataBuild();
     bool LoadMaterialFile();
     bool LoadGeometryFile();
     // bool LoadPipeline();
+    bool LoadGeometryPrimitiveType(std::ifstream& geometryFile);
+    bool LoadGeometryData(std::ifstream& geometryFile);
 };
 
 };  // namespace DataBuild
