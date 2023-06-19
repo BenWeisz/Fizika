@@ -14,6 +14,7 @@ add_executable(DataBuild src/databuild/main.cpp)
 
 find_package(glfw3 3.3 REQUIRED)
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+find_package(OpenCL)
 
 target_include_directories(Fizika PUBLIC include)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/glad-core-4.5/include)
@@ -26,10 +27,14 @@ target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/glfwkeys)
 
 target_include_directories(DataBuild PUBLIC include)
 target_include_directories(DataBuild PUBLIC ${VENDOR_DIR}/tinyxml/include)
+target_include_directories(DataBuild PUBLIC ${VENDOR_DIR}/glm)
 
 target_link_libraries(Fizika glfw ${OPENGL_opengl_LIBRARY})
 target_link_libraries(Fizika glfw ${OPENGL_glx_LIBRARY})
 target_link_libraries(Fizika Eigen3::Eigen)
+
+target_link_libraries(DataBuild PRIVATE OpenCL::OpenCL)
+target_compile_definitions(DataBuild PRIVATE CL_TARGET_OPENCL_VERSION=300)
 
 target_sources(Fizika PUBLIC
     src/graphics/Shader.cpp
@@ -67,6 +72,7 @@ target_sources(Fizika PUBLIC
 
 target_sources(DataBuild PUBLIC
     src/databuild/DataBuild.cpp
+    src/databuild/Pipeline.cpp
     ${VENDOR_DIR}/tinyxml/src/tinyxml2.cpp
 )
 

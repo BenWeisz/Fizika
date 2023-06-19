@@ -8,11 +8,11 @@ This program is meant as a basis for physics based simulations / animations. The
 If you would like to take a look at some of the physics simulations, take a look at the branches.
 
 Currently the following simulations are implemented:
-| Simulation                    | Branch                                                                                                  |
-|:-----------------------------:|:-------------------------------------------------------------------------------------------------------:|
-| Bouncing Balls                | [bouncing-particle](https://github.com/BenWeisz/Fizika/tree/bouncing-particle)                          |
-| Bouncing Balls w/ Collisions  | [bouncing-particle-collision](https://github.com/BenWeisz/Fizika/tree/bouncing-particle-collision)      |
-| Linear Spring-Mass System     | [mass-spring](https://github.com/BenWeisz/Fizika/tree/mass-spring)                                      |
+|          Simulation          |                                               Branch                                               |
+| :--------------------------: | :------------------------------------------------------------------------------------------------: |
+|        Bouncing Balls        |           [bouncing-particle](https://github.com/BenWeisz/Fizika/tree/bouncing-particle)           |
+| Bouncing Balls w/ Collisions | [bouncing-particle-collision](https://github.com/BenWeisz/Fizika/tree/bouncing-particle-collision) |
+|  Linear Spring-Mass System   |                 [mass-spring](https://github.com/BenWeisz/Fizika/tree/mass-spring)                 |
 
 ## Required Setup
 
@@ -30,7 +30,7 @@ The following libraries / implementations are required. Download the following a
 └── tinyxml
 ```
 
-You'll also need to install Eigen3 and GLFW system wide
+You'll also need to install Eigen3 and GLFW system wide. You may also need to install OpenCL if you wish to rebuild the model files, but the model binaries will be provided for each branch.
 
 Download them here:
 - [Glad](https://glad.dav1d.de/)
@@ -50,8 +50,15 @@ Next create a build directory in the main project folder and generate the make f
 mkdir build
 cd build
 cmake ..
-make
+make Fizika
 ./Fizika
+```
+
+Additionally if you wish to run the DataBuild Pipeline you'll need to build it as well.
+
+```sh
+make DataBuild
+./DataBuild ../res/databuild/databuild_sample.xml
 ```
 
 ![Demo Image](https://raw.githubusercontent.com/BenWeisz/Fizika/main/images/demo.png)

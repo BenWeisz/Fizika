@@ -19,27 +19,14 @@
 #include <unordered_map>
 #include <algorithm>
 
+#include "DataBuildState.hpp"
+
 #include "util/types.hpp"
 #include "util/strings.hpp"
 #include "util/XML.hpp"
 #include "util/log.hpp"
 
 namespace DataBuild {
-
-enum GeometryMode {
-    STATIC,
-    DYNAMIC
-};
-
-enum PrimitiveType {
-    TRIANGLES,
-    LINES
-};
-
-enum ShaderType {
-    VERTEX,
-    FRAGMENT
-};
 
 class DataBuild {
    private:
@@ -48,11 +35,14 @@ class DataBuild {
     tinyxml2::XMLDocument* mModelFileDoc;
 
     // Geometry File State
-    std::vector<f32> mPositions;
-    std::vector<f32> mUVs;
+    f32* mPositions;
+    u32 mNumPositions;
+    f32* mUVs;
+    u32 mNumUVs;
 
-    std::vector<u32> mPositionIndices;
-    std::vector<u32> mUVIndices;
+    u32* mPositionIndices;
+    u32* mUVIndices;
+    u32 mNumPrimitives;
     u32 mVertexArity;
 
     std::string mGeometryFilePath;
@@ -65,6 +55,9 @@ class DataBuild {
     std::vector<std::pair<std::string, ShaderType>> mMaterialShaders;
     std::vector<std::pair<std::string, u32>> mMaterialAttributes;
 
+    // Pipeline State
+    std::vector<PipelineOperator> mPipelineOperators;
+
    public:
     DataBuild(const std::string& path, bool& initSuccess);
     ~DataBuild();
@@ -75,7 +68,8 @@ class DataBuild {
     bool InitDataBuild();
     bool LoadMaterialFile();
     bool LoadGeometryFile();
-    // bool LoadPipeline();
+    bool LoadPipeline();
+    bool LoadPipelineOperator(const PipelineOperatorType type, const tinyxml2::XMLElement* element, const int opNum);
     bool LoadGeometryPrimitiveType(std::ifstream& geometryFile);
     bool LoadGeometryData(std::ifstream& geometryFile);
 };

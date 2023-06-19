@@ -96,6 +96,9 @@ class Window {
     static bool ShouldClose() {
         return glfwWindowShouldClose(Frame);
     }
+    static void SignalClose() {
+        glfwSetWindowShouldClose(Frame, GL_TRUE);
+    }
     static void Draw() {
         // Render ImGui Frame
         if (HasImGuiDisplay) {

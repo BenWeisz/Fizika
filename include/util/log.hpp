@@ -1,5 +1,6 @@
 #pragma once
 
+#include <iostream>
 #include <sstream>
 
 // ChatGPT
@@ -16,7 +17,7 @@ inline void LogWarn(Args&&... args) {
     std::ostringstream oss;
     ((oss << std::forward<Args>(args)), ...);  // Apply << operator to all arguments
 
-    std::cout << "\033[1;43mLOG:\033[0m " << oss.str() << std::endl;
+    std::cout << "\033[1;43mWARNING:\033[0m " << oss.str() << std::endl;
 }
 
 template <typename... Args>

@@ -1,3 +1,12 @@
+### June 19, 2023
+-   Implement loading for pipeline data
+-   Migrate geo data back to using arrays for composibility of pipeline stages
+-   Played around with opencl a bit
+
+### June 16, 2023
+-   Improve error checking for geometry data load
+-   Improve logging message display
+
 ### June 10, 2023
 -   Rewrite DataBuild data model
 -   Get data outputing to file

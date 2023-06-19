@@ -3,12 +3,17 @@
 namespace DataBuild {
 
 DataBuild::DataBuild(const std::string& modelFilePath, bool& initSuccess)
-    : mModelFilePath(modelFilePath), mModelFileDoc(nullptr) {
+    : mModelFilePath(modelFilePath), mModelFileDoc(nullptr), mPositions(nullptr), mNumPositions(0), mUVs(nullptr), mNumUVs(0), mPositionIndices(nullptr), mUVIndices(nullptr), mNumPrimitives(0), mVertexArity(0) {
     initSuccess = InitDataBuild();
 }
 
 DataBuild::~DataBuild() {
     // Clean up the DataBuildState
+    if (mPositions) delete[] mPositions;
+    if (mUVs) delete[] mUVs;
+    if (mPositionIndices) delete[] mPositionIndices;
+    if (mUVIndices) delete[] mUVIndices;
+
     delete mModelFileDoc;
 }
 
@@ -87,6 +92,10 @@ bool DataBuild::InitDataBuild() {
     // Load the geometry file
     if (!LoadGeometryFile())
         return false;
+
+    if (!LoadPipeline()) {
+        return false;
+    }
 
     return true;
 }
@@ -275,6 +284,91 @@ bool DataBuild::LoadGeometryFile() {
     return true;
 }
 
+bool DataBuild::LoadPipeline() {
+    // Load the model and pipeline tag
+    tinyxml2::XMLElement* rootNode = mModelFileDoc->RootElement();
+    if (rootNode == nullptr) {
+        LogError("Failed to find Model tag in target \"", mModelFilePath, "\"");
+        return false;
+    }
+
+    // Load Model file path and mode attribute
+    tinyxml2::XMLElement* pipelineNode = rootNode->FirstChildElement("Pipeline");
+    if (pipelineNode == nullptr) {
+        LogError("Failed to find Pipeline tag in target \"", mModelFilePath, "\"");
+        return false;
+    }
+
+    int i = 1;
+    for (tinyxml2::XMLElement* element = pipelineNode->FirstChildElement(); element != nullptr; element = element->NextSiblingElement()) {
+        std::string tag = element->Name();
+
+        if (tag == "Scale") {
+            if (!LoadPipelineOperator(PipelineOperatorType::SCALE, element, i))
+                return false;
+        } else if (tag == "Translate") {
+            if (!LoadPipelineOperator(PipelineOperatorType::TRANSLATE, element, i))
+                return false;
+        } else if (tag == "Rotate") {
+            if (!LoadPipelineOperator(PipelineOperatorType::ROTATE, element, i))
+                return false;
+        } else {
+            LogWarn("Found unsuported pipeline operation \"", tag, "\" in pipeline");
+        }
+
+        i++;
+    }
+
+    return true;
+}
+
+bool DataBuild::LoadPipelineOperator(const PipelineOperatorType type, const tinyxml2::XMLElement* element, const int opNum) {
+    f32 v0, v1, v2;
+
+    std::string attrib0;
+    std::string attrib1;
+    std::string attrib2;
+
+    std::string operatorName = type == PipelineOperatorType::SCALE ? "Scale" : (type == PipelineOperatorType::TRANSLATE ? "Translate" : "Rotate");
+
+    // Determine the attributes to look for
+    if (type == PipelineOperatorType::SCALE || type == PipelineOperatorType::TRANSLATE) {
+        attrib0 = "x";
+        attrib1 = "y";
+        attrib2 = "z";
+    } else if (type == PipelineOperatorType::ROTATE) {
+        attrib0 = "x1";
+        attrib1 = "z";
+        attrib2 = "x2";
+    }
+
+    std::string v0Str = SafeXMLAttribute(attrib0, element);
+    if (v0Str.empty()) {
+        LogError("Failed to find attribute \"", attrib0, "\" for pipeline operator: ", operatorName, " (Op #", opNum, ")");
+        return false;
+    }
+
+    std::string v1Str = SafeXMLAttribute(attrib1, element);
+    if (v1Str.empty()) {
+        LogError("Failed to find attribute \"", attrib1, "\" for pipeline operator: ", operatorName, " (Op #", opNum, ")");
+        return false;
+    }
+
+    std::string v2Str = SafeXMLAttribute(attrib2, element);
+    if (v2Str.empty()) {
+        LogError("Failed to find attribute \"", attrib2, "\" for pipeline operator: ", operatorName, " (Op #", opNum, ")");
+        return false;
+    }
+
+    // We're not going to handle conversion errors :)
+    v0 = std::stof(v0Str);
+    v1 = std::stof(v1Str);
+    v2 = std::stof(v2Str);
+
+    mPipelineOperators.push_back({type, v0, v1, v2});
+    return true;
+}
+
 bool DataBuild::LoadGeometryPrimitiveType(std::ifstream& geometryFile) {
     // Rewind file pointer
     geometryFile.clear();
@@ -322,6 +416,7 @@ bool DataBuild::LoadGeometryData(std::ifstream& geometryFile) {
 
     // Figure out the arity of the data
     mVertexArity = mPrimitiveType == PrimitiveType::TRIANGLES ? 3 : 2;
+    std::string primitiveAttribute = mVertexArity == 3 ? "f " : "l ";
 
     // Figure out which of the default attributes we might need to load
     bool loadPositions = false;
@@ -340,7 +435,34 @@ bool DataBuild::LoadGeometryData(std::ifstream& geometryFile) {
         return false;
     }
 
+    // Calculate the amount of space we're going to need
+    while (!geometryFile.eof()) {
+        std::getline(geometryFile, line);
+        std::istringstream iss(line.c_str());
+        if (line.compare(0, 2, "v ") == 0)
+            mNumPositions++;
+        else if (line.compare(0, 3, "vt ") == 0)
+            mNumUVs++;
+        else if (line.compare(0, 2, primitiveAttribute) == 0) {
+            mNumPrimitives++;
+        }
+    }
+
+    // Rewind file pointer
+    geometryFile.clear();
+    geometryFile.seekg(0, std::ios::beg);
+
+    // Allocate enough memory to store the vertex and index data;
+    mPositions = new f32[mNumPositions * 3];
+    mUVs = new f32[mNumUVs * 2];
+
+    mPositionIndices = new u32[mNumPrimitives * mVertexArity];
+    mUVIndices = new u32[mNumPrimitives * mVertexArity];
+
     u32 lineNumber = 1;
+    u32 positionIndex = 0;
+    u32 uvIndex = 0;
+    u32 primtiveIndex = 0;
     while (!geometryFile.eof()) {
         std::getline(geometryFile, line);
         std::istringstream iss(line.c_str());
@@ -349,16 +471,16 @@ bool DataBuild::LoadGeometryData(std::ifstream& geometryFile) {
             f32 position;
             for (int i = 0; i < 3; i++) {
                 iss >> position;
-                mPositions.push_back(position);
+                mPositions[positionIndex++] = position;
             }
         } else if (line.compare(0, 3, "vt ") == 0 && loadUVs) {
             iss >> trashStr;
             f32 uv;
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < 2; i++) {
                 iss >> uv;
-                mUVs.push_back(uv);
+                mUVs[uvIndex++] = uv;
             }
-        } else if (line.compare(0, 2, "f ") == 0 || line.compare(0, 2, "l ") == 0) {
+        } else if (line.compare(0, 2, primitiveAttribute) == 0) {
             iss >> trashStr;
 
             std::string token;
@@ -378,7 +500,7 @@ bool DataBuild::LoadGeometryData(std::ifstream& geometryFile) {
                     return false;
                 }
                 int endPos = Strings_GetEndOfNumber(token, startPos);
-                mPositionIndices.push_back(std::stoi(token.substr(startPos, endPos - startPos)) - 1);
+                mPositionIndices[(primtiveIndex * mVertexArity) + i] = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
 
                 if (loadUVs) {
                     // Find start and end of texture uv
@@ -391,9 +513,11 @@ bool DataBuild::LoadGeometryData(std::ifstream& geometryFile) {
                         return false;
                     }
                     endPos = Strings_GetEndOfNumber(token, startPos);
-                    mUVIndices.push_back(std::stoi(token.substr(startPos, endPos - startPos)) - 1);
+                    mUVIndices[(primtiveIndex * mVertexArity) + i] = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
                 }
             }
+
+            primtiveIndex++;
         }
 
         lineNumber++;

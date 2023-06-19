@@ -48,7 +48,7 @@ int main() {
         while (!Window::ShouldClose()) {
             /* Execute event results */
             if (Input::IsPressed("esc"))
-                glfwSetWindowShouldClose(Window::Frame, GL_TRUE);
+                Window::SignalClose();
 
             Camera::UpdateCamera();
 
