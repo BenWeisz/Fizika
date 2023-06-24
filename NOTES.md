@@ -1,3 +1,6 @@
+### June 24th, 2023
+-   Implement combining the transforms from the pipeline operators into a single glm matrix
+
 ### June 19, 2023
 -   Implement loading for pipeline data
 -   Migrate geo data back to using arrays for composibility of pipeline stages

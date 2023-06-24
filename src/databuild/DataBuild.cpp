@@ -531,6 +531,9 @@ bool DataBuild::LoadGeometryData(std::ifstream& geometryFile) {
 }
 
 bool DataBuild::Run() {
+    glm::mat4 pipelineOperatorTransform = Pipeline::GeneratePipelineOperatorTransform(mPipelineOperators);
+    f32* transform = glm::value_ptr(pipelineOperatorTransform);
+
     return true;
 }
 

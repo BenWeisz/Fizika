@@ -20,6 +20,7 @@
 #include <algorithm>
 
 #include "DataBuildState.hpp"
+#include "Pipeline.hpp"
 
 #include "util/types.hpp"
 #include "util/strings.hpp"

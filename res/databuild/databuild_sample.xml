@@ -3,8 +3,8 @@
     <Geometry path="../res/models/databuild_sample.obj" mode="DYNAMIC"/>
     <Material path="../res/materials/databuild_sample.mat"/>
     <Pipeline>
-        <Scale x="1.0" y="1.0" z="1.0"/>
-        <Rotate x1="1.0" z="1.0" x2="1.0"/>
+        <Scale x="2.0" y="2.0" z="2.0"/>
+        <Rotate x1="90.0" z="90.0" x2="45.0"/>
         <Translate x="1.0" y="1.0" z="1.0"/>
         <Unitize type="VERTEX|NORMAL"/>
     </Pipeline>
