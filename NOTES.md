@@ -1,3 +1,7 @@
+### July 8th, 2023
+-   Rename DataBuild to FDataBuild for Fizika DataBuild
+-   Implement Geometry modifiers
+
 ### June 24th, 2023
 -   Implement combining the transforms from the pipeline operators into a single glm matrix
 
@@ -146,3 +150,7 @@ Pipeline implementation
 -   If static geo we use hash maps to generate vertices for unique position, uv pairs generating a new index stream
 -   If not static we save data streams for positional, uv and respective indices
 
+===Additional Pipeline Requirements===
+-   Should have a backend and a frontend
+-   The frontend should be sort of an api
+-   The backend can be anything, opencl, eigen etc

@@ -10,7 +10,7 @@ set(VENDOR_DIR "~/vendor")
 set(IS_DEBUG_BUILD CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 add_executable(Fizika main.cpp)
-add_executable(DataBuild src/databuild/main.cpp)
+add_executable(FDataBuild src/fdatabuild/main.cpp)
 
 find_package(glfw3 3.3 REQUIRED)
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
@@ -25,16 +25,17 @@ target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/imgui)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/implot)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/glfwkeys)
 
-target_include_directories(DataBuild PUBLIC include)
-target_include_directories(DataBuild PUBLIC ${VENDOR_DIR}/tinyxml/include)
-target_include_directories(DataBuild PUBLIC ${VENDOR_DIR}/glm)
+target_include_directories(FDataBuild PUBLIC include)
+target_include_directories(FDataBuild PUBLIC ${VENDOR_DIR}/tinyxml/include)
+target_include_directories(FDataBuild PUBLIC ${VENDOR_DIR}/glm)
 
 target_link_libraries(Fizika glfw ${OPENGL_opengl_LIBRARY})
 target_link_libraries(Fizika glfw ${OPENGL_glx_LIBRARY})
 target_link_libraries(Fizika Eigen3::Eigen)
 
-target_link_libraries(DataBuild PRIVATE OpenCL::OpenCL)
-target_compile_definitions(DataBuild PRIVATE CL_TARGET_OPENCL_VERSION=300)
+# target_link_libraries(FDataBuild PRIVATE OpenCL::OpenCL)
+target_link_libraries(FDataBuild Eigen3::Eigen)
+target_compile_definitions(FDataBuild PRIVATE CL_TARGET_OPENCL_VERSION=300)
 
 target_sources(Fizika PUBLIC
     src/graphics/Shader.cpp
@@ -70,9 +71,9 @@ target_sources(Fizika PUBLIC
     # ${VENDOR_DIR}/implot/implot_demo.cpp
 )
 
-target_sources(DataBuild PUBLIC
-    src/databuild/DataBuild.cpp
-    src/databuild/Pipeline.cpp
+target_sources(FDataBuild PUBLIC
+    src/fdatabuild/FDataBuild.cpp
+    src/fdatabuild/modifiers/GeometrySegmentModifier.cpp
     ${VENDOR_DIR}/tinyxml/src/tinyxml2.cpp
 )
 

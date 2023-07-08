@@ -1,5 +1,5 @@
 #include "util/log.hpp"
-#include "databuild/DataBuild.hpp"
+#include "fdatabuild/FDataBuild.hpp"
 
 int main(int argc, char* argv[]) {
     if (argc <= 1) {
@@ -10,22 +10,22 @@ int main(int argc, char* argv[]) {
     for (int i = 1; i < argc; i++) {
         std::cout << "---------------------------------" << std::endl;
         bool initSuccess;
-        DataBuild::DataBuild dataBuild(argv[1], initSuccess);
+        FDataBuild::FDataBuild dataBuild(argv[i], initSuccess);
         if (!initSuccess) {
-            LogError("Building target \"", argv[1], "\"");
+            LogError("Building target \"", argv[i], "\"");
             continue;
         }
 
         if (!dataBuild.Run()) {
-            LogError("Failed to preform databuild for target \"", argv[1], "\"");
+            LogError("Failed to preform databuild for target \"", argv[i], "\"");
             continue;
         }
 
         if (!dataBuild.SaveData()) {
-            LogError("Failed to save databuild output for target \"", argv[1], "\"");
+            LogError("Failed to save databuild output for target \"", argv[i], "\"");
             continue;
         }
 
-        LogSuccess("Built target \"", argv[1], "\" -----> \"", Strings_FilenameWithoutExtension(argv[1]), ".zip\"");
+        LogSuccess("Built target \"", argv[i], "\" -----> \"", Strings_FilenameWithoutExtension(argv[i]), ".zip\"");
     }
 }

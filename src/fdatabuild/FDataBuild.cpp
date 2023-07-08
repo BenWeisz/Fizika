@@ -1,24 +1,25 @@
-#include "databuild/DataBuild.hpp"
+#include "fdatabuild/FDataBuild.hpp"
 
-namespace DataBuild {
+namespace FDataBuild {
 
-DataBuild::DataBuild(const std::string& modelFilePath, bool& initSuccess)
-    : mModelFilePath(modelFilePath), mModelFileDoc(nullptr), mPositions(nullptr), mNumPositions(0), mUVs(nullptr), mNumUVs(0), mPositionIndices(nullptr), mUVIndices(nullptr), mNumPrimitives(0), mVertexArity(0) {
-    initSuccess = InitDataBuild();
+FDataBuild::FDataBuild(const std::string& modelFilePath, bool& initSuccess)
+    : mModelFilePath(modelFilePath), mModelFileDoc(nullptr), mPositions(nullptr), mNumPositions(0), mUVs(nullptr), mNumUVs(0), mPositionIndices(nullptr), mUVIndices(nullptr), mNumPrimitives(0), mVertexArity(0), mModifiers(nullptr), mNumModifiers(0) {
+    initSuccess = InitFDataBuild();
 }
 
-DataBuild::~DataBuild() {
-    // Clean up the DataBuildState
+FDataBuild::~FDataBuild() {
+    // Clean up the FDataBuildState
     if (mPositions) delete[] mPositions;
     if (mUVs) delete[] mUVs;
     if (mPositionIndices) delete[] mPositionIndices;
     if (mUVIndices) delete[] mUVIndices;
+    if (mModifiers) delete[] mModifiers;
 
     delete mModelFileDoc;
 }
 
-bool DataBuild::InitDataBuild() {
-    // Initialize DataBuildState struct populating it with
+bool FDataBuild::InitFDataBuild() {
+    // Initialize FDataBuildState struct populating it with
     // geometry, material paths, and modelFile xml document
 
     // Load modelFile
@@ -93,14 +94,14 @@ bool DataBuild::InitDataBuild() {
     if (!LoadGeometryFile())
         return false;
 
-    if (!LoadPipeline()) {
+    if (!LoadModifiers()) {
         return false;
     }
 
     return true;
 }
 
-bool DataBuild::LoadMaterialFile() {
+bool FDataBuild::LoadMaterialFile() {
     if (!mMaterialFilePath.ends_with(".mat")) {
         LogError("Material file must have extension \".mat\"");
         return false;
@@ -247,7 +248,7 @@ bool DataBuild::LoadMaterialFile() {
     return true;
 }
 
-bool DataBuild::LoadGeometryFile() {
+bool FDataBuild::LoadGeometryFile() {
     if (!mGeometryFilePath.ends_with(".obj")) {
         LogError("Geometry file must have extension \".obj\"");
         return false;
@@ -284,8 +285,8 @@ bool DataBuild::LoadGeometryFile() {
     return true;
 }
 
-bool DataBuild::LoadPipeline() {
-    // Load the model and pipeline tag
+bool FDataBuild::LoadModifiers() {
+    // Load the model and modifier tag
     tinyxml2::XMLElement* rootNode = mModelFileDoc->RootElement();
     if (rootNode == nullptr) {
         LogError("Failed to find Model tag in target \"", mModelFilePath, "\"");
@@ -293,50 +294,66 @@ bool DataBuild::LoadPipeline() {
     }
 
     // Load Model file path and mode attribute
-    tinyxml2::XMLElement* pipelineNode = rootNode->FirstChildElement("Pipeline");
-    if (pipelineNode == nullptr) {
-        LogError("Failed to find Pipeline tag in target \"", mModelFilePath, "\"");
+    tinyxml2::XMLElement* modifiersNode = rootNode->FirstChildElement("Modifiers");
+    if (modifiersNode == nullptr) {
+        LogError("Failed to find Modifiers tag in target \"", mModelFilePath, "\"");
         return false;
     }
 
-    int i = 1;
-    for (tinyxml2::XMLElement* element = pipelineNode->FirstChildElement(); element != nullptr; element = element->NextSiblingElement()) {
+    mNumModifiers = 0;
+    for (tinyxml2::XMLElement* element = modifiersNode->FirstChildElement(); element != nullptr; element = element->NextSiblingElement()) {
+        std::string tag = element->Name();
+        if (tag == "Scale" || tag == "Translate" || tag == "Rotate") {
+            mNumModifiers++;
+        } else {
+            LogWarn("Found unsuported modifier \"", tag, "\"");
+        }
+    }
+
+    // Allocate memory for the modifiers
+    mModifiers = new Modifier[mNumModifiers];
+
+    u32 modNum = 1;
+    u32 modIndex = 0;
+    for (tinyxml2::XMLElement* element = modifiersNode->FirstChildElement(); element != nullptr; element = element->NextSiblingElement()) {
         std::string tag = element->Name();
 
         if (tag == "Scale") {
-            if (!LoadPipelineOperator(PipelineOperatorType::SCALE, element, i))
+            if (!LoadModifier(ModifierType::SCALE, element, modNum, modIndex))
                 return false;
         } else if (tag == "Translate") {
-            if (!LoadPipelineOperator(PipelineOperatorType::TRANSLATE, element, i))
+            if (!LoadModifier(ModifierType::TRANSLATE, element, modNum, modIndex))
                 return false;
         } else if (tag == "Rotate") {
-            if (!LoadPipelineOperator(PipelineOperatorType::ROTATE, element, i))
+            if (!LoadModifier(ModifierType::ROTATE, element, modNum, modIndex))
                 return false;
         } else {
-            LogWarn("Found unsuported pipeline operation \"", tag, "\" in pipeline");
+            // This is like only incremementing modIndex for valid modifiers
+            modIndex--;
         }
 
-        i++;
+        modNum++;
+        modIndex++;
     }
 
     return true;
 }
 
-bool DataBuild::LoadPipelineOperator(const PipelineOperatorType type, const tinyxml2::XMLElement* element, const int opNum) {
+bool FDataBuild::LoadModifier(const ModifierType type, const tinyxml2::XMLElement* element, const u32 modNum, const u32 modIndex) {
     f32 v0, v1, v2;
 
     std::string attrib0;
     std::string attrib1;
     std::string attrib2;
 
-    std::string operatorName = type == PipelineOperatorType::SCALE ? "Scale" : (type == PipelineOperatorType::TRANSLATE ? "Translate" : "Rotate");
+    std::string modifierName = type == ModifierType::SCALE ? "Scale" : (type == ModifierType::TRANSLATE ? "Translate" : "Rotate");
 
     // Determine the attributes to look for
-    if (type == PipelineOperatorType::SCALE || type == PipelineOperatorType::TRANSLATE) {
+    if (type == ModifierType::SCALE || type == ModifierType::TRANSLATE) {
         attrib0 = "x";
         attrib1 = "y";
         attrib2 = "z";
-    } else if (type == PipelineOperatorType::ROTATE) {
+    } else if (type == ModifierType::ROTATE) {
         attrib0 = "x1";
         attrib1 = "z";
         attrib2 = "x2";
@@ -344,19 +361,19 @@ bool DataBuild::LoadPipelineOperator(const PipelineOperatorType type, const tiny
 
     std::string v0Str = SafeXMLAttribute(attrib0, element);
     if (v0Str.empty()) {
-        LogError("Failed to find attribute \"", attrib0, "\" for pipeline operator: ", operatorName, " (Op #", opNum, ")");
+        LogError("Failed to find attribute \"", attrib0, "\" for modifier: ", modifierName, " (Op #", modNum, ")");
         return false;
     }
 
     std::string v1Str = SafeXMLAttribute(attrib1, element);
     if (v1Str.empty()) {
-        LogError("Failed to find attribute \"", attrib1, "\" for pipeline operator: ", operatorName, " (Op #", opNum, ")");
+        LogError("Failed to find attribute \"", attrib1, "\" for modifier: ", modifierName, " (Op #", modNum, ")");
         return false;
     }
 
     std::string v2Str = SafeXMLAttribute(attrib2, element);
     if (v2Str.empty()) {
-        LogError("Failed to find attribute \"", attrib2, "\" for pipeline operator: ", operatorName, " (Op #", opNum, ")");
+        LogError("Failed to find attribute \"", attrib2, "\" for modifier: ", modifierName, " (Op #", modNum, ")");
         return false;
     }
 
@@ -365,11 +382,15 @@ bool DataBuild::LoadPipelineOperator(const PipelineOperatorType type, const tiny
     v1 = std::stof(v1Str);
     v2 = std::stof(v2Str);
 
-    mPipelineOperators.push_back({type, v0, v1, v2});
+    mModifiers[modIndex].mModifierType = type;
+    mModifiers[modIndex].v0 = v0;
+    mModifiers[modIndex].v1 = v1;
+    mModifiers[modIndex].v2 = v2;
+
     return true;
 }
 
-bool DataBuild::LoadGeometryPrimitiveType(std::ifstream& geometryFile) {
+bool FDataBuild::LoadGeometryPrimitiveType(std::ifstream& geometryFile) {
     // Rewind file pointer
     geometryFile.clear();
     geometryFile.seekg(0, std::ios::beg);
@@ -406,7 +427,7 @@ bool DataBuild::LoadGeometryPrimitiveType(std::ifstream& geometryFile) {
     return true;
 }
 
-bool DataBuild::LoadGeometryData(std::ifstream& geometryFile) {
+bool FDataBuild::LoadGeometryData(std::ifstream& geometryFile) {
     // Rewind file pointer
     geometryFile.clear();
     geometryFile.seekg(0, std::ios::beg);
@@ -530,14 +551,48 @@ bool DataBuild::LoadGeometryData(std::ifstream& geometryFile) {
     return true;
 }
 
-bool DataBuild::Run() {
-    glm::mat4 pipelineOperatorTransform = Pipeline::GeneratePipelineOperatorTransform(mPipelineOperators);
-    f32* transform = glm::value_ptr(pipelineOperatorTransform);
+bool FDataBuild::Run() {
+    i32 geometrySegmentStart = -1;
+    Modifier* modifier;
+
+    i32 i = 0;
+    while (i < mNumModifiers) {
+        modifier = &(mModifiers[i]);
+        // Bundle up all the geometry based operators
+        if (modifier->mModifierType == ModifierType::SCALE ||
+            modifier->mModifierType == ModifierType::TRANSLATE ||
+            modifier->mModifierType == ModifierType::ROTATE) {
+            if (geometrySegmentStart == -1)
+                geometrySegmentStart = i;
+
+            i++;
+        }
+        // If the geometry segment has ended execute it
+        else {
+            if (geometrySegmentStart != -1) {
+                // Execute the geometry segment
+                GeomerySegmentModifier geometrySegmentModifier(&(mModifiers[geometrySegmentStart]), i - geometrySegmentStart);
+                geometrySegmentModifier.Run(mPositions, mNumPositions);
+
+                // Reset the geometry segment start
+                geometrySegmentStart = -1;
+            }
+
+            i++;
+        }
+    }
+
+    // Check if any segments ended
+    if (geometrySegmentStart != -1) {
+        // Execute the geometry segment
+        GeomerySegmentModifier geometrySegmentModifier(&(mModifiers[geometrySegmentStart]), i - geometrySegmentStart);
+        geometrySegmentModifier.Run(mPositions, mNumPositions);
+    }
 
     return true;
 }
 
-bool DataBuild::SaveData() const {
+bool FDataBuild::SaveData() const {
     // if (mGeometryMode == GeometryMode::STATIC) {
     //     std::vector<u32> indexData;
     //     std::vector<f32> vertexData;
@@ -572,4 +627,4 @@ bool DataBuild::SaveData() const {
     return true;
 }
 
-};  // namespace DataBuild
+};  // namespace FDataBuild

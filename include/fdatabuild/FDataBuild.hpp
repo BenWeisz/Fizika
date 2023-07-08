@@ -19,17 +19,17 @@
 #include <unordered_map>
 #include <algorithm>
 
-#include "DataBuildState.hpp"
-#include "Pipeline.hpp"
+#include "FDataBuildState.hpp"
+#include "modifiers/GeomerySegmentModifier.hpp"
 
 #include "util/types.hpp"
 #include "util/strings.hpp"
 #include "util/XML.hpp"
 #include "util/log.hpp"
 
-namespace DataBuild {
+namespace FDataBuild {
 
-class DataBuild {
+class FDataBuild {
    private:
     // Model File State
     std::string mModelFilePath;
@@ -56,23 +56,24 @@ class DataBuild {
     std::vector<std::pair<std::string, ShaderType>> mMaterialShaders;
     std::vector<std::pair<std::string, u32>> mMaterialAttributes;
 
-    // Pipeline State
-    std::vector<PipelineOperator> mPipelineOperators;
+    // Modifiers State
+    Modifier* mModifiers;
+    u32 mNumModifiers;
 
    public:
-    DataBuild(const std::string& path, bool& initSuccess);
-    ~DataBuild();
+    FDataBuild(const std::string& path, bool& initSuccess);
+    ~FDataBuild();
     bool Run();
     bool SaveData() const;
 
    private:
-    bool InitDataBuild();
+    bool InitFDataBuild();
     bool LoadMaterialFile();
     bool LoadGeometryFile();
-    bool LoadPipeline();
-    bool LoadPipelineOperator(const PipelineOperatorType type, const tinyxml2::XMLElement* element, const int opNum);
+    bool LoadModifiers();
+    bool LoadModifier(const ModifierType type, const tinyxml2::XMLElement* element, const u32 modNum, const u32 modIndex);
     bool LoadGeometryPrimitiveType(std::ifstream& geometryFile);
     bool LoadGeometryData(std::ifstream& geometryFile);
 };
 
-};  // namespace DataBuild
+};  // namespace FDataBuild
