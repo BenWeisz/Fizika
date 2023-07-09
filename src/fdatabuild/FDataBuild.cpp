@@ -3,7 +3,7 @@
 namespace FDataBuild {
 
 FDataBuild::FDataBuild(const std::string& modelFilePath, bool& initSuccess)
-    : mModelFilePath(modelFilePath), mModelFileDoc(nullptr), mPositions(nullptr), mNumPositions(0), mUVs(nullptr), mNumUVs(0), mPositionIndices(nullptr), mUVIndices(nullptr), mNumPrimitives(0), mVertexArity(0), mModifiers(nullptr), mNumModifiers(0) {
+    : mModelFilePath(modelFilePath), mModelFileDoc(nullptr), mPositions(nullptr), mNumPositions(0), mUVs(nullptr), mNumUVs(0), mPositionIndices(nullptr), mUVIndices(nullptr), mNumPrimitives(0), mPrimitiveArity(0), mModifiers(nullptr), mNumModifiers(0) {
     initSuccess = InitFDataBuild();
 }
 
@@ -436,8 +436,8 @@ bool FDataBuild::LoadGeometryData(std::ifstream& geometryFile) {
     std::string trashStr;
 
     // Figure out the arity of the data
-    mVertexArity = mPrimitiveType == PrimitiveType::TRIANGLES ? 3 : 2;
-    std::string primitiveAttribute = mVertexArity == 3 ? "f " : "l ";
+    mPrimitiveArity = mPrimitiveType == PrimitiveType::TRIANGLES ? 3 : 2;
+    std::string primitiveAttribute = mPrimitiveArity == 3 ? "f " : "l ";
 
     // Figure out which of the default attributes we might need to load
     bool loadPositions = false;
@@ -477,8 +477,8 @@ bool FDataBuild::LoadGeometryData(std::ifstream& geometryFile) {
     mPositions = new f32[mNumPositions * 3];
     mUVs = new f32[mNumUVs * 2];
 
-    mPositionIndices = new u32[mNumPrimitives * mVertexArity];
-    mUVIndices = new u32[mNumPrimitives * mVertexArity];
+    mPositionIndices = new u32[mNumPrimitives * mPrimitiveArity];
+    mUVIndices = new u32[mNumPrimitives * mPrimitiveArity];
 
     u32 lineNumber = 1;
     u32 positionIndex = 0;
@@ -505,7 +505,7 @@ bool FDataBuild::LoadGeometryData(std::ifstream& geometryFile) {
             iss >> trashStr;
 
             std::string token;
-            for (int i = 0; i < mVertexArity; i++) {
+            for (int i = 0; i < mPrimitiveArity; i++) {
                 iss >> token;
 
                 // Error check for position
@@ -521,7 +521,7 @@ bool FDataBuild::LoadGeometryData(std::ifstream& geometryFile) {
                     return false;
                 }
                 int endPos = Strings_GetEndOfNumber(token, startPos);
-                mPositionIndices[(primtiveIndex * mVertexArity) + i] = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
+                mPositionIndices[(primtiveIndex * mPrimitiveArity) + i] = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
 
                 if (loadUVs) {
                     // Find start and end of texture uv
@@ -534,7 +534,7 @@ bool FDataBuild::LoadGeometryData(std::ifstream& geometryFile) {
                         return false;
                     }
                     endPos = Strings_GetEndOfNumber(token, startPos);
-                    mUVIndices[(primtiveIndex * mVertexArity) + i] = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
+                    mUVIndices[(primtiveIndex * mPrimitiveArity) + i] = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
                 }
             }
 
@@ -593,6 +593,13 @@ bool FDataBuild::Run() {
 }
 
 bool FDataBuild::SaveData() const {
+    f32* vertexNormals = ComputeNormals();
+    for (int i = 0; i < 12; i++)
+        std::cout << vertexNormals[i] << " ";
+    std::cout << std::endl;
+
+    delete[] vertexNormals;
+
     // if (mGeometryMode == GeometryMode::STATIC) {
     //     std::vector<u32> indexData;
     //     std::vector<f32> vertexData;
@@ -600,7 +607,7 @@ bool FDataBuild::SaveData() const {
     //     // Create a unique index for position, uv index pairs
     //     std::unordered_map<std::string, u32> indexMap;
     //     u32 currIndex = 0;
-    //     for (u32 i = 0; i < mNumPrimitives * mVertexArity, i++) {
+    //     for (u32 i = 0; i < mNumPrimitives * mPrimitiveArity, i++) {
     //         u32 positionIndex = mPositionIndices[i];
     //         u32 uvIndex = mUVIndices[i];
 
@@ -625,6 +632,108 @@ bool FDataBuild::SaveData() const {
     // }
 
     return true;
+}
+
+// Compute the per vertex normals of the model
+f32* FDataBuild::ComputeNormals() const {
+    // Only triangles are supported
+    if (mPrimitiveArity != 3)
+        return nullptr;
+
+    f32* vertexNormals = new f32[mNumPositions * 3];
+    for (u32 i = 0; i < mNumPositions * 3; i++)
+        vertexNormals[i] = 0.0;
+
+    u32* facesPerVertex = new u32[mNumPositions];
+    for (u32 i = 0; i < mNumPositions; i++)
+        facesPerVertex[i] = 0;
+
+    f32 v0x, v0y, v0z, v1x, v1y, v1z, v2x, v2y, v2z;
+    f32 d0x, d0y, d0z, d1x, d1y, d1z;
+    f32 nx, ny, nz;
+    f32 norm;
+
+    u32 primitiveOffset;
+    u32 v0Offset;
+    u32 v1Offset;
+    u32 v2Offset;
+    for (u32 i = 0; i < mNumPrimitives; i++) {
+        primitiveOffset = i * 3;
+        v0Offset = mPositionIndices[primitiveOffset] * 3;
+        v1Offset = mPositionIndices[primitiveOffset + 1] * 3;
+        v2Offset = mPositionIndices[primitiveOffset + 2] * 3;
+
+        v0x = mPositions[v0Offset];
+        v0y = mPositions[v0Offset + 1];
+        v0z = mPositions[v0Offset + 2];
+
+        v1x = mPositions[v1Offset];
+        v1y = mPositions[v1Offset + 1];
+        v1z = mPositions[v1Offset + 2];
+
+        v2x = mPositions[v2Offset];
+        v2y = mPositions[v2Offset + 1];
+        v2z = mPositions[v2Offset + 2];
+
+        // Compute the displacement vectors
+        d0x = v1x - v0x;
+        d0y = v1y - v0y;
+        d0z = v1z - v0z;
+
+        d1x = v2x - v0x;
+        d1y = v2y - v0y;
+        d1z = v2z - v0z;
+
+        // Compute the normalized normal
+        nx = (d0y * d1z) - (d0z * d1y);
+        ny = (d0z * d1x) - (d0x * d1z);
+        nz = (d0x * d1y) - (d0y * d1x);
+        norm = sqrt(nx * nx + ny * ny + nz * nz);
+        nx /= norm;
+        ny /= norm;
+        nz /= norm;
+
+        // Add the normal to v0's normals
+        vertexNormals[v0Offset] += nx;
+        vertexNormals[v0Offset + 1] += ny;
+        vertexNormals[v0Offset + 2] += nz;
+
+        // Add the normal to v1's normals
+        vertexNormals[v1Offset] += nx;
+        vertexNormals[v1Offset + 1] += ny;
+        vertexNormals[v1Offset + 2] += nz;
+
+        // Add the normal to v2's normals
+        vertexNormals[v2Offset] += nx;
+        vertexNormals[v2Offset + 1] += ny;
+        vertexNormals[v2Offset + 2] += nz;
+
+        // Increment the faces per vertex counts
+        facesPerVertex[mPositionIndices[primitiveOffset]]++;
+        facesPerVertex[mPositionIndices[primitiveOffset + 1]]++;
+        facesPerVertex[mPositionIndices[primitiveOffset + 2]]++;
+    }
+
+    // Second pass to average out normals
+    for (u32 i = 0; i < mNumPositions; i++) {
+        nx = vertexNormals[(i * 3) + 0] / facesPerVertex[i];
+        ny = vertexNormals[(i * 3) + 1] / facesPerVertex[i];
+        nz = vertexNormals[(i * 3) + 2] / facesPerVertex[i];
+
+        norm = sqrt(nx * nx + ny * ny + nz * nz);
+        nx /= norm;
+        ny /= norm;
+        nz /= norm;
+
+        vertexNormals[(i * 3) + 0] = nx;
+        vertexNormals[(i * 3) + 1] = ny;
+        vertexNormals[(i * 3) + 2] = nz;
+    }
+
+    // Relinquish faces per vertex count
+    delete[] facesPerVertex;
+
+    return vertexNormals;
 }
 
 };  // namespace FDataBuild

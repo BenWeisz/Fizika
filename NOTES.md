@@ -1,6 +1,7 @@
 ### July 8th, 2023
 -   Rename DataBuild to FDataBuild for Fizika DataBuild
 -   Implement Geometry modifiers
+-   Implement ComputeNormals
 
 ### June 24th, 2023
 -   Implement combining the transforms from the pipeline operators into a single glm matrix

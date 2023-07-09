@@ -7,6 +7,7 @@ GeomerySegmentModifier::GeomerySegmentModifier(const Modifier* modifiers, const 
     GenerateTransformMatrix();
 }
 
+// Naive Eigen Implementation
 void GeomerySegmentModifier::Run(f32* positions, const u32 numPositions) {
     // Build the Eigen Matrix
     Eigen::Matrix4f transform;
@@ -36,10 +37,6 @@ void GeomerySegmentModifier::Run(f32* positions, const u32 numPositions) {
         positions[positionOffset + 1] = positionData(1, positionIndex);
         positions[positionOffset + 2] = positionData(2, positionIndex);
     }
-
-    for (int i = 0; i < 12; i++)
-        std::cout << positions[i] << " ";
-    std::cout << std::endl;
 }
 
 void GeomerySegmentModifier::GenerateTransformMatrix() {

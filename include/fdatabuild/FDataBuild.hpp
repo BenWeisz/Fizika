@@ -18,6 +18,7 @@
 #include <vector>
 #include <unordered_map>
 #include <algorithm>
+#include <cmath>
 
 #include "FDataBuildState.hpp"
 #include "modifiers/GeomerySegmentModifier.hpp"
@@ -44,7 +45,7 @@ class FDataBuild {
     u32* mPositionIndices;
     u32* mUVIndices;
     u32 mNumPrimitives;
-    u32 mVertexArity;
+    u32 mPrimitiveArity;
 
     std::string mGeometryFilePath;
     GeometryMode mGeometryMode;
@@ -74,6 +75,7 @@ class FDataBuild {
     bool LoadModifier(const ModifierType type, const tinyxml2::XMLElement* element, const u32 modNum, const u32 modIndex);
     bool LoadGeometryPrimitiveType(std::ifstream& geometryFile);
     bool LoadGeometryData(std::ifstream& geometryFile);
+    f32* ComputeNormals() const;
 };
 
 };  // namespace FDataBuild
