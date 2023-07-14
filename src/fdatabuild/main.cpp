@@ -3,7 +3,7 @@
 
 int main(int argc, char* argv[]) {
     if (argc <= 1) {
-        LogError("Please provide at least one valid databuild file.");
+        Log_Error("Please provide at least one valid databuild file.");
         return 1;
     }
 
@@ -12,20 +12,20 @@ int main(int argc, char* argv[]) {
         bool initSuccess;
         FDataBuild::FDataBuild dataBuild(argv[i], initSuccess);
         if (!initSuccess) {
-            LogError("Building target \"", argv[i], "\"");
+            Log_Error("Building target \"", argv[i], "\"");
             continue;
         }
 
         if (!dataBuild.Run()) {
-            LogError("Failed to preform databuild for target \"", argv[i], "\"");
+            Log_Error("Failed to preform databuild for target \"", argv[i], "\"");
             continue;
         }
 
         if (!dataBuild.SaveData()) {
-            LogError("Failed to save databuild output for target \"", argv[i], "\"");
+            Log_Error("Failed to save databuild output for target \"", argv[i], "\"");
             continue;
         }
 
-        LogSuccess("Built target \"", argv[i], "\" -----> \"", Strings_FilenameWithoutExtension(argv[i]), ".zip\"");
+        Log_Success("Built target \"", argv[i], "\" -----> \"", Strings_FilenameWithoutExtension(argv[i]), ".zip\"");
     }
 }

@@ -27,7 +27,7 @@ bool FDataBuild::InitFDataBuild() {
     mModelFileDoc->LoadFile(mModelFilePath.c_str());
 
     if (mModelFileDoc->Error()) {
-        LogError("Failed to load xml file for target \"", mModelFilePath, "\"");
+        Log_Error("Failed to load xml file for target \"", mModelFilePath, "\"");
         mModelFileDoc->PrintError();
         return false;
     }
@@ -35,35 +35,35 @@ bool FDataBuild::InitFDataBuild() {
     // Load the geometry and material paths
     tinyxml2::XMLElement* rootNode = mModelFileDoc->RootElement();
     if (rootNode == nullptr) {
-        LogError("Failed to find Model tag in target \"", mModelFilePath, "\"");
+        Log_Error("Failed to find Model tag in target \"", mModelFilePath, "\"");
         return false;
     }
 
     // Load Model file path and mode attribute
     tinyxml2::XMLElement* geometryNode = rootNode->FirstChildElement("Geometry");
     if (geometryNode == nullptr) {
-        LogError("Failed to find Geometry tag in target \"", mModelFilePath, "\"");
+        Log_Error("Failed to find Geometry tag in target \"", mModelFilePath, "\"");
         return false;
     }
 
-    mGeometryFilePath = SafeXMLAttribute("path", geometryNode);
+    mGeometryFilePath = XML_SafeXMLAttribute("path", geometryNode);
     if (mGeometryFilePath.empty()) {
-        LogError("Geometry tag does not specify valid attribute \"path\" for target \"", mModelFilePath, "\"");
+        Log_Error("Geometry tag does not specify valid attribute \"path\" for target \"", mModelFilePath, "\"");
         return false;
     }
 
     if (!std::filesystem::exists(mGeometryFilePath)) {
-        LogError("Geometry tag's \"path\" attribute specifies a file which does not exist: \"", mGeometryFilePath, "\"");
+        Log_Error("Geometry tag's \"path\" attribute specifies a file which does not exist: \"", mGeometryFilePath, "\"");
         return false;
     }
 
-    std::string geometryModeStr = SafeXMLAttribute("mode", geometryNode);
+    std::string geometryModeStr = XML_SafeXMLAttribute("mode", geometryNode);
     if (geometryModeStr == "STATIC")
         mGeometryMode = GeometryMode::STATIC;
     else if (geometryModeStr == "DYNAMIC")
         mGeometryMode = GeometryMode::DYNAMIC;
     else {
-        LogError("Geometry tag does not specify valid attribute \"mode\" for target \"", mModelFilePath, "\"");
+        Log_Error("Geometry tag does not specify valid attribute \"mode\" for target \"", mModelFilePath, "\"");
         std::cout << "-----> \"mode\" attribute should specify \"STATIC\" or \"DYNAMIC\"" << std::endl;
         return false;
     }
@@ -71,18 +71,18 @@ bool FDataBuild::InitFDataBuild() {
     // Load Material file path
     tinyxml2::XMLElement* materialNode = rootNode->FirstChildElement("Material");
     if (materialNode == nullptr) {
-        LogError("Failed to find Material tag in target \"", mModelFilePath, "\"");
+        Log_Error("Failed to find Material tag in target \"", mModelFilePath, "\"");
         return false;
     }
 
-    mMaterialFilePath = SafeXMLAttribute("path", materialNode);
+    mMaterialFilePath = XML_SafeXMLAttribute("path", materialNode);
     if (mMaterialFilePath.empty()) {
-        LogError("Material tag does not specify valid attribute \"path\" for target \"", mModelFilePath, "\"");
+        Log_Error("Material tag does not specify valid attribute \"path\" for target \"", mModelFilePath, "\"");
         return false;
     }
 
     if (!std::filesystem::exists(mMaterialFilePath)) {
-        LogError("Material tag's \"path\" attribute specifies a file which does not exist: \"", mMaterialFilePath, "\"");
+        Log_Error("Material tag's \"path\" attribute specifies a file which does not exist: \"", mMaterialFilePath, "\"");
         return false;
     }
 
@@ -103,7 +103,7 @@ bool FDataBuild::InitFDataBuild() {
 
 bool FDataBuild::LoadMaterialFile() {
     if (!mMaterialFilePath.ends_with(".mat")) {
-        LogError("Material file must have extension \".mat\"");
+        Log_Error("Material file must have extension \".mat\"");
         return false;
     }
 
@@ -112,7 +112,7 @@ bool FDataBuild::LoadMaterialFile() {
     materialDoc.LoadFile(mMaterialFilePath.c_str());
 
     if (materialDoc.Error()) {
-        LogError("Failed to load material file ", mMaterialFilePath);
+        Log_Error("Failed to load material file ", mMaterialFilePath);
         materialDoc.PrintError();
         return false;
     }
@@ -120,43 +120,43 @@ bool FDataBuild::LoadMaterialFile() {
     // Set up the root node
     tinyxml2::XMLElement* rootNode = materialDoc.RootElement();
     if (rootNode == nullptr) {
-        LogError("Failed to find Material tag in material file \"", mMaterialFilePath, "\"");
+        Log_Error("Failed to find Material tag in material file \"", mMaterialFilePath, "\"");
         return false;
     }
 
     // Load the shader tag
     tinyxml2::XMLElement* shaderNode = rootNode->FirstChildElement("Shader");
     if (shaderNode == nullptr) {
-        LogError("Failed to find Shader tag in material file \"", mMaterialFilePath, "\"");
+        Log_Error("Failed to find Shader tag in material file \"", mMaterialFilePath, "\"");
         return false;
     }
 
     // Load shader source tags
     tinyxml2::XMLElement* element = shaderNode->FirstChildElement("ShaderSource");
     if (element == nullptr) {
-        LogError("Failed to find ShaderSource's in material file \"", mMaterialFilePath, "\"");
+        Log_Error("Failed to find ShaderSource's in material file \"", mMaterialFilePath, "\"");
         return false;
     }
 
     bool foundVertexShader = false;
     bool foundFragmentShader = false;
     for (; element != nullptr; element = element->NextSiblingElement("ShaderSource")) {
-        std::string type = SafeXMLAttribute("type", element);
+        std::string type = XML_SafeXMLAttribute("type", element);
         if (type.empty() || (type != "VERTEX" && type != "FRAGMENT")) {
-            LogError("ShaderSource tag does not specify valid attribute \"type\" in material file \"", mMaterialFilePath, "\"");
+            Log_Error("ShaderSource tag does not specify valid attribute \"type\" in material file \"", mMaterialFilePath, "\"");
             std::cout << "-----> \"type\" attribute should specify \"VERTEX\" or \"FRAGMENT\"" << std::endl;
             return false;
         }
 
-        std::string path = SafeXMLAttribute("path", element);
+        std::string path = XML_SafeXMLAttribute("path", element);
         if (path.empty()) {
-            LogError("ShaderSource tag does not specify valid attribute \"path\" in material file \"", mMaterialFilePath, "\"");
+            Log_Error("ShaderSource tag does not specify valid attribute \"path\" in material file \"", mMaterialFilePath, "\"");
             return false;
         }
 
         // Check if file exists
         if (!std::filesystem::exists(path)) {
-            LogError("ShaderSource tag's \"path\" attribute specifies a file which does not exist: \"", path, "\"");
+            Log_Error("ShaderSource tag's \"path\" attribute specifies a file which does not exist: \"", path, "\"");
             return false;
         }
 
@@ -175,33 +175,33 @@ bool FDataBuild::LoadMaterialFile() {
 
     // Ensure there are at least one of each of the basic shaders
     if (!foundVertexShader || !foundFragmentShader) {
-        LogError("Failed to find at least one VERTEX and FRAGMENT shader in material file \"", mMaterialFilePath, "\"");
+        Log_Error("Failed to find at least one VERTEX and FRAGMENT shader in material file \"", mMaterialFilePath, "\"");
         return false;
     }
 
     // Load the Layout tag
     tinyxml2::XMLElement* layoutNode = rootNode->FirstChildElement("Layout");
     if (layoutNode == nullptr) {
-        LogError("Failed to find Layout tag in material file \"", mMaterialFilePath, "\"");
+        Log_Error("Failed to find Layout tag in material file \"", mMaterialFilePath, "\"");
         return false;
     }
 
     element = layoutNode->FirstChildElement("LayoutElement");
     if (element == nullptr) {
-        LogError("Failed to find LayoutElement's in material file \"", mMaterialFilePath, "\"");
+        Log_Error("Failed to find LayoutElement's in material file \"", mMaterialFilePath, "\"");
         return false;
     }
 
     for (; element != nullptr; element = element->NextSiblingElement("LayoutElement")) {
-        std::string name = SafeXMLAttribute("name", element);
+        std::string name = XML_SafeXMLAttribute("name", element);
         if (name.empty()) {
-            LogError("LayoutElement tag does not specify valid attribute \"name\" in material file \"", mMaterialFilePath, "\"");
+            Log_Error("LayoutElement tag does not specify valid attribute \"name\" in material file \"", mMaterialFilePath, "\"");
             return false;
         }
 
-        std::string attribSizeStr = SafeXMLAttribute("attribSize", element);
+        std::string attribSizeStr = XML_SafeXMLAttribute("attribSize", element);
         if (attribSizeStr.empty()) {
-            LogError("LayoutElement tag does not specify valid attribute \"attribSize\" in material file \"", mMaterialFilePath, "\"");
+            Log_Error("LayoutElement tag does not specify valid attribute \"attribSize\" in material file \"", mMaterialFilePath, "\"");
             return false;
         }
 
@@ -209,12 +209,12 @@ bool FDataBuild::LoadMaterialFile() {
         try {
             attribSize = std::stoi(attribSizeStr);
         } catch (std::invalid_argument const& ex) {
-            LogError("LayoutElement tag does not specify valid attribute \"attribSize\" in material file \"", mMaterialFilePath, "\"");
+            Log_Error("LayoutElement tag does not specify valid attribute \"attribSize\" in material file \"", mMaterialFilePath, "\"");
             return false;
         }
 
         if (attribSize < 1 || attribSize > 4) {
-            LogError("LayoutElement tag does not specify valid attribute \"attribSize\" in material file \"", mMaterialFilePath, "\"");
+            Log_Error("LayoutElement tag does not specify valid attribute \"attribSize\" in material file \"", mMaterialFilePath, "\"");
             std::cout << "-----> \"attribSize\" attribute should specify value between 1 and 4" << std::endl;
             return false;
         }
@@ -225,20 +225,20 @@ bool FDataBuild::LoadMaterialFile() {
     // Load the Textures tag
     tinyxml2::XMLElement* texturesNode = rootNode->FirstChildElement("Textures");
     if (texturesNode == nullptr) {
-        LogError("Failed to find Textures tag in material file \"", mMaterialFilePath, "\"");
+        Log_Error("Failed to find Textures tag in material file \"", mMaterialFilePath, "\"");
         return false;
     }
 
     element = texturesNode->FirstChildElement("Texture");
     for (; element != nullptr; element = element->NextSiblingElement("Texture")) {
-        std::string path = SafeXMLAttribute("path", element);
+        std::string path = XML_SafeXMLAttribute("path", element);
         if (path.empty()) {
-            LogError("Texture tag does not specify valid attribute \"path\" in material file \"", mMaterialFilePath, "\"");
+            Log_Error("Texture tag does not specify valid attribute \"path\" in material file \"", mMaterialFilePath, "\"");
             return false;
         }
 
         if (!std::filesystem::exists(path)) {
-            LogError("Texture tag's \"path\" attribute specifies a file which does not exist: \"", path, "\"");
+            Log_Error("Texture tag's \"path\" attribute specifies a file which does not exist: \"", path, "\"");
             return false;
         }
 
@@ -250,18 +250,18 @@ bool FDataBuild::LoadMaterialFile() {
 
 bool FDataBuild::LoadGeometryFile() {
     if (!mGeometryFilePath.ends_with(".obj")) {
-        LogError("Geometry file must have extension \".obj\"");
+        Log_Error("Geometry file must have extension \".obj\"");
         return false;
     }
 
     if (!std::filesystem::exists(mGeometryFilePath)) {
-        LogError("Geometry file does not exists ", mGeometryFilePath);
+        Log_Error("Geometry file does not exists ", mGeometryFilePath);
         return false;
     }
 
     std::ifstream geometryFile(mGeometryFilePath);
     if (geometryFile.fail()) {
-        LogError("Failed to open Geometry file: ", mGeometryFilePath);
+        Log_Error("Failed to open Geometry file: ", mGeometryFilePath);
         geometryFile.close();
         return false;
     }
@@ -276,7 +276,7 @@ bool FDataBuild::LoadGeometryFile() {
     // Load the geometry data from the geometry file
     success = LoadGeometryData(geometryFile);
     if (!success) {
-        LogError("Failed to load geometry data from file: ", mGeometryFilePath);
+        Log_Error("Failed to load geometry data from file: ", mGeometryFilePath);
         geometryFile.close();
         return false;
     }
@@ -289,14 +289,14 @@ bool FDataBuild::LoadModifiers() {
     // Load the model and modifier tag
     tinyxml2::XMLElement* rootNode = mModelFileDoc->RootElement();
     if (rootNode == nullptr) {
-        LogError("Failed to find Model tag in target \"", mModelFilePath, "\"");
+        Log_Error("Failed to find Model tag in target \"", mModelFilePath, "\"");
         return false;
     }
 
     // Load Model file path and mode attribute
     tinyxml2::XMLElement* modifiersNode = rootNode->FirstChildElement("Modifiers");
     if (modifiersNode == nullptr) {
-        LogError("Failed to find Modifiers tag in target \"", mModelFilePath, "\"");
+        Log_Error("Failed to find Modifiers tag in target \"", mModelFilePath, "\"");
         return false;
     }
 
@@ -306,7 +306,7 @@ bool FDataBuild::LoadModifiers() {
         if (tag == "Scale" || tag == "Translate" || tag == "Rotate") {
             mNumModifiers++;
         } else {
-            LogWarn("Found unsuported modifier \"", tag, "\"");
+            Log_Warn("Found unsuported modifier \"", tag, "\"");
         }
     }
 
@@ -359,21 +359,21 @@ bool FDataBuild::LoadModifier(const ModifierType type, const tinyxml2::XMLElemen
         attrib2 = "x2";
     }
 
-    std::string v0Str = SafeXMLAttribute(attrib0, element);
+    std::string v0Str = XML_SafeXMLAttribute(attrib0, element);
     if (v0Str.empty()) {
-        LogError("Failed to find attribute \"", attrib0, "\" for modifier: ", modifierName, " (Op #", modNum, ")");
+        Log_Error("Failed to find attribute \"", attrib0, "\" for modifier: ", modifierName, " (Op #", modNum, ")");
         return false;
     }
 
-    std::string v1Str = SafeXMLAttribute(attrib1, element);
+    std::string v1Str = XML_SafeXMLAttribute(attrib1, element);
     if (v1Str.empty()) {
-        LogError("Failed to find attribute \"", attrib1, "\" for modifier: ", modifierName, " (Op #", modNum, ")");
+        Log_Error("Failed to find attribute \"", attrib1, "\" for modifier: ", modifierName, " (Op #", modNum, ")");
         return false;
     }
 
-    std::string v2Str = SafeXMLAttribute(attrib2, element);
+    std::string v2Str = XML_SafeXMLAttribute(attrib2, element);
     if (v2Str.empty()) {
-        LogError("Failed to find attribute \"", attrib2, "\" for modifier: ", modifierName, " (Op #", modNum, ")");
+        Log_Error("Failed to find attribute \"", attrib2, "\" for modifier: ", modifierName, " (Op #", modNum, ")");
         return false;
     }
 
@@ -410,7 +410,7 @@ bool FDataBuild::LoadGeometryPrimitiveType(std::ifstream& geometryFile) {
     }
 
     if (foundTriangle + foundLine != 1) {
-        LogError("The Geometry file: ", mGeometryFilePath, " must contain only one primitive type");
+        Log_Error("The Geometry file: ", mGeometryFilePath, " must contain only one primitive type");
         std::cout << "-----> Specify either only \"l\" or \"f\" primitives" << std::endl;
         return false;
     }
@@ -441,18 +441,21 @@ bool FDataBuild::LoadGeometryData(std::ifstream& geometryFile) {
 
     // Figure out which of the default attributes we might need to load
     bool loadPositions = false;
-    bool loadUVs = false;
+    mShouldOuputUVs = false;
+    mShouldOuputNormals = false;
     for (const auto& p : mMaterialAttributes) {
         if (p.first == "iPosition" && p.second == 3) {
             loadPositions = true;
         } else if (p.first == "iUV" && p.second == 2) {
-            loadUVs = true;
+            mShouldOuputUVs = true;
+        } else if (p.first == "iNormal" && p.second == 3) {
+            mShouldOuputNormals = true;
         }
     }
 
     // Throw error if there are no positions
     if (!loadPositions) {
-        LogError("Material: Could not find required default shader attribute \"iPosition\"");
+        Log_Error("Material: Could not find required default shader attribute \"iPosition\"");
         return false;
     }
 
@@ -494,7 +497,7 @@ bool FDataBuild::LoadGeometryData(std::ifstream& geometryFile) {
                 iss >> position;
                 mPositions[positionIndex++] = position;
             }
-        } else if (line.compare(0, 3, "vt ") == 0 && loadUVs) {
+        } else if (line.compare(0, 3, "vt ") == 0 && mShouldOuputUVs) {
             iss >> trashStr;
             f32 uv;
             for (int i = 0; i < 2; i++) {
@@ -510,27 +513,27 @@ bool FDataBuild::LoadGeometryData(std::ifstream& geometryFile) {
 
                 // Error check for position
                 if (token.compare(0, 1, "/") == 0) {
-                    LogError("Failed to read geometry file (Line ", lineNumber, "). Token \"", token, "\" does not contain a position vertex for attribute \"iPosition\"");
+                    Log_Error("Failed to read geometry file (Line ", lineNumber, "). Token \"", token, "\" does not contain a position vertex for attribute \"iPosition\"");
                     return false;
                 }
 
                 // Find start and end of position
                 int startPos = Strings_GetStartOfNumber(token, 0);
                 if (startPos == -1) {
-                    LogError("Failed to read geometry file (Line ", lineNumber, "). Token \"", token, "\" is an invalid vertex");
+                    Log_Error("Failed to read geometry file (Line ", lineNumber, "). Token \"", token, "\" is an invalid vertex");
                     return false;
                 }
                 int endPos = Strings_GetEndOfNumber(token, startPos);
                 mPositionIndices[(primtiveIndex * mPrimitiveArity) + i] = std::stoi(token.substr(startPos, endPos - startPos)) - 1;
 
-                if (loadUVs) {
+                if (mShouldOuputUVs) {
                     // Find start and end of texture uv
                     startPos = Strings_GetStartOfNumber(token, endPos);
                     if (startPos == -1) {
-                        LogError("Failed to read geometry file (Line ", lineNumber, "). Token \"", token, "\" is an invalid vertex in file:");
+                        Log_Error("Failed to read geometry file (Line ", lineNumber, "). Token \"", token, "\" is an invalid vertex in file:");
                         return false;
                     } else if (startPos - endPos > 1) {
-                        LogError("Failed to read geometry file (Line ", lineNumber, "). Token \"", token, "\" does not contain a uv vertex for attribute \"iUV\":");
+                        Log_Error("Failed to read geometry file (Line ", lineNumber, "). Token \"", token, "\" does not contain a uv vertex for attribute \"iUV\":");
                         return false;
                     }
                     endPos = Strings_GetEndOfNumber(token, startPos);
@@ -592,44 +595,150 @@ bool FDataBuild::Run() {
     return true;
 }
 
-bool FDataBuild::SaveData() const {
-    f32* vertexNormals = ComputeNormals();
-    for (int i = 0; i < 12; i++)
-        std::cout << vertexNormals[i] << " ";
-    std::cout << std::endl;
+bool FDataBuild::SaveData() {
+    // Almost const function:
+    // - Computes mNumOutputVertices
 
-    delete[] vertexNormals;
+    std::vector<u32> indexBuffer;
+    indexBuffer.reserve(mNumPrimitives * mPrimitiveArity);
 
-    // if (mGeometryMode == GeometryMode::STATIC) {
-    //     std::vector<u32> indexData;
-    //     std::vector<f32> vertexData;
+    std::vector<f32> vertexBuffer;
+    u32 vertexSize = 3;
+    if (mShouldOuputUVs) vertexSize += 2;
+    if (mShouldOuputNormals) vertexSize += 3;
+    vertexBuffer.reserve(mNumPositions * vertexSize);
 
-    //     // Create a unique index for position, uv index pairs
-    //     std::unordered_map<std::string, u32> indexMap;
-    //     u32 currIndex = 0;
-    //     for (u32 i = 0; i < mNumPrimitives * mPrimitiveArity, i++) {
-    //         u32 positionIndex = mPositionIndices[i];
-    //         u32 uvIndex = mUVIndices[i];
+    // Recompute the mesh normals after all the modifiers are applied
+    f32* vertexNormals = nullptr;
+    if (mShouldOuputNormals)
+        vertexNormals = ComputeNormals();
 
-    //         std::string key = std::to_string(positionIndex) + "/" + std::to_string(uvIndex);
-    //         if (!indexMap.contains(key)) {
-    //             // If the key didn't exist yet add it
-    //             indexMap[key] = currIndex++;
+    // Case 1: Positions only
+    if (!mShouldOuputUVs && !mShouldOuputNormals) {
+        // Vertex buffer is basically mPositions
+        // Index buffer is mPositionIndices
+    }
+    // Case 2: Positions and UVs
+    else if (mShouldOuputUVs && !mShouldOuputNormals) {
+        std::unordered_map<u32, u32> indexMap;
+        u32 currIndex = 0;
+        for (u32 i = 0; i < mNumPrimitives * mPrimitiveArity; i++) {
+            u32 positionIndex = mPositionIndices[i];
+            u32 uvIndex = mUVIndices[i];
 
-    //             // Construct the corresponding vertex and add it to the vertex data
-    //             // Add positional data
-    //             vertexData.push_back(mPositions[(positionIndex * 3)]);
-    //             vertexData.push_back(mPositions[(positionIndex * 3) + 1]);
-    //             vertexData.push_back(mPositions[(positionIndex * 3) + 2]);
+            u32 key = Math_CantorsPairing(positionIndex, uvIndex);
+            if (!indexMap.contains(key)) {
+                // If the vertex hasn't been used before add it to the index map
+                indexMap[key] = currIndex++;
 
-    //             // Add uv data
-    //             // We're going to want to optimize this so that if uv isnt requested we dont use it here or even load it
-    //         }
+                // Add vertex data if a unique vertex was found
+                // Add positional data
+                vertexBuffer.push_back(mPositions[(positionIndex * 3)]);
+                vertexBuffer.push_back(mPositions[(positionIndex * 3) + 1]);
+                vertexBuffer.push_back(mPositions[(positionIndex * 3) + 2]);
 
-    //         // Add the vertex index to the list of indices
-    //         indexData.push_back(indexMap[key]);
-    //     }
-    // }
+                // Add UV data
+                vertexBuffer.push_back(mUVs[(uvIndex * 2)]);
+                vertexBuffer.push_back(mUVs[(uvIndex * 2) + 1]);
+            }
+
+            // Add vertex index to list of indices
+            indexBuffer.push_back(indexMap[key]);
+        }
+    }
+    // Case 3: Positions and Normals
+    else if (!mShouldOuputUVs && mShouldOuputNormals) {
+        for (u32 i = 0; i < mNumPositions; i++) {
+            // The position data
+            vertexBuffer.push_back(mPositions[i * 3]);
+            vertexBuffer.push_back(mPositions[i * 3 + 1]);
+            vertexBuffer.push_back(mPositions[i * 3 + 2]);
+
+            // The normal data
+            vertexBuffer.push_back(vertexNormals[(i * 3)]);
+            vertexBuffer.push_back(vertexNormals[(i * 3) + 1]);
+            vertexBuffer.push_back(vertexNormals[(i * 3) + 2]);
+        }
+
+        // The index data is just the mPositionIndices
+    }
+    // Case 4: Positions, UVs, and Normals
+    else if (mShouldOuputUVs && mShouldOuputNormals) {
+        std::unordered_map<u32, u32> indexMap;
+        u32 currIndex = 0;
+        for (u32 i = 0; i < mNumPrimitives * mPrimitiveArity; i++) {
+            u32 positionIndex = mPositionIndices[i];
+            u32 uvIndex = mUVIndices[i];
+
+            u32 key = Math_CantorsPairing(positionIndex, uvIndex);
+            if (!indexMap.contains(key)) {
+                // If the vertex hasn't been used before add it to the index map
+                indexMap[key] = currIndex++;
+
+                // Add vertex data if a unique vertex was found
+                // Add positional data
+                vertexBuffer.push_back(mPositions[(positionIndex * 3)]);
+                vertexBuffer.push_back(mPositions[(positionIndex * 3) + 1]);
+                vertexBuffer.push_back(mPositions[(positionIndex * 3) + 2]);
+
+                // Add UV data
+                vertexBuffer.push_back(mUVs[(uvIndex * 2)]);
+                vertexBuffer.push_back(mUVs[(uvIndex * 2) + 1]);
+
+                // Add normals data
+                vertexBuffer.push_back(vertexNormals[(positionIndex * 3)]);
+                vertexBuffer.push_back(vertexNormals[(positionIndex * 3) + 1]);
+                vertexBuffer.push_back(vertexNormals[(positionIndex * 3) + 2]);
+            }
+
+            // Add vertex index to list of indices
+            indexBuffer.push_back(indexMap[key]);
+        }
+    }
+
+    // Open the data file for the vertex and index buffers
+    std::ofstream vertexFile("vertex.bin", std::ios::binary);
+    if (vertexFile.fail()) {
+        Log_Error("Failed to create a vertex.bin file for the model: ", mModelFilePath);
+        vertexFile.close();
+
+        // Free the resources used
+        if (vertexNormals != nullptr) delete[] vertexNormals;
+        return false;
+    }
+
+    std::ofstream indexFile("index.bin", std::ios::binary);
+    if (indexFile.fail()) {
+        Log_Error("Failed to create an index.bin file for the model: ", mModelFilePath);
+
+        // Free the resources used
+        if (vertexNormals != nullptr) delete[] vertexNormals;
+
+        vertexFile.close();
+        indexFile.close();
+
+        return false;
+    }
+
+    // We managed to open all the write files
+    // Write the vertex buffer to file
+    vertexFile.write(reinterpret_cast<char*>(&(vertexBuffer[0])), vertexBuffer.size() * sizeof(f32));
+    mNumOuputVertices = vertexBuffer.size() / vertexSize;
+
+    // Write the index buffer to file
+    if (indexBuffer.size() == 0) {
+        // Use the position index data
+        indexFile.write(reinterpret_cast<char*>(mPositionIndices), mNumPositions * mPrimitiveArity * sizeof(u32));
+    } else {
+        // Use the computed index buffer
+        indexFile.write(reinterpret_cast<char*>(&(indexBuffer[0])), indexBuffer.size() * sizeof(u32));
+    }
+
+    // Free the resources used
+    if (vertexNormals != nullptr) delete[] vertexNormals;
+
+    vertexFile.close();
+    indexFile.close();
 
     return true;
 }

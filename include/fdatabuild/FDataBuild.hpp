@@ -27,6 +27,7 @@
 #include "util/strings.hpp"
 #include "util/XML.hpp"
 #include "util/log.hpp"
+#include "util/math.hpp"
 
 namespace FDataBuild {
 
@@ -61,11 +62,17 @@ class FDataBuild {
     Modifier* mModifiers;
     u32 mNumModifiers;
 
+    // Output state
+    bool mShouldOuputUVs;
+    bool mShouldOuputNormals;
+
+    u32 mNumOuputVertices;
+
    public:
     FDataBuild(const std::string& path, bool& initSuccess);
     ~FDataBuild();
     bool Run();
-    bool SaveData() const;
+    bool SaveData();
 
    private:
     bool InitFDataBuild();

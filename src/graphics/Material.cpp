@@ -41,13 +41,13 @@ void Material::InitMaterial(const std::string& path) {
     tinyxml2::XMLElement* sourceNode = sourcesNode->FirstChildElement("ShaderSource");
 
     while (sourceNode != 0 && (vertexShaderPath == "" || fragmentShaderPath == "")) {
-        std::string type = SafeXMLAttribute("type", sourceNode);
+        std::string type = XML_SafeXMLAttribute("type", sourceNode);
 
         // If the path isn't set yet then set it
         if (type == "vertex" && vertexShaderPath == "")
-            vertexShaderPath = "../res/shaders/" + SafeXMLAttribute("path", sourceNode);
+            vertexShaderPath = "../res/shaders/" + XML_SafeXMLAttribute("path", sourceNode);
         else if (type == "fragment" && fragmentShaderPath == "")
-            fragmentShaderPath = "../res/shaders/" + SafeXMLAttribute("path", sourceNode);
+            fragmentShaderPath = "../res/shaders/" + XML_SafeXMLAttribute("path", sourceNode);
 
         sourceNode = sourceNode->NextSiblingElement();
     }
@@ -61,12 +61,12 @@ void Material::InitMaterial(const std::string& path) {
     tinyxml2::XMLElement* vertexBufferLayoutNode = rootNode->FirstChildElement("Layout");
     tinyxml2::XMLElement* layoutElementNode = vertexBufferLayoutNode->FirstChildElement("LayoutElement");
     while (layoutElementNode != 0) {
-        std::string nameStr = SafeXMLAttribute("name", layoutElementNode);
+        std::string nameStr = XML_SafeXMLAttribute("name", layoutElementNode);
         if (nameStr.compare("") == 0)
             std::cout << "ERROR: Element has no \"name\" attribute" << std::endl;
         mAttributes.push_back(nameStr);
 
-        std::string attribSizeStr = SafeXMLAttribute("attribSize", layoutElementNode);
+        std::string attribSizeStr = XML_SafeXMLAttribute("attribSize", layoutElementNode);
         if (attribSizeStr.compare("") == 0)
             std::cout << "ERROR: Element has no \"attribSize\" attribute" << std::endl;
 
