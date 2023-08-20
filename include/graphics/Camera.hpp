@@ -9,9 +9,12 @@
 #include "input/Input.hpp"
 #include <GLFW/glfw3.h>
 
+const double MINIMUM_CAMERA_DISTANCE = 3.0;
+
 class Camera {
    private:
     static glm::vec3 CameraPos;
+    static float DefaultDistance;
     static float Distance;
     static float Pitch;
     static float Yaw;
@@ -26,8 +29,9 @@ class Camera {
     Camera() = delete;
     Camera(Camera& other) = delete;
     void operator=(const Camera& other) = delete;
-    static void InitCamera(const float distance, const float width, const float height) {
-        Distance = distance;
+    static void InitCamera(const float defaultDistance, const float width, const float height) {
+        DefaultDistance = defaultDistance;
+        Distance = DefaultDistance;
         Pitch = 0.0;
         Yaw = 0.0;
         LastMouseX = width / 2.0;
@@ -39,6 +43,8 @@ class Camera {
                                         0.f, 0.f, 0.f, 1.f);
 
         ProjectionTransform = glm::perspective(glm::radians(45.0f), width / height, 0.1f, 100.f);
+
+        Input::SetScroll(std::max(0.0, defaultDistance - MINIMUM_CAMERA_DISTANCE));
 
         glfwSetInputMode(Window::Frame, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     }
@@ -57,7 +63,7 @@ class Camera {
         if (IsEnabled) {
             auto mouse = Input::GetMouse();
             double scroll = Input::GetScroll();
-            Distance = 3.0 + scroll;
+            Distance = MINIMUM_CAMERA_DISTANCE + scroll;
 
             double xOffset = mouse.first - LastMouseX;
             double yOffset = LastMouseY - mouse.second;

@@ -99,6 +99,10 @@ class Input {
         return Scroll;
     }
 
+    static void SetScroll(double scroll) {
+        Scroll = scroll;
+    }
+
     static void Update() {
         // The input workhorse function
 

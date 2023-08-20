@@ -30,7 +30,7 @@ int main() {
         Window::ClearColour = glm::vec3(66.f / 255.f, 133.f / 255.f, 166.f / 255.f);
 
         // Set up the camera for the window
-        Camera::InitCamera(3.0f, WIDTH, HEIGHT);
+        Camera::InitCamera(-1.0f, WIDTH, HEIGHT);
 
         Light::InitLight(glm::vec3(1.0, 1.0, 1.0), glm::vec3(0.0, 0.0, 10.0));
 

@@ -2,6 +2,7 @@
 
 glm::vec3 Camera::CameraPos;
 float Camera::Distance;
+float Camera::DefaultDistance;
 float Camera::Pitch;
 float Camera::Yaw;
 float Camera::LastMouseX;
