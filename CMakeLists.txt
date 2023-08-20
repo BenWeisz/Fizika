@@ -10,11 +10,11 @@ set(VENDOR_DIR "~/vendor")
 set(IS_DEBUG_BUILD CMAKE_BUILD_TYPE STREQUAL "Debug")
 
 add_executable(Fizika main.cpp)
-add_executable(FDataBuild src/fdatabuild/main.cpp)
 
 find_package(glfw3 3.3 REQUIRED)
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 find_package(OpenCL)
+find_package(zip)
 
 target_include_directories(Fizika PUBLIC include)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/glad-core-4.5/include)
@@ -24,18 +24,11 @@ target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/stb)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/imgui)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/implot)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/glfwkeys)
-
-target_include_directories(FDataBuild PUBLIC include)
-target_include_directories(FDataBuild PUBLIC ${VENDOR_DIR}/tinyxml/include)
-target_include_directories(FDataBuild PUBLIC ${VENDOR_DIR}/glm)
+target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/Zippy/include)
 
 target_link_libraries(Fizika glfw ${OPENGL_opengl_LIBRARY})
 target_link_libraries(Fizika glfw ${OPENGL_glx_LIBRARY})
 target_link_libraries(Fizika Eigen3::Eigen)
-
-# target_link_libraries(FDataBuild PRIVATE OpenCL::OpenCL)
-target_link_libraries(FDataBuild Eigen3::Eigen)
-target_compile_definitions(FDataBuild PRIVATE CL_TARGET_OPENCL_VERSION=300)
 
 target_sources(Fizika PUBLIC
     src/graphics/Shader.cpp
@@ -69,12 +62,6 @@ target_sources(Fizika PUBLIC
     ${VENDOR_DIR}/implot/implot.cpp
     ${VENDOR_DIR}/implot/implot_items.cpp
     # ${VENDOR_DIR}/implot/implot_demo.cpp
-)
-
-target_sources(FDataBuild PUBLIC
-    src/fdatabuild/FDataBuild.cpp
-    src/fdatabuild/modifiers/GeometrySegmentModifier.cpp
-    ${VENDOR_DIR}/tinyxml/src/tinyxml2.cpp
 )
 
 if(${IS_DEBUG_BUILD})
