@@ -36,11 +36,12 @@ int main() {
 
         /* Set up Models */
         Plane plane;
+        Transform* planeTransform = plane.GetTransform();
+        planeTransform->SetTranslation(glm::vec3(0.0, 0.0, -1.5));
 
         BoundaryCube cube;
         Transform* cubeTransform = cube.GetTransform();
         cubeTransform->SetScale(glm::vec3(3.0, 3.0, 3.0));
-        cubeTransform->SetTranslation(glm::vec3(0.0, 0.0, 1.5));
 
         AxisGizmo axis(WIDTH - ((WIDTH / 640) * 40.0), HEIGHT - ((HEIGHT / 480) * 40.0));
         // EnergyPlot energies;

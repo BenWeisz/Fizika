@@ -3,11 +3,7 @@
 Plane::Plane() {
     mTransform = new Transform();
     mTexture = new Texture("../res/textures/checker.png");
-    mModel = new Model("../res/models/plane.obj", "../res/materials/base-texture.mat");
-
-    Transform* baseTransform = mModel->GetBaseTransform();
-    baseTransform->Rotate(glm::vec3(0.0, 1.0, 0.0), -90.0f);
-    baseTransform->SetScale(glm::vec3(3.0, 3.0, 3.0));
+    mModel = new Model("../res/models/plane-blend.obj", "../res/materials/base-texture.mat");
 
     Material* mat = mModel->GetMaterial();
     mat->SetUniformVec3("uLightColour", Light::GetLightColour());
