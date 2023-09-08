@@ -24,7 +24,7 @@ target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/stb)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/imgui)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/implot)
 target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/glfwkeys)
-target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/Zippy/include)
+# target_include_directories(Fizika PUBLIC ${VENDOR_DIR}/Zippy/include)
 
 target_link_libraries(Fizika glfw ${OPENGL_opengl_LIBRARY})
 target_link_libraries(Fizika glfw ${OPENGL_glx_LIBRARY})
