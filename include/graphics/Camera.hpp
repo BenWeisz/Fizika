@@ -18,9 +18,8 @@ class Camera {
     static float Distance;
     static float Pitch;
     static float Yaw;
-    static float LastMouseX;
-    static float LastMouseY;
-    static glm::mat4 CorrectionTransform;
+    static float LastScreenMouseX;
+    static float LastScreenMouseY;
     static glm::mat4 CameraTransform;
     static glm::mat4 ProjectionTransform;
     static bool IsEnabled;
@@ -34,13 +33,8 @@ class Camera {
         Distance = DefaultDistance;
         Pitch = 0.0;
         Yaw = 0.0;
-        LastMouseX = width / 2.0;
-        LastMouseY = height / 2.0;
-
-        CorrectionTransform = glm::mat4(0.f, 0.f, 1.f, 0.f,
-                                        1.f, 0.f, 0.f, 0.f,
-                                        0.f, 1.f, 0.f, 0.f,
-                                        0.f, 0.f, 0.f, 1.f);
+        LastScreenMouseX = width / 2.0;
+        LastScreenMouseY = height / 2.0;
 
         ProjectionTransform = glm::perspective(glm::radians(45.0f), width / height, 0.1f, 100.f);
 
@@ -65,42 +59,39 @@ class Camera {
             double scroll = Input::GetScroll();
             Distance = MINIMUM_CAMERA_DISTANCE + scroll;
 
-            double xOffset = mouse.first - LastMouseX;
-            double yOffset = LastMouseY - mouse.second;
+            double xScreenOffset = mouse.first - LastScreenMouseX;
+            double yScreenOffset = LastScreenMouseY - mouse.second;
 
-            LastMouseX = mouse.first;
-            LastMouseY = mouse.second;
+            LastScreenMouseX = mouse.first;
+            LastScreenMouseY = mouse.second;
 
             const double sensitivity = 0.1;
 
-            xOffset *= sensitivity;
-            yOffset *= sensitivity;
+            xScreenOffset *= sensitivity;
+            yScreenOffset *= sensitivity;
 
-            Pitch -= yOffset;
-            Yaw -= xOffset;
+            Pitch -= yScreenOffset;
+            Yaw -= xScreenOffset;
 
-            // Bouding so you don't get glitches
+            // Clamp so you don't get glitches
             if (Pitch > 44.0f)
                 Pitch = 44.0f;
             if (Pitch < -44.0f)
                 Pitch = -44.0f;
 
             // Calculate new camera pos based on the yaw and the pitch
-            float x = sin(glm::radians(Yaw));
-            float y = sin(glm::radians(Pitch));
-            float z = cos(glm::radians(Yaw));
+            float x = cos(glm::radians(Yaw));
+            float y = sin(glm::radians(Yaw));
+            float z = sin(glm::radians(Pitch));
 
             // Normalize the position to the unit sphere and then set it at Distance units away
             CameraPos = glm::normalize(glm::vec3(x, y, z)) * Distance;
 
             const glm::vec3 cameraTarget = glm::vec3(0.f, 0.f, 0.f);
-            const glm::vec3 up = glm::vec3(0.0, 1.0, 0.0);
+            const glm::vec3 up = glm::vec3(0.0, 0.0, 1.0);
 
             CameraTransform = glm::lookAt(CameraPos, cameraTarget, up);
         }
-    }
-    static glm::mat4 GetCorrectionTransform() {
-        return CorrectionTransform;
     }
     static glm::mat4 GetCameraTransform() {
         return CameraTransform;

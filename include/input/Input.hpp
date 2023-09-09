@@ -66,12 +66,12 @@ class Input {
             std::cout << e.first << ": \"" << keyName << "\"" << std::endl;
         }
     }
-    static void ScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
-        Scroll -= yoffset;
+    static void ScrollCallback(GLFWwindow* window, double xScreenOffset, double yScreenOffset) {
+        Scroll -= yScreenOffset;
         Scroll = std::max(0.0, Scroll);
 
         if (HasImGuiDisplay)
-            ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
+            ImGui_ImplGlfw_ScrollCallback(window, xScreenOffset, yScreenOffset);
     }
     static void RegisterBinding(int key, const std::string& bindingName) {
         // Register a key so that you can query for it's state later

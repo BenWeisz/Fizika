@@ -2,11 +2,10 @@
 
 BoundaryCube::BoundaryCube() {
     mTransform = new Transform();
-    mModel = new Model("../res/models/line-cube.obj", "../res/materials/base.mat");
+    mModel = new Model("../res/meshes/line-cube.obj", "../res/materials/base.mat");
 
     Material* mat = mModel->GetMaterial();
     mat->SetUniformMat4("uProjection", Camera::GetProjectionTransform(), false);
-    mat->SetUniformMat4("uCorrection", Camera::GetCorrectionTransform(), false);
     mat->SetUniformVec3("uFlatColour", glm::vec3(1.0, 1.0, 1.0));
 }
 

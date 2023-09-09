@@ -71,7 +71,6 @@ void AxisGizmo::Draw() const {
 
     // Set the basic transforms for the gizmo
     mShader->SetUniformMat4("uProjection", ortho, false);
-    mShader->SetUniformMat4("uCorrection", Camera::GetCorrectionTransform(), false);
     mShader->SetUniformMat4("uModel", model, false);
 
     glDrawElements(GL_LINES, mIBO->GetCount(), GL_UNSIGNED_INT, (void*)0);

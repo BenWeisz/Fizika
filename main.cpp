@@ -60,8 +60,11 @@ int main() {
             // Begin creating the frame
             Window::BeginFrame();
 
+            glm::vec3 cameraPos = Camera::GetCameraPos();
+
             ImGui::Begin("Info");
             ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::Text("Camera Position (x, y, z): (%.3f, %.3f, %.3f)", cameraPos[0], cameraPos[1], cameraPos[2]);
             ImGui::NewLine();
             ImGui::End();
 
