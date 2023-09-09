@@ -15,9 +15,8 @@ out vec2 vTextureUV;
 void main() {
   vec4 position = uProjection * uCamera * uModel * vec4(iPosition, 1.0);
 
-
   gl_Position = position;
-  vFragPos = iPosition;
+  vFragPos = vec3(uModel * vec4(iPosition, 1.0));
   vNormal = vec3(transpose(inverse(uModel)) * vec4(iNormal, 1.0));
   vTextureUV = iTextureUV;
 }

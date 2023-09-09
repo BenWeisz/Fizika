@@ -18,14 +18,13 @@ void main() {
   vec3 viewDir = normalize(uCameraPos - vFragPos);
 
   vec3 lightDir = normalize(uLightPos - vFragPos);
-  float diffuse = max(0.0, dot(normal, lightDir)) * dot(normal, viewDir);
+  float diffuse = max(0.0, dot(normal, lightDir));
 
   float specular = 0.0;
 
   if (diffuse > 0.0) {
     vec3 reflectDir = normalize(reflect(-lightDir, normal));
     float specular = pow(max(0.0, dot(viewDir, reflectDir)), 32.0);
-    specular = 0.0;
   }
 
   vec3 colour = (ambient + diffuse + specular) * vec3(texture(uTexture0, vTextureUV)) * uLightColour;
