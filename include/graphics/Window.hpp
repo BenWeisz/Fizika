@@ -50,6 +50,8 @@ class Window {
             return -1;
         }
 
+        glEnable(GL_CULL_FACE);
+
         // Print Versions
         const GLubyte* glVersionString = glGetString(GL_VERSION);
         std::cout << "Rendering Via: OpenGL " << glVersionString << std::endl;
