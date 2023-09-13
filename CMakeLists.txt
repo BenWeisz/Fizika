@@ -36,6 +36,7 @@ target_sources(Fizika PUBLIC
     src/graphics/VertexArray.cpp
     src/graphics/VertexBufferLayout.cpp
     src/graphics/IndexBuffer.cpp
+    src/graphics/FrameBuffer.cpp
     src/graphics/Material.cpp
     src/graphics/Mesh.cpp
     src/graphics/Model.cpp
