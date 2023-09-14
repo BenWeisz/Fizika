@@ -12,18 +12,23 @@
 #include <glm/glm.hpp>
 
 #include "input/Input.hpp"
+#include "graphics/FrameBuffer.hpp"
 
 class Window {
    private:
     static std::pair<int, int> Dimensions;
 
    public:
+    enum RenderPassType {
+        SHADOW,
+        OPAQUE
+    };
+
     static GLFWwindow* Frame;
-    static glm::vec3 ClearColour;
     static bool HasImGuiDisplay;
     Window() = delete;
     Window(Window& other) = delete;
-    static int InitWindow(const int width, const int height, const std::string& title, const bool hasImGuiDisplay) {
+    static int InitWindow(const int width, const int height, const std::string& title, const bool hasImGuiDisplay, const glm::vec3& clearColor) {
         /* Initialize the library */
         if (!glfwInit())
             return -1;
@@ -76,7 +81,15 @@ class Window {
         /* Add Scroll Listener */
         glfwSetScrollCallback(Frame, Input::ScrollCallback);
 
-        glEnable(GL_DEPTH_TEST);
+        /* Set up the default FrameBuffer */
+        FrameBuffer* defaultFrameBuffer = FrameBuffer::GetDefaultFrameBuffer();
+        defaultFrameBuffer->mID = 0;
+        defaultFrameBuffer->mWidth = width;
+        defaultFrameBuffer->mHeight = height;
+        defaultFrameBuffer->mHasColorBuffer = true;
+        defaultFrameBuffer->mClearColor = clearColor;
+        defaultFrameBuffer->mHasDepthBuffer = true;
+        defaultFrameBuffer->mHasStencilBuffer = false;
 
         Dimensions = std::pair<int, int>(width, height);
         HasImGuiDisplay = hasImGuiDisplay;
@@ -101,31 +114,40 @@ class Window {
     static void SignalClose() {
         glfwSetWindowShouldClose(Frame, GL_TRUE);
     }
-    static void Draw() {
-        // Render ImGui Frame
-        if (HasImGuiDisplay) {
-            ImGui::Render();
-            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    static std::pair<int, int> GetDimensions() {
+        return Dimensions;
+    }
+    static void BeginPass(const RenderPassType renderPassType, FrameBuffer* frameBuffer) {
+        frameBuffer->BeginDraw();
+
+        if (renderPassType == RenderPassType::SHADOW) {
+        } else if (renderPassType == RenderPassType::OPAQUE) {
+            if (HasImGuiDisplay) {
+                ImGui_ImplOpenGL3_NewFrame();
+                ImGui_ImplGlfw_NewFrame();
+                ImGui::NewFrame();
+            }
         }
+    }
+    static void EndPass(const RenderPassType renderPassType, FrameBuffer* frameBuffer) {
+        if (renderPassType == RenderPassType::SHADOW) {
+        } else if (renderPassType == RenderPassType::OPAQUE) {
+            // Render ImGui Frame
+            if (HasImGuiDisplay) {
+                ImGui::Render();
+                ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            }
+        }
+
+        /* Unbind the frame buffer */
+        frameBuffer->EndDraw();
 
         /* Swap front and back buffers */
         glfwSwapBuffers(Frame);
 
         /* Poll for and process events */
         glfwPollEvents();
-        glClearColor(ClearColour.x, ClearColour.y, ClearColour.z, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         Input::Update();
-    }
-    static std::pair<int, int> GetDimensions() {
-        return Dimensions;
-    }
-    static void BeginFrame() {
-        if (HasImGuiDisplay) {
-            ImGui_ImplOpenGL3_NewFrame();
-            ImGui_ImplGlfw_NewFrame();
-            ImGui::NewFrame();
-        }
     }
 };

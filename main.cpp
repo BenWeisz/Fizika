@@ -13,6 +13,7 @@
 #include "graphics/Light.hpp"
 #include "graphics/Transform.hpp"
 #include "graphics/gizmo/AxisGizmo.hpp"
+#include "graphics/FrameBuffer.hpp"
 #include "simulation/EnergyPlot.hpp"
 #include "objects/Plane.hpp"
 #include "objects/BoundaryCube.hpp"
@@ -23,11 +24,10 @@ const int HEIGHT = 480 * 1.5;
 int main() {
     {
         // Set up the window
-        int r = Window::InitWindow(WIDTH, HEIGHT, "Fizika", true);
+        glm::vec3 clearColor = glm::vec3(66.f / 255.f, 133.f / 255.f, 166.f / 255.f);
+        int r = Window::InitWindow(WIDTH, HEIGHT, "Fizika", true, clearColor);
         if (r == -1)
             return r;
-
-        Window::ClearColour = glm::vec3(66.f / 255.f, 133.f / 255.f, 166.f / 255.f);
 
         // Set up the camera for the window
         Camera::InitCamera(-1.0f, WIDTH, HEIGHT);
@@ -57,8 +57,9 @@ int main() {
             // mesh->mPositions(2, 2) += 0.001;
             // mesh->Update();
 
-            // Begin creating the frame
-            Window::BeginFrame();
+            // Begin the Opaque Pass
+            FrameBuffer* defaultFrameBuffer = FrameBuffer::GetDefaultFrameBuffer();
+            Window::BeginPass(Window::RenderPassType::OPAQUE, defaultFrameBuffer);
 
             glm::vec3 cameraPos = Camera::GetCameraPos();
 
@@ -74,7 +75,7 @@ int main() {
             axis.Draw();
 
             // Call Draw to actually draw everything
-            Window::Draw();
+            Window::EndPass(Window::RenderPassType::OPAQUE, defaultFrameBuffer);
         }
     }
 

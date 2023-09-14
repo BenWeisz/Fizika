@@ -1,17 +1,17 @@
 #include "graphics/FrameBuffer.hpp"
 
+FrameBuffer* FrameBuffer::DefaultFrameBuffer = nullptr;
+
 FrameBuffer::FrameBuffer(unsigned int width, unsigned int height)
     : mWidth(width), mHeight(height), mHasColorBuffer(false), mHasDepthBuffer(false), mHasStencilBuffer(false) {
     glGenFramebuffers(1, &mID);
 
-    mClearColor[0] = 0.0f;
-    mClearColor[1] = 0.0f;
-    mClearColor[2] = 0.0f;
-    mClearColor[3] = 0.0f;
+    mClearColor = glm::vec3(0.0f, 0.0f, 0.0f);
 }
 
 FrameBuffer::~FrameBuffer() {
-    glDeleteFramebuffers(1, &mID);
+    if (mID != 0)
+        glDeleteFramebuffers(1, &mID);
 
     // Delete the associated textures
     for (unsigned int i = 0; i < mAttachments.size(); i++) {
@@ -19,7 +19,14 @@ FrameBuffer::~FrameBuffer() {
     }
 }
 
+FrameBuffer::FrameBuffer() {
+}
+
 void FrameBuffer::AddAttachment(const AttachmentType attachmentType) {
+    // Don't allow adding attachments for the default framebuffer
+    if (mID == 0)
+        return;
+
     if (mAttachments.size() == 3) {
         Log_Error("Failed to add attachment, there are already 3");
         return;
@@ -69,6 +76,10 @@ void FrameBuffer::AddAttachment(const AttachmentType attachmentType) {
 }
 
 GLuint FrameBuffer::GetAttachmentBufferID(const AttachmentType attachmentType) const {
+    // Return 0 if this is the default framebuffer
+    if (mID == 0)
+        return 0;
+
     for (int i = 0; i < mAttachments.size(); i++) {
         if (mAttachments[i].type == attachmentType)
             return mAttachments[i].ID;
@@ -77,15 +88,16 @@ GLuint FrameBuffer::GetAttachmentBufferID(const AttachmentType attachmentType) c
     return 0;
 }
 
-void FrameBuffer::SetClearColor(const float r, const float g, const float b, const float a) {
-    mClearColor[0] = r;
-    mClearColor[1] = g;
-    mClearColor[2] = b;
-    mClearColor[3] = a;
+void FrameBuffer::SetClearColor(const float r, const float g, const float b) {
+    mClearColor = glm::vec3(r, g, b);
 }
 
 // Bind must be called before packing
 void FrameBuffer::Pack() {
+    // Don't allow packing for the default framebuffer
+    if (mID == 0)
+        return;
+
     glBindFramebuffer(GL_FRAMEBUFFER, mID);
 
     for (unsigned int i = 0; i < mAttachments.size(); i++) {
@@ -125,7 +137,7 @@ void FrameBuffer::BeginDraw() {
     clearMask |= mHasStencilBuffer ? GL_STENCIL_BUFFER_BIT : 0;
 
     if (mHasColorBuffer)
-        glClearColor(mClearColor[0], mClearColor[1], mClearColor[2], mClearColor[3]);
+        glClearColor(mClearColor.x, mClearColor.y, mClearColor.z, 0.0);
     if (mHasDepthBuffer)
         glEnable(GL_DEPTH_TEST);
     else
@@ -135,6 +147,8 @@ void FrameBuffer::BeginDraw() {
         glEnable(GL_STENCIL_TEST);
     else
         glDisable(GL_STENCIL_TEST);
+
+    glClear(clearMask);
 }
 
 void FrameBuffer::EndDraw() {
