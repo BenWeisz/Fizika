@@ -19,9 +19,6 @@ FrameBuffer::~FrameBuffer() {
     }
 }
 
-FrameBuffer::FrameBuffer() {
-}
-
 void FrameBuffer::AddAttachment(const AttachmentType attachmentType) {
     // Don't allow adding attachments for the default framebuffer
     if (mID == 0)
@@ -67,8 +64,8 @@ void FrameBuffer::AddAttachment(const AttachmentType attachmentType) {
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     glBindTexture(GL_TEXTURE_2D, 0);
 

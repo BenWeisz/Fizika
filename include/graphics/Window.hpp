@@ -105,6 +105,8 @@ class Window {
             ImPlot::DestroyContext();
         }
 
+        delete FrameBuffer::DefaultFrameBuffer;
+
         glfwDestroyWindow(Frame);
         glfwTerminate();
     }

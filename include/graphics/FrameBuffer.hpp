@@ -63,5 +63,5 @@ class FrameBuffer {
     void EndDraw();
 
    private:
-    FrameBuffer();
+    FrameBuffer() = default;
 };

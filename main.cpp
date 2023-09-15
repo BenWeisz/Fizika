@@ -32,19 +32,29 @@ int main() {
         // Set up the camera for the window
         Camera::InitCamera(-1.0f, WIDTH, HEIGHT);
 
-        Light::InitLight(glm::vec3(1.0, 1.0, 1.0), glm::vec3(0.0, 2.0, 2.0));
+        glm::vec3 lightPos = glm::vec3(0.0f, 2.0f, 2.0f);
+        Light::InitLight(glm::vec3(1.0f, 1.0f, 1.0f), lightPos);
 
         /* Set up Models */
         Plane plane;
         Transform* planeTransform = plane.GetTransform();
-        planeTransform->SetTranslation(glm::vec3(0.0, 0.0, -1.5));
+        planeTransform->SetTranslation(glm::vec3(0.0f, 0.0f, -1.5f));
 
         BoundaryCube cube;
         Transform* cubeTransform = cube.GetTransform();
-        cubeTransform->SetScale(glm::vec3(3.0, 3.0, 3.0));
+        cubeTransform->SetScale(glm::vec3(3.0f, 3.0f, 3.0f));
 
-        AxisGizmo axis(WIDTH - ((WIDTH / 640) * 40.0), HEIGHT - ((HEIGHT / 480) * 40.0));
+        AxisGizmo axis(WIDTH - ((WIDTH / 640) * 40.0f), HEIGHT - ((HEIGHT / 480) * 40.0f));
         // EnergyPlot energies;
+
+        // Build Shadow Map
+        // FrameBuffer* shadowBuffer = new FrameBuffer(1024, 1024);
+        // shadowBuffer->AddAttachment(FrameBuffer::AttachmentType::DEPTH);
+        // shadowBuffer->Pack();
+
+        // Build Shadow Shader & Uniforms
+        // glm::mat4 lightProjection = glm::perspective(glm::radians(45.0f), (WIDTH + 0.0f) / HEIGHT, 0.1f, 100.f);
+        // glm::mat4 ligthLookAt = glm::lookAt(lightPos);
 
         while (!Window::ShouldClose()) {
             /* Execute event results */
@@ -56,6 +66,10 @@ int main() {
             // Preform updates before render
             // mesh->mPositions(2, 2) += 0.001;
             // mesh->Update();
+
+            // Begin the Shadow Pass
+            // Window::BeginPass(Window::RenderPassType::SHADOW, shadowBuffer);
+            // Window::EndPass(Window::RenderPassType::SHADOW, shadowBuffer);
 
             // Begin the Opaque Pass
             FrameBuffer* defaultFrameBuffer = FrameBuffer::GetDefaultFrameBuffer();
@@ -77,6 +91,8 @@ int main() {
             // Call Draw to actually draw everything
             Window::EndPass(Window::RenderPassType::OPAQUE, defaultFrameBuffer);
         }
+
+        // delete shadowBuffer;
     }
 
     Window::DestoryWindow();
