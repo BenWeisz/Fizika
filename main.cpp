@@ -32,7 +32,7 @@ int main() {
         // Set up the camera for the window
         Camera::InitCamera(-1.0f, WIDTH, HEIGHT);
 
-        LightManager::AddDirectionalLight(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(10.0f, 10.0f, 10.0f));
+        LightManager::AddDirectionalLight(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(-1.0f, -1.0f, -1.0f), glm::vec3(10.0f, 10.0f, 10.0f));
 
         /* Set up Models */
         Plane plane;

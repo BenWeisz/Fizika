@@ -10,7 +10,7 @@ Plane::Plane() {
     DirectionalLight* light = LightManager::GetDirectionalLight(0);
     if (light != nullptr) {
         mat->SetUniformVec3("uLightColour", light->color);
-        mat->SetUniformVec3("uLightPos", light->direction);
+        mat->SetUniformVec3("uLightDir", light->direction);
     }
 
     mat->SetUniformMat4("uProjection", Camera::GetProjectionTransform(), false);

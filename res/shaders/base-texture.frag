@@ -1,7 +1,7 @@
 #version 450 core
 
 uniform vec3 uLightColour;
-uniform vec3 uLightPos;
+uniform vec3 uLightDir;
 uniform vec3 uCameraPos;
 uniform sampler2D uTexture0;
 
@@ -17,13 +17,13 @@ void main() {
   vec3 normal = normalize(vNormal);
   vec3 viewDir = normalize(uCameraPos - vFragPos);
 
-  vec3 lightDir = normalize(uLightPos - vFragPos);
-  float diffuse = max(0.0, dot(normal, lightDir));
+  vec3 lightDir = normalize(uLightDir);
+  float diffuse = max(0.0, dot(normal, -lightDir));
 
   float specular = 0.0;
 
   if (diffuse > 0.0) {
-    vec3 reflectDir = normalize(reflect(-lightDir, normal));
+    vec3 reflectDir = normalize(reflect(lightDir, normal));
     float specular = pow(max(0.0, dot(viewDir, reflectDir)), 32.0);
   }
 
