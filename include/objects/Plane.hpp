@@ -6,7 +6,7 @@
 #include "graphics/Model.hpp"
 #include "graphics/Material.hpp"
 #include "graphics/Texture.hpp"
-#include "graphics/Light.hpp"
+#include "graphics/LightManager.hpp"
 #include "graphics/Transform.hpp"
 
 class Plane {

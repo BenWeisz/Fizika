@@ -10,7 +10,7 @@
 #include "graphics/Material.hpp"
 #include "graphics/Mesh.hpp"
 #include "graphics/Texture.hpp"
-#include "graphics/Light.hpp"
+#include "graphics/LightManager.hpp"
 #include "graphics/Transform.hpp"
 #include "graphics/gizmo/AxisGizmo.hpp"
 #include "graphics/FrameBuffer.hpp"
@@ -32,8 +32,7 @@ int main() {
         // Set up the camera for the window
         Camera::InitCamera(-1.0f, WIDTH, HEIGHT);
 
-        glm::vec3 lightPos = glm::vec3(0.0f, 2.0f, 2.0f);
-        Light::InitLight(glm::vec3(1.0f, 1.0f, 1.0f), lightPos);
+        LightManager::AddDirectionalLight(glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec3(10.0f, 10.0f, 10.0f));
 
         /* Set up Models */
         Plane plane;

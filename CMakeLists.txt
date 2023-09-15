@@ -44,7 +44,7 @@ target_sources(Fizika PUBLIC
     src/graphics/Camera.cpp
     src/graphics/stb_image.cpp
     src/graphics/Texture.cpp
-    src/graphics/Light.cpp
+    src/graphics/LightManager.cpp
     src/graphics/Transform.cpp
     src/graphics/gizmo/AxisGizmo.cpp
     src/input/Input.cpp

@@ -6,8 +6,13 @@ Plane::Plane() {
     mModel = new Model("../res/meshes/plane.obj", "../res/materials/base-texture.mat");
 
     Material* mat = mModel->GetMaterial();
-    mat->SetUniformVec3("uLightColour", Light::GetLightColour());
-    mat->SetUniformVec3("uLightPos", Light::GetLightPosition());
+
+    DirectionalLight* light = LightManager::GetDirectionalLight(0);
+    if (light != nullptr) {
+        mat->SetUniformVec3("uLightColour", light->color);
+        mat->SetUniformVec3("uLightPos", light->direction);
+    }
+
     mat->SetUniformMat4("uProjection", Camera::GetProjectionTransform(), false);
     mat->AddTexture("uTexture0", mTexture);
 }
