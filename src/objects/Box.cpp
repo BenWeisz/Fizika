@@ -1,12 +1,10 @@
-#include "objects/Plane.hpp"
+#include "objects/Box.hpp"
 
-Plane::Plane() {
+Box::Box() {
     mTransform = new Transform();
-    mTexture = new Texture("../res/textures/checker.png");
-    mModel = new Model("../res/meshes/plane.obj", "../res/materials/base-texture.mat");
+    mModel = new Model("../res/meshes/cube.obj", "../res/materials/base-flat.mat");
 
     Material* mat = mModel->GetMaterial();
-
     DirectionalLight* light = LightManager::GetDirectionalLight(0);
     if (light != nullptr) {
         mat->SetUniformVec3("uLightColour", light->color);
@@ -14,16 +12,15 @@ Plane::Plane() {
     }
 
     mat->SetUniformMat4("uProjection", Camera::GetProjectionTransform(), false);
-    mat->AddTexture("uTexture0", mTexture);
+    mat->SetUniformVec3("uFlatColour", glm::vec3(0.0f, 0.0f, 1.0f));
 }
 
-Plane::~Plane() {
-    delete mTexture;
+Box::~Box() {
     delete mModel;
     delete mTransform;
 }
 
-void Plane::Draw(const Window::RenderPassType& renderPassType) const {
+void Box::Draw(const Window::RenderPassType& renderPassType) const {
     if (renderPassType == Window::RenderPassType::OPAQUE) {
         Material* mat = mModel->GetMaterial();
         mat->SetUniformMat4("uCamera", Camera::GetCameraTransform(), false);
@@ -33,5 +30,5 @@ void Plane::Draw(const Window::RenderPassType& renderPassType) const {
     mModel->Draw(mTransform, renderPassType);
 }
 
-void Plane::Update() {
+void Box::Update() {
 }

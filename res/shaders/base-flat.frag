@@ -3,7 +3,7 @@
 uniform vec3 uFlatColour;
 
 uniform vec3 uLightColour;
-uniform vec3 uLightPos;
+uniform vec3 uLightDir;
 uniform vec3 uCameraPos;
 
 flat in vec3 vNormal;
@@ -16,7 +16,7 @@ void main() {
 
   vec3 normal = normalize(vNormal);
 
-  vec3 lightDir = normalize(uLightPos - vFragPos);
+  vec3 lightDir = normalize(-uLightDir);
   float diffuse = max(0.0, dot(normal, lightDir));
 
   float specular = 0.0;

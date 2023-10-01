@@ -13,15 +13,17 @@
 
 #include "input/Input.hpp"
 #include "graphics/FrameBuffer.hpp"
+#include "graphics/Shader.hpp"
 
 class Window {
    private:
     static std::pair<int, int> Dimensions;
+    static Shader* ShadowShader;
 
    public:
     enum RenderPassType {
-        SHADOW,
-        OPAQUE
+        OPAQUE,
+        SHADOW
     };
 
     static GLFWwindow* Frame;
@@ -94,6 +96,8 @@ class Window {
         Dimensions = std::pair<int, int>(width, height);
         HasImGuiDisplay = hasImGuiDisplay;
 
+        ShadowShader = new Shader("../res/shaders/shadow.vert", "../res/shaders/shadow.frag");
+
         return 0;
     }
     static void DestoryWindow() {
@@ -106,6 +110,7 @@ class Window {
         }
 
         delete FrameBuffer::DefaultFrameBuffer;
+        delete ShadowShader;
 
         glfwDestroyWindow(Frame);
         glfwTerminate();
@@ -119,11 +124,11 @@ class Window {
     static std::pair<int, int> GetDimensions() {
         return Dimensions;
     }
-    static void BeginPass(const RenderPassType renderPassType, FrameBuffer* frameBuffer) {
+    static void BeginPass(const Window::RenderPassType renderPassType, FrameBuffer* frameBuffer) {
         frameBuffer->BeginDraw();
 
-        if (renderPassType == RenderPassType::SHADOW) {
-        } else if (renderPassType == RenderPassType::OPAQUE) {
+        if (renderPassType == Window::RenderPassType::SHADOW) {
+        } else if (renderPassType == Window::RenderPassType::OPAQUE) {
             if (HasImGuiDisplay) {
                 ImGui_ImplOpenGL3_NewFrame();
                 ImGui_ImplGlfw_NewFrame();
@@ -131,25 +136,29 @@ class Window {
             }
         }
     }
-    static void EndPass(const RenderPassType renderPassType, FrameBuffer* frameBuffer) {
-        if (renderPassType == RenderPassType::SHADOW) {
-        } else if (renderPassType == RenderPassType::OPAQUE) {
+    static void EndPass(const Window::RenderPassType renderPassType, FrameBuffer* frameBuffer) {
+        if (renderPassType == Window::RenderPassType::SHADOW) {
+        } else if (renderPassType == Window::RenderPassType::OPAQUE) {
             // Render ImGui Frame
             if (HasImGuiDisplay) {
                 ImGui::Render();
                 ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
             }
+
+            /* Unbind the frame buffer */
+            frameBuffer->EndDraw();
+
+            /* Swap front and back buffers */
+            glfwSwapBuffers(Frame);
+
+            /* Poll for and process events */
+            glfwPollEvents();
+
+            Input::Update();
         }
+    }
 
-        /* Unbind the frame buffer */
-        frameBuffer->EndDraw();
-
-        /* Swap front and back buffers */
-        glfwSwapBuffers(Frame);
-
-        /* Poll for and process events */
-        glfwPollEvents();
-
-        Input::Update();
+    static Shader* GetShadowShader() {
+        return ShadowShader;
     }
 };

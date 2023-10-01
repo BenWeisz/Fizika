@@ -18,7 +18,7 @@ void BoundaryCube::Draw() const {
     Material* mat = mModel->GetMaterial();
 
     mat->SetUniformMat4("uCamera", Camera::GetCameraTransform(), false);
-    mModel->Draw(mTransform);
+    mModel->Draw(mTransform, Window::RenderPassType::OPAQUE);
 }
 
 void BoundaryCube::Update() {

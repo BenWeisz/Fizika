@@ -4,6 +4,8 @@
 
 #include <glad/glad.h>
 
+#include "Window.hpp"
+#include "LightManager.hpp"
 #include "Mesh.hpp"
 #include "Material.hpp"
 #include "Transform.hpp"
@@ -15,7 +17,7 @@ class Model {
     Model(const std::string& meshPath, const Mesh::AttributeSettings attributeSettings);
     Model(const std::string& meshPath);
     ~Model();
-    void Draw(const Transform* transform) const;
+    void Draw(const Transform* transform, const Window::RenderPassType& renderPassType) const;
     Mesh* GetMesh() const;
     Material* GetMaterial() const;
 

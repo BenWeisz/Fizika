@@ -33,17 +33,29 @@ Model::~Model() {
     delete mMaterial;
 }
 
-void Model::Draw(const Transform* transform) const {
+void Model::Draw(const Transform* transform, const Window::RenderPassType& renderPassType) const {
     glm::mat4 model(1.0f);
 
     model = model * transform->GetTranslationMatrix() * transform->GetRotationMatrix() * transform->GetScaleMatrix();
 
     mMaterial->SetUniformMat4("uModel", model, false);
 
-    Shader* shader = mMaterial->GetShader();
+    Shader* shader = nullptr;
+    if (renderPassType == Window::RenderPassType::OPAQUE)
+        shader = mMaterial->GetShader();
+    else if (renderPassType == Window::RenderPassType::SHADOW) {
+        shader = Window::GetShadowShader();
+    }
 
     // Bind the shader and vertex array object
     shader->Bind();
+
+    // Set up the light space matrix
+    if (renderPassType == Window::RenderPassType::SHADOW) {
+        // The first light is the sun
+        DirectionalLight* light = LightManager::GetDirectionalLight(0);
+        shader->SetUniformMat4("uLight", light->GetLightSpaceMatrix(), false);
+    }
 
     VertexArray* vao = mMesh->GetVertexArray();
     vao->Bind();
